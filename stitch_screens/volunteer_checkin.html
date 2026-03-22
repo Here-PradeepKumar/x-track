@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&amp;family=Lexend:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#eeacff",
+              "primary-dim": "#ff734a",
+              "on-secondary-container": "#ffc1be",
+              "primary-fixed-dim": "#ff5d2b",
+              "surface-container": "#19191b",
+              "on-primary-fixed": "#000000",
+              "on-tertiary-container": "#570e6f",
+              "on-primary": "#5c1400",
+              "on-secondary": "#58000b",
+              "tertiary-dim": "#d88cee",
+              "surface-variant": "#262627",
+              "tertiary-fixed": "#e699fd",
+              "outline": "#767576",
+              "secondary-fixed-dim": "#ffafac",
+              "on-primary-fixed-variant": "#581300",
+              "on-surface-variant": "#acaaab",
+              "secondary-fixed": "#ffc3c0",
+              "error": "#ff716c",
+              "background": "#0e0e0f",
+              "on-primary-container": "#470e00",
+              "surface-container-low": "#131314",
+              "inverse-surface": "#fcf8f9",
+              "on-tertiary-fixed-variant": "#611b79",
+              "on-tertiary": "#621c7a",
+              "on-secondary-fixed-variant": "#922d2f",
+              "outline-variant": "#484849",
+              "on-error": "#490006",
+              "on-surface": "#ffffff",
+              "tertiary-container": "#e699fd",
+              "inverse-on-surface": "#555556",
+              "primary-fixed": "#ff7851",
+              "error-dim": "#d7383b",
+              "secondary": "#ff7f7d",
+              "inverse-primary": "#b12f00",
+              "primary-container": "#ff7851",
+              "surface-dim": "#0e0e0f",
+              "surface-container-high": "#1f1f21",
+              "tertiary-fixed-dim": "#d88cee",
+              "primary": "#ff8f6f",
+              "on-tertiary-fixed": "#360049",
+              "surface-container-highest": "#262627",
+              "secondary-container": "#842326",
+              "error-container": "#9f0519",
+              "secondary-dim": "#f57776",
+              "on-background": "#ffffff",
+              "surface-container-lowest": "#000000",
+              "on-secondary-fixed": "#6a0e16",
+              "on-error-container": "#ffa8a3",
+              "surface-bright": "#2c2c2d",
+              "surface": "#0e0e0f",
+              "surface-tint": "#ff8f6f"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Lexend"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .kinetic-gradient {
+        background: linear-gradient(135deg, #ff8f6f 0%, #ff7851 100%);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary-container">
+<!-- TopAppBar: Volunteer Mode Context -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0e0e0f] bg-[#131314]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#FF5722]" data-icon="leaderboard">leaderboard</span>
+<h1 class="font-bold tracking-tighter uppercase text-white font-headline text-xl">X-TRACK</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-label text-[10px] tracking-widest font-bold text-[#FF5722] border border-[#FF5722] px-2 py-1 rounded-sm">VOLUNTEER MODE</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img alt="Volunteer Profile" class="w-full h-full object-cover" data-alt="Close up of a professional male volunteer profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYQGZDWENG3S1v6iWOjWtSlZQ3CITBnJRfp5jQLkoZn1Wbvt30mLfCL7NM9-YXCSMwITmKbbkCdfn6qH1kHDF1Rpno-FM34WkBqXuFtkos_GbMirGfS9iwx7ANCaP_LRBN8HWqcePVMNpfI0HyoOaZ3mIHenvAGjF370doEGWceKKu7Mr7uqYqUFNIxGbsLv1ASLLi1kYd7tn4tHixoSfiZxVJXdXDLv-i3CNYDnP1kmk8edRhji5y3Rw2NHOrBh1najlPHMsiBq0"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-6 max-w-xl mx-auto min-h-screen flex flex-col">
+<!-- Instructional Hero -->
+<section class="flex-grow flex flex-col items-center justify-center text-center space-y-12 py-8">
+<div class="space-y-4">
+<h2 class="font-headline font-black text-4xl sm:text-5xl tracking-tighter leading-none text-white uppercase italic">
+                    TAP NFC BAND <br/>
+<span class="text-primary-fixed">TO REGISTER BIB</span>
+</h2>
+<p class="font-label text-on-surface-variant text-sm tracking-wide uppercase">Hold wristband near the back of this device</p>
+</div>
+<!-- Central Scanning Icon / Interaction Point -->
+<div class="relative w-64 h-64 flex items-center justify-center">
+<!-- Decorative Kinetic Rings -->
+<div class="absolute inset-0 border-2 border-primary/20 rounded-full scale-100"></div>
+<div class="absolute inset-4 border border-primary/10 rounded-full scale-100"></div>
+<div class="w-48 h-48 rounded-full bg-surface-container-high flex items-center justify-center shadow-[0_0_50px_rgba(255,87,34,0.15)]">
+<span class="material-symbols-outlined text-8xl text-primary" data-icon="contactless" style="font-variation-settings: 'wght' 200;">contactless</span>
+</div>
+<!-- Animated Status Indicator (Visual Mockup) -->
+<div class="absolute bottom-4 bg-surface-container-highest px-4 py-2 rounded-sm flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label text-[10px] font-bold tracking-widest uppercase">Ready to Scan</span>
+</div>
+</div>
+</section>
+<!-- Dynamic Data Fields -->
+<section class="space-y-4 w-full">
+<div class="grid grid-cols-1 gap-3">
+<!-- BIB Number Field -->
+<div class="bg-surface-container-highest p-4 rounded-sm flex flex-col">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">BIB Number</span>
+<div class="flex justify-between items-end">
+<span class="font-headline font-extrabold text-3xl text-white"># -- -- --</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="numbers">numbers</span>
+</div>
+</div>
+<!-- Participant Name Field -->
+<div class="bg-surface-container-highest p-4 rounded-sm flex flex-col">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Participant Name</span>
+<div class="flex justify-between items-end">
+<span class="font-headline font-bold text-xl text-white italic">Awaiting Scan...</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="person">person</span>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="pt-6">
+<button class="kinetic-gradient w-full py-5 rounded-sm flex items-center justify-center gap-3 active:scale-[0.98] transition-transform">
+<span class="font-headline font-black text-xl tracking-tighter uppercase text-on-primary-container">Confirm Registration</span>
+<span class="material-symbols-outlined text-on-primary-container" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<button class="w-full mt-4 py-3 font-label text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant hover:text-white transition-colors">
+                    Manual Search Entry
+                </button>
+</div>
+</section>
+</main>
+<!-- Support Background Element for High Contrast Outdoor Use -->
+<div class="fixed inset-0 -z-10 bg-background pointer-events-none">
+<div class="absolute top-0 left-0 w-full h-full opacity-5 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"></div>
+</div>
+</body></html>

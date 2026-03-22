@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&amp;family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#eeacff",
+              "primary-dim": "#ff734a",
+              "on-secondary-container": "#ffc1be",
+              "primary-fixed-dim": "#ff5d2b",
+              "surface-container": "#19191b",
+              "on-primary-fixed": "#000000",
+              "on-tertiary-container": "#570e6f",
+              "on-primary": "#5c1400",
+              "on-secondary": "#58000b",
+              "tertiary-dim": "#d88cee",
+              "surface-variant": "#262627",
+              "tertiary-fixed": "#e699fd",
+              "outline": "#767576",
+              "secondary-fixed-dim": "#ffafac",
+              "on-primary-fixed-variant": "#581300",
+              "on-surface-variant": "#acaaab",
+              "secondary-fixed": "#ffc3c0",
+              "error": "#ff716c",
+              "background": "#0e0e0f",
+              "on-primary-container": "#470e00",
+              "surface-container-low": "#131314",
+              "inverse-surface": "#fcf8f9",
+              "on-tertiary-fixed-variant": "#611b79",
+              "on-tertiary": "#621c7a",
+              "on-secondary-fixed-variant": "#922d2f",
+              "outline-variant": "#484849",
+              "on-error": "#490006",
+              "on-surface": "#ffffff",
+              "tertiary-container": "#e699fd",
+              "inverse-on-surface": "#555556",
+              "primary-fixed": "#ff7851",
+              "error-dim": "#d7383b",
+              "secondary": "#ff7f7d",
+              "inverse-primary": "#b12f00",
+              "primary-container": "#ff7851",
+              "surface-dim": "#0e0e0f",
+              "surface-container-high": "#1f1f21",
+              "tertiary-fixed-dim": "#d88cee",
+              "primary": "#ff8f6f",
+              "on-tertiary-fixed": "#360049",
+              "surface-container-highest": "#262627",
+              "secondary-container": "#842326",
+              "error-container": "#9f0519",
+              "secondary-dim": "#f57776",
+              "on-background": "#ffffff",
+              "surface-container-lowest": "#000000",
+              "on-secondary-fixed": "#6a0e16",
+              "on-error-container": "#ffa8a3",
+              "surface-bright": "#2c2c2d",
+              "surface": "#0e0e0f",
+              "surface-tint": "#ff8f6f"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Lexend"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .kinetic-gradient {
+            background: linear-gradient(135deg, #ff8f6f 0%, #ff7851 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0e0e0f]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#FF5722]" data-icon="leaderboard">leaderboard</span>
+<h1 class="font-bold tracking-tighter uppercase text-white text-2xl italic font-black text-[#FF5722]">X-TRACK</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border-2 border-primary-fixed-dim">
+<img alt="Participant Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a focused male athlete" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrM1RIuJnIEuIDnmrRUr5L9k41x8qzJFlH2zdSBJn4L3whsEtdkVFPnHbUlTIcJeVKwpIq2aRf3HpE-2spNyE8ajpeDBKcU6C0iSc-tn108AfXjIfaw4QWXBSVqsgjxjFDVKHjJYGPeDCnmDh7Jftd_bJ-wx3s_s4M-7g-QHgrUukGpiC093Owr4YvhXqkQSUsOOtmZS-dIDonwuzBLKa0p3mMCdUpnUbA8TDr2peAvCjgJD-Nr9up5uhuJHS7voEtze7XsPPAXGw"/>
+</div>
+</header>
+<main class="pt-20 pb-28 px-4 flex flex-col items-center max-w-2xl mx-auto">
+<!-- Sharing Card Container -->
+<div class="relative w-full aspect-[4/5] overflow-hidden rounded-lg shadow-2xl group">
+<!-- Background Image with Overlay -->
+<div class="absolute inset-0 bg-surface-container-lowest">
+<img alt="Athlete Background" class="w-full h-full object-cover opacity-80 mix-blend-luminosity" data-alt="Athlete covered in mud jumping over a wall obstacle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoqjfF5kJM-t8jU2LFULPUk7jPpDhnFjU65OldUCOKQ9llCWomk37rDxJdsgFzn2EOjrt9tUah6AfXVzFluKD-zmNCMVSTajvwUedbyNGq6dBmiDklnBQ7JTqjS3v0st7xl8pmUPCUoefTdzf2PriDopHmQzTNeck4zR9oJgiJ4iX70yT4dO8Y5Xaid9K9TEJxvs8TuF0LhKlr1SGCHQvi7FqevsjCvVn8xOosAVMh3S11smjGRdzeCSbYaBxYZioLFpLtEBk66vU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/40"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-transparent"></div>
+</div>
+<!-- Card Content: Kinetic Asymmetry Layout -->
+<div class="relative h-full flex flex-col justify-between p-8">
+<!-- Top Brand Section -->
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<span class="font-label text-xs uppercase tracking-[0.3em] text-primary font-bold">EVENT NAME</span>
+<h2 class="font-headline font-black text-3xl italic tracking-tighter text-white leading-none">Devil Circuit NCR</h2>
+</div>
+<div class="bg-white/10 backdrop-blur-md p-2 rounded-sm border border-white/10">
+<span class="material-symbols-outlined text-white" data-icon="qr_code_2">qr_code_2</span>
+</div>
+</div>
+<!-- Mid Section: Hero Metrics -->
+<div class="space-y-6">
+<div class="flex flex-col">
+<span class="font-label text-sm uppercase tracking-widest text-on-surface-variant font-medium">Total Time</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline font-black text-7xl tracking-tighter text-white">01:14:22</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-high/40 backdrop-blur-sm p-4 rounded-sm border-l-4 border-primary">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block mb-1">Obstacles Cleared</span>
+<span class="font-headline font-bold text-3xl text-white">18/20</span>
+</div>
+<div class="bg-surface-container-high/40 backdrop-blur-sm p-4 rounded-sm">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block mb-1">Final Rank</span>
+<span class="font-headline font-bold text-3xl text-white">42nd</span>
+</div>
+</div>
+</div>
+<!-- Footer Stats & Logo -->
+<div class="flex justify-between items-end border-t border-white/10 pt-6">
+<div class="flex gap-8">
+<div>
+<span class="font-label text-[10px] uppercase text-on-surface-variant">PACE</span>
+<p class="font-headline font-bold text-lg text-white">6'12"/km</p>
+</div>
+<div>
+<span class="font-label text-[10px] uppercase text-on-surface-variant">HEART RATE</span>
+<p class="font-headline font-bold text-lg text-white">172 BPM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-black italic text-primary text-xl leading-none">X-TRACK</p>
+<p class="font-label text-[8px] uppercase tracking-widest text-on-surface-variant">PRECISION GRIT</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Section -->
+<div class="w-full mt-8 flex flex-col gap-4">
+<button class="kinetic-gradient w-full py-5 rounded-sm flex items-center justify-center gap-3 shadow-[0_4px_24px_rgba(255,87,34,0.15)] active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-primary-fixed" data-icon="share">share</span>
+<span class="font-label font-bold uppercase tracking-widest text-on-primary-fixed text-sm">SHARE TO INSTAGRAM</span>
+</button>
+<button class="w-full py-4 border border-outline-variant rounded-sm flex items-center justify-center gap-3 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-white" data-icon="download">download</span>
+<span class="font-label font-bold uppercase tracking-widest text-white text-xs">SAVE TO GALLERY</span>
+</button>
+</div>
+<!-- Activity Narrative / Secondary Context -->
+<div class="w-full mt-10 p-6 bg-surface-container-low rounded-lg">
+<h3 class="font-headline font-bold text-white mb-2">Performance Breakdown</h3>
+<p class="font-body text-on-surface-variant text-sm leading-relaxed mb-6">
+                Peak performance sustained during the first 5km. Vertical obstacle transitions were 12% faster than previous personal best. 
+            </p>
+<div class="flex items-center gap-4 py-3 bg-surface-container-high px-4 rounded-sm">
+<span class="material-symbols-outlined text-primary" data-icon="military_tech">military_tech</span>
+<span class="font-label text-xs uppercase tracking-wider text-white">Personal Record: Obstacle Split</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-20 bg-[#0e0e0f]/90 backdrop-blur-xl border-t border-[#1f1f21] shadow-[0_-4px_24px_rgba(255,87,34,0.08)]">
+<div class="flex flex-col items-center justify-center text-[#FF5722] bg-[#1f1f21] rounded-sm py-1 px-4">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span class="font-lexend text-[10px] uppercase tracking-widest font-bold">My Race</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#acaaab] py-1 px-4 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-lexend text-[10px] uppercase tracking-widest font-bold">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#acaaab] py-1 px-4 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="emoji_events">emoji_events</span>
+<span class="font-lexend text-[10px] uppercase tracking-widest font-bold">Results</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#acaaab] py-1 px-4 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-lexend text-[10px] uppercase tracking-widest font-bold">Settings</span>
+</div>
+</nav>
+</body></html>

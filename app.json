@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "X-TRACK",
+    "slug": "x-track",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0e0e0f"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.xtrack.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0e0e0f"
+      },
+      "package": "com.xtrack.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}

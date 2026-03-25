@@ -11,13 +11,13 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.xtrack.app"
+      "bundleIdentifier": "com.xtrack.athlete"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#0e0e0f"
       },
-      "package": "com.xtrack.app"
+      "package": "com.xtrack.athlete"
     },
     "web": {
       "favicon": "./assets/favicon.png",

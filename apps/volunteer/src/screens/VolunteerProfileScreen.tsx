@@ -1,0 +1,232 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { signOut } from 'firebase/auth';
+import { auth } from '@x-track/firebase';
+import { Colors } from '@x-track/ui';
+import { useAuth } from '../context/AuthContext';
+
+export function VolunteerProfileScreen() {
+  const insets = useSafeAreaInsets();
+  const { user, userDoc } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert('Sign Out', 'Are you sure?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign Out', style: 'destructive', onPress: () => signOut(auth) },
+    ]);
+  };
+
+  const eventId = (userDoc as any)?.assignedEventId;
+  const milestoneId = (userDoc as any)?.assignedMilestoneId;
+
+  return (
+    <View style={[styles.container, { paddingBottom: insets.bottom + 80 }]}>
+      {/* Top Bar */}
+      <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
+        <View style={styles.brand}>
+          <MaterialIcons name="leaderboard" size={22} color={Colors.electricOrange} />
+          <Text style={styles.brandText}>X-TRACK</Text>
+        </View>
+        <View style={styles.volunteerBadge}>
+          <Text style={styles.volunteerBadgeText}>VOLUNTEER MODE</Text>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
+        {/* Avatar placeholder */}
+        <View style={styles.avatarWrap}>
+          <MaterialIcons name="person" size={48} color={Colors.onSurfaceVariant} />
+        </View>
+
+        {/* Phone */}
+        <Text style={styles.phone}>{user?.phoneNumber ?? '—'}</Text>
+        <Text style={styles.roleLabel}>VOLUNTEER</Text>
+
+        {/* Assignment card */}
+        <View style={styles.infoCard}>
+          <Text style={styles.cardTitle}>ASSIGNMENT</Text>
+
+          <View style={styles.infoRow}>
+            <MaterialIcons name="event" size={18} color={Colors.onSurfaceVariant} />
+            <View>
+              <Text style={styles.infoLabel}>EVENT ID</Text>
+              <Text style={styles.infoValue}>{eventId ?? 'Not assigned'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.infoRow}>
+            <MaterialIcons name="place" size={18} color={Colors.electricOrange} />
+            <View>
+              <Text style={styles.infoLabel}>MILESTONE</Text>
+              <Text style={[styles.infoValue, { color: Colors.electricOrange }]}>
+                {milestoneId ?? 'Not assigned'}
+              </Text>
+            </View>
+          </View>
+
+          {!eventId && (
+            <Text style={styles.awaitingNote}>
+              Your organiser will assign you to a checkpoint. Once assigned, your milestone is permanent.
+            </Text>
+          )}
+        </View>
+
+        {/* Identification */}
+        <View style={styles.infoCard}>
+          <Text style={styles.cardTitle}>IDENTIFICATION</Text>
+          <View style={styles.infoRow}>
+            <MaterialIcons name="fingerprint" size={18} color={Colors.onSurfaceVariant} />
+            <View>
+              <Text style={styles.infoLabel}>VOLUNTEER ID</Text>
+              <Text style={styles.infoValue}>{user?.uid?.slice(0, 16) ?? '—'}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Sign out */}
+        <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
+          <MaterialIcons name="logout" size={18} color={Colors.error} />
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        <View style={{ height: 20 }} />
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingBottom: 12,
+    backgroundColor: Colors.background,
+  },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  brandText: {
+    fontFamily: 'Inter_900Black',
+    fontSize: 20,
+    color: Colors.electricOrange,
+    letterSpacing: -1,
+    fontStyle: 'italic',
+  },
+  volunteerBadge: {
+    borderWidth: 1,
+    borderColor: Colors.electricOrange,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 2,
+  },
+  volunteerBadgeText: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 9,
+    color: Colors.electricOrange,
+    letterSpacing: 2,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    gap: 16,
+    paddingTop: 16,
+  },
+  avatarWrap: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: Colors.surfaceContainerHighest,
+    borderWidth: 2,
+    borderColor: Colors.outlineVariant,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  phone: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 20,
+    color: Colors.onSurface,
+    letterSpacing: -0.5,
+  },
+  roleLabel: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 9,
+    color: Colors.electricOrange,
+    letterSpacing: 4,
+    textTransform: 'uppercase',
+  },
+  infoCard: {
+    width: '100%',
+    backgroundColor: Colors.surfaceContainerLow,
+    padding: 20,
+    borderRadius: 2,
+    gap: 12,
+  },
+  cardTitle: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 9,
+    color: Colors.onSurfaceVariant,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  infoLabel: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 9,
+    color: Colors.onSurfaceVariant,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  infoValue: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 16,
+    color: Colors.onSurface,
+    letterSpacing: -0.3,
+    marginTop: 2,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.outlineVariant,
+  },
+  awaitingNote: {
+    fontFamily: 'Lexend_400Regular',
+    fontSize: 11,
+    color: Colors.onSurfaceVariant,
+    lineHeight: 17,
+  },
+  signOutBtn: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 16,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: Colors.errorContainer,
+    marginTop: 8,
+  },
+  signOutText: {
+    fontFamily: 'Lexend_700Bold',
+    fontSize: 12,
+    color: Colors.error,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+});

@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "X-TRACK Volunteer",
+    "slug": "x-track-volunteer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0e0e0e"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.xtrack.volunteer",
+      "infoPlist": {
+        "NFCReaderUsageDescription": "X-TRACK uses NFC to scan athlete wristbands at race checkpoints."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0e0e0e"
+      },
+      "package": "com.xtrack.volunteer",
+      "permissions": ["android.permission.NFC"]
+    },
+    "plugins": [
+      "expo-font",
+      "react-native-nfc-manager"
+    ]
+  }
+}

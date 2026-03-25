@@ -14,10 +14,10 @@ import {
 } from '@expo-google-fonts/lexend';
 import * as SplashScreen from 'expo-splash-screen';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { AppNavigator } from './src/navigation/AppNavigator';
-import { PhoneSignInScreen } from './src/screens/auth/PhoneSignInScreen';
+import { VolunteerNavigator } from './src/navigation/VolunteerNavigator';
+import { PhoneSignInScreen } from './src/screens/PhoneSignInScreen';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
-import { Colors } from './src/theme/colors';
+import { Colors } from '@x-track/ui';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,16 +41,16 @@ function RootNavigator() {
       theme={{
         dark: true,
         colors: {
-          primary: Colors.primary,
+          primary: Colors.primaryFixed,
           background: Colors.background,
           card: Colors.surfaceContainerLow,
           text: Colors.onSurface,
           border: Colors.outlineVariant,
-          notification: Colors.primary,
+          notification: Colors.primaryFixed,
         },
       }}
     >
-      <AppNavigator />
+      <VolunteerNavigator />
     </NavigationContainer>
   );
 }
@@ -70,9 +70,7 @@ export default function App() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <SafeAreaProvider>
@@ -87,10 +85,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+  root: { flex: 1, backgroundColor: Colors.background },
   loadingScreen: {
     flex: 1,
     backgroundColor: Colors.background,

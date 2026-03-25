@@ -3,19 +3,16 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LiveRaceScreen } from '../screens/LiveRaceScreen';
-import { ExploreScreen } from '../screens/ExploreScreen';
-import { ResultsScreen } from '../screens/ResultsScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
-import { Colors } from '../theme/colors';
+import { NFCScanScreen } from '../screens/NFCScanScreen';
+import { VolunteerProfileScreen } from '../screens/VolunteerProfileScreen';
+import { Colors } from '@x-track/ui';
 
 const Tab = createBottomTabNavigator();
 
-type TabIconName = 'timer' | 'explore' | 'emoji-events' | 'person';
+type TabIconName = 'contactless' | 'person';
 
 function TabBar({
   state,
-  descriptors,
   navigation,
 }: {
   state: any;
@@ -24,9 +21,7 @@ function TabBar({
 }) {
   const insets = useSafeAreaInsets();
   const tabs: { label: string; icon: TabIconName }[] = [
-    { label: 'MY RACE', icon: 'timer' },
-    { label: 'EXPLORE', icon: 'explore' },
-    { label: 'RESULTS', icon: 'emoji-events' },
+    { label: 'SCAN', icon: 'contactless' },
     { label: 'PROFILE', icon: 'person' },
   ];
 
@@ -61,8 +56,8 @@ function TabBar({
             style={[styles.tabItem, isFocused && styles.tabItemActive]}
           >
             <MaterialIcons
-              name={tab.icon as any}
-              size={22}
+              name={tab.icon}
+              size={24}
               color={isFocused ? Colors.electricOrange : Colors.onSurfaceVariant}
               onPress={onPress}
             />
@@ -79,16 +74,14 @@ function TabBar({
   );
 }
 
-export function AppNavigator() {
+export function VolunteerNavigator() {
   return (
     <Tab.Navigator
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="LiveRace" component={LiveRaceScreen} />
-      <Tab.Screen name="Explore" component={ExploreScreen} />
-      <Tab.Screen name="Results" component={ResultsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Scan" component={NFCScanScreen} />
+      <Tab.Screen name="Profile" component={VolunteerProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -120,7 +113,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontFamily: 'Lexend_700Bold',
-    fontSize: 8,
+    fontSize: 9,
     color: Colors.onSurfaceVariant,
     letterSpacing: 1.5,
     textTransform: 'uppercase',

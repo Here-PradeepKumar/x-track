@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function hasRole(role) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isSuperAdmin() { return hasRole('superadmin'); }
+    function isOrganizer()  { return hasRole('organizer'); }
+    function isVolunteer()  { return hasRole('volunteer'); }
+    function isAthlete()    { return hasRole('athlete'); }
+
+    // ── users/{uid} ───────────────────────────────────────────────────────────
+    // Athletes and volunteers self-create their doc on first sign-in.
+    // Role field is set by Cloud Functions only — clients cannot write it.
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isSuperAdmin();
+      allow create: if isOwner(uid)
+        && request.resource.data.role in ['athlete', 'volunteer'];
+      allow update: if isOwner(uid)
+        && !('role' in request.resource.data.diff(resource.data).affectedKeys());
+    }
+
+    // ── invitations/{inviteId} ────────────────────────────────────────────────
+    // Only readable/writable by Cloud Functions via Admin SDK (no client access).
+
+    match /invitations/{inviteId} {
+      allow read, write: if false;
+    }
+
+    // ── events/{eventId} ─────────────────────────────────────────────────────
+
+    match /events/{eventId} {
+      // Anyone authenticated can read active events (for athlete explore/live screens)
+      allow read: if isSignedIn() &&
+        (resource.data.status == 'active' || isOrganizer() || isSuperAdmin());
+
+      // Organizers can create and update their own events
+      allow create: if isOrganizer();
+      allow update: if isOrganizer()
+        && resource.data.organizerId == request.auth.uid;
+      allow delete: if isOrganizer()
+        && resource.data.organizerId == request.auth.uid
+        && resource.data.status == 'draft';
+
+      // ── milestones sub-collection ─────────────────────────────────────────
+      match /milestones/{milestoneId} {
+        allow read: if isSignedIn();
+        allow write: if isOrganizer()
+          && get(/databases/$(database)/documents/events/$(eventId)).data.organizerId == request.auth.uid;
+      }
+
+      // ── bibs sub-collection ───────────────────────────────────────────────
+      match /bibs/{bibNumber} {
+        // Athletes can read their own bib
+        allow read: if isSignedIn() &&
+          (resource.data.athleteUid == request.auth.uid || isOrganizer() || isSuperAdmin());
+        // Only organizers of this event can write bibs
+        allow write: if isOrganizer()
+          && get(/databases/$(database)/documents/events/$(eventId)).data.organizerId == request.auth.uid;
+      }
+    }
+
+    // ── checkpoints/{checkpointId} ────────────────────────────────────────────
+    // Volunteers create checkpoints; no one can update or delete them (immutable).
+
+    match /checkpoints/{checkpointId} {
+      allow read: if isSignedIn() &&
+        (resource.data.athleteUid == request.auth.uid ||
+         resource.data.volunteerUid == request.auth.uid ||
+         isOrganizer() || isSuperAdmin());
+
+      allow create: if isVolunteer()
+        && request.resource.data.volunteerUid == request.auth.uid
+        && request.resource.data.keys().hasAll([
+             'eventId','milestoneId','bibNumber','athleteUid',
+             'volunteerUid','nfcTagId','scannedAt'
+           ]);
+
+      allow update, delete: if false;
+    }
+
+    // ── athleteRaces/{docId} ──────────────────────────────────────────────────
+    // Written only by the onCheckpointCreated Cloud Function (Admin SDK).
+    // Athletes read their own race docs.
+
+    match /athleteRaces/{docId} {
+      allow read: if isSignedIn() &&
+        (resource.data.athleteUid == request.auth.uid || isOrganizer() || isSuperAdmin());
+      allow write: if false;  // Cloud Functions only
+    }
+  }
+}

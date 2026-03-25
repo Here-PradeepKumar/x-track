@@ -50,7 +50,7 @@ function ObstacleItem({ obstacle, isLast }: { obstacle: typeof OBSTACLES[0]; isL
         <View
           style={[
             styles.timelineLine,
-            { backgroundColor: isCleared || isActive ? Colors.primary : Colors.outlineVariant },
+            { backgroundColor: isCleared || isActive ? Colors.primaryFixed : Colors.outlineVariant },
           ]}
         />
       )}
@@ -58,12 +58,12 @@ function ObstacleItem({ obstacle, isLast }: { obstacle: typeof OBSTACLES[0]; isL
       {/* Dot */}
       <View style={styles.dotContainer}>
         {isCleared ? (
-          <LinearGradient colors={kineticGradient} style={styles.dot}>
+          <View style={[styles.dot, { backgroundColor: Colors.primaryFixed, alignItems: 'center', justifyContent: 'center' }]}>
             <MaterialIcons name="check" size={10} color={Colors.onPrimary} />
-          </LinearGradient>
+          </View>
         ) : isActive ? (
           <Animated.View style={[styles.dot, styles.dotActive, { opacity: pulseAnim }]}>
-            <LinearGradient colors={kineticGradient} style={styles.dotInner} />
+            <View style={[styles.dotInner, { backgroundColor: Colors.primaryFixed }]} />
           </Animated.View>
         ) : (
           <View style={[styles.dot, styles.dotUpcoming]}>
@@ -182,7 +182,7 @@ export function LiveRaceScreen() {
                     key={i}
                     style={[
                       styles.routeSegment,
-                      { opacity: i < 5 ? 1 : 0.3, backgroundColor: i < 5 ? Colors.primary : Colors.outlineVariant },
+                      { opacity: i < 5 ? 1 : 0.3, backgroundColor: i < 5 ? Colors.primaryFixed : Colors.outlineVariant },
                     ]}
                   />
                 ))}
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
   bibNumber: {
     fontFamily: 'Inter_900Black',
     fontSize: 32,
-    color: Colors.onSurface,
+    color: Colors.primaryFixed,
     letterSpacing: -1,
   },
   rankRow: {
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   rankNumber: {
     fontFamily: 'Inter_900Black',
     fontSize: 56,
-    color: Colors.primary,
+    color: Colors.secondary,
     letterSpacing: -2,
     fontStyle: 'italic',
     lineHeight: 60,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   timeSec: {
     fontFamily: 'Inter_900Black',
     fontSize: 52,
-    color: Colors.primary,
+    color: Colors.onSurface,
     letterSpacing: -2,
     lineHeight: 56,
   },
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   progressBadge: {
-    backgroundColor: Colors.primary + '1A',
+    backgroundColor: Colors.primaryContainer + '1A',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 2,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   progressBadgeText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 9,
-    color: Colors.primary,
+    color: Colors.primaryContainer,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -377,7 +377,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dotActive: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.background,
+    borderWidth: 2,
+    borderColor: Colors.primaryFixed,
     padding: 3,
   },
   dotInner: {
@@ -423,7 +425,7 @@ const styles = StyleSheet.create({
   statusCleared: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 9,
-    color: Colors.primary,
+    color: Colors.primaryFixed,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -434,8 +436,8 @@ const styles = StyleSheet.create({
   },
   inProgressBadge: {
     borderWidth: 1,
-    borderColor: Colors.primary + '33',
-    backgroundColor: Colors.primaryContainer + '33',
+    borderColor: Colors.secondary + '33',
+    backgroundColor: Colors.secondary + '1A',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 2,
@@ -443,7 +445,7 @@ const styles = StyleSheet.create({
   inProgressText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 9,
-    color: Colors.onSurface,
+    color: Colors.secondary,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -516,7 +518,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary,
+    shadowColor: Colors.primaryFixed,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 12,
@@ -535,7 +537,7 @@ const styles = StyleSheet.create({
   nextTurnLabel: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 9,
-    color: Colors.primary,
+    color: Colors.primaryFixed,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },

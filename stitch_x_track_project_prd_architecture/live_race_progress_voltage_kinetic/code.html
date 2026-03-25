@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#cafd00",
+              "surface": "#0e0e0e",
+              "on-primary-fixed": "#3a4a00",
+              "primary-dim": "#beee00",
+              "secondary": "#00eefc",
+              "primary": "#f3ffca",
+              "error": "#ff7351",
+              "tertiary-dim": "#ebebeb",
+              "tertiary": "#f9f9f9",
+              "surface-variant": "#262626",
+              "surface-bright": "#2c2c2c",
+              "surface-container-high": "#201f1f",
+              "on-surface": "#ffffff",
+              "on-secondary-fixed-variant": "#005e64",
+              "on-surface-variant": "#adaaaa",
+              "on-secondary-container": "#e3fdff",
+              "on-primary": "#516700",
+              "secondary-container": "#006970",
+              "on-primary-fixed-variant": "#526900",
+              "surface-container-low": "#131313",
+              "on-error-container": "#ffd2c8",
+              "inverse-primary": "#516700",
+              "on-secondary-fixed": "#003f43",
+              "background": "#0e0e0e",
+              "surface-dim": "#0e0e0e",
+              "outline": "#777575",
+              "tertiary-container": "#ebebeb",
+              "secondary-fixed": "#00eefc",
+              "on-tertiary-fixed": "#4f5051",
+              "on-tertiary-fixed-variant": "#6c6d6e",
+              "on-error": "#450900",
+              "inverse-surface": "#fcf8f8",
+              "tertiary-fixed-dim": "#f0f1f1",
+              "on-primary-container": "#4a5e00",
+              "surface-container-lowest": "#000000",
+              "secondary-fixed-dim": "#00deec",
+              "surface-container": "#1a1919",
+              "on-tertiary-container": "#555757",
+              "on-secondary": "#005359",
+              "error-dim": "#d53d18",
+              "tertiary-fixed": "#ffffff",
+              "primary-fixed": "#cafd00",
+              "surface-tint": "#f3ffca",
+              "secondary-dim": "#00deec",
+              "on-tertiary": "#5e5f60",
+              "outline-variant": "#494847",
+              "primary-fixed-dim": "#beee00",
+              "surface-container-highest": "#262626",
+              "inverse-on-surface": "#565554",
+              "on-background": "#ffffff",
+              "error-container": "#b92902"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #0e0e0e;
+        color: #ffffff;
+      }
+      .kinetic-glow {
+        box-shadow: 0 0 15px rgba(202, 253, 0, 0.15);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body selection:bg-primary-container selection:text-on-primary">
+<!-- Top Navigation Anchor -->
+<header class="flex items-center justify-between px-6 py-4 w-full bg-[#0e0e0e] sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#cafd00] text-3xl" data-icon="speed">speed</span>
+<h1 class="font-headline font-black italic text-2xl tracking-tighter text-[#cafd00]">X-TRACK</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest flex items-center justify-center border border-outline-variant/30 overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a determined male athlete with sweat on brow, dramatic high-contrast lighting, dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyxHBd2a3-Rk_0A7k7M-3COVdMbG-2xRXbcj6OSX5AwKBcIJWFY80_IUUQ6kjD3rSDpM35MMMZDgVuQ0OzT4Tla4gF80YUcyV0bvY29nwkCKZLMlDRDZ4VVMiiSQ6Z_JhfjtN-Kk-XR5c2B2hCd3Fko9k9Gv6U5CC_xKfEGvIVG6wY4RLbB2JeWi2ALo_TpPIV7kC91l25leFuC1BwaWmKgbuVmYyKks6PpIBpbE68C_X_ZhS6qUr5QQlj6K_QnDivq9zG06XiVKc"/>
+</div>
+</div>
+</header>
+<main class="pb-24 max-w-5xl mx-auto px-4 sm:px-6">
+<!-- Dashboard Header / Primary Stats -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-1 py-8">
+<!-- BIB CARD -->
+<div class="bg-surface-container-low p-6 flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<span class="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant">Athlete BIB</span>
+<div class="flex items-baseline gap-1 mt-2">
+<span class="font-headline font-bold text-5xl text-primary-fixed">#2481</span>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container-highest">
+<div class="h-full bg-primary-fixed w-1/3 shadow-[0_0_8px_rgba(202,253,0,0.5)]"></div>
+</div>
+</div>
+<!-- RANK CARD -->
+<div class="bg-surface-container-low p-6 flex flex-col justify-between group hover:bg-surface-container transition-colors border-l border-surface-container-highest/20 md:border-l-0">
+<span class="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant">Current Rank</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="font-headline font-bold text-5xl text-secondary">14</span>
+<span class="font-headline font-medium text-xl text-on-surface-variant">/ 850</span>
+</div>
+<div class="mt-4 flex items-center gap-2 text-primary-dim text-xs font-bold italic uppercase tracking-widest">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span>Rising 2 Positions</span>
+</div>
+</div>
+<!-- TIME CARD -->
+<div class="bg-surface-container-low p-6 flex flex-col justify-between group hover:bg-surface-container transition-colors border-l border-surface-container-highest/20 md:border-l-0">
+<span class="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant">Elapsed Time</span>
+<div class="flex items-baseline gap-1 mt-2">
+<span class="font-headline font-bold text-5xl text-white">01:42:12</span>
+</div>
+<div class="mt-4 flex items-center gap-2 text-on-surface-variant text-xs font-medium uppercase tracking-widest">
+<span class="material-symbols-outlined text-sm" data-icon="pace">pace</span>
+<span>Avg Pace: 6'45" /KM</span>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Progression Timeline -->
+<div class="lg:col-span-5 space-y-6">
+<div class="bg-surface-container-low p-8">
+<div class="flex items-center justify-between mb-10">
+<h2 class="font-headline font-bold text-xl uppercase tracking-tight">Course Progression</h2>
+<span class="bg-primary-container text-on-primary text-[10px] font-black px-2 py-0.5 uppercase italic">Live</span>
+</div>
+<div class="relative space-y-0">
+<!-- VERTICAL LINE -->
+<div class="absolute left-4 top-2 bottom-2 w-px bg-surface-container-highest"></div>
+<div class="absolute left-4 top-2 h-1/2 w-px bg-primary-fixed shadow-[0_0_10px_rgba(202,253,0,0.4)]"></div>
+<!-- CHECKPOINT: CLEARED -->
+<div class="relative pl-12 pb-12">
+<div class="absolute left-1.5 top-1.5 w-5 h-5 bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-sm font-bold" data-icon="check">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label text-[10px] uppercase font-bold text-primary-fixed mb-1 tracking-widest">Cleared • 00:45:00</span>
+<h3 class="font-headline font-bold text-lg text-white/90">The Mud Pit</h3>
+<p class="text-on-surface-variant text-sm mt-1 max-w-xs">Elite obstacle with 40% fatigue impact.</p>
+</div>
+</div>
+<!-- CHECKPOINT: IN PROGRESS -->
+<div class="relative pl-12 pb-12">
+<div class="absolute left-1.5 top-1.5 w-5 h-5 bg-black border-2 border-primary-fixed flex items-center justify-center">
+<div class="w-1.5 h-1.5 bg-primary-fixed animate-pulse"></div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-3 mb-1">
+<span class="font-label text-[10px] uppercase font-bold text-secondary tracking-widest">Active State</span>
+<div class="h-px flex-grow bg-secondary/20"></div>
+</div>
+<h3 class="font-headline font-bold text-lg text-white">The Great Wall</h3>
+<p class="text-on-surface-variant text-sm mt-1">Current challenge. 8ft vertical ascent.</p>
+<div class="mt-4 bg-surface-container p-3 border-l-2 border-secondary">
+<div class="flex justify-between items-center mb-1">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Segment Progress</span>
+<span class="text-[10px] font-bold text-secondary uppercase">65%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest">
+<div class="h-full bg-secondary w-[65%] shadow-[0_0_8px_rgba(0,238,252,0.3)]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- CHECKPOINT: UPCOMING -->
+<div class="relative pl-12">
+<div class="absolute left-2.5 top-2 w-3 h-3 bg-surface-container-highest border border-outline-variant"></div>
+<div class="flex flex-col opacity-50">
+<span class="font-label text-[10px] uppercase font-bold text-on-surface-variant mb-1 tracking-widest">Upcoming • Est. 12:15 PM</span>
+<h3 class="font-headline font-bold text-lg">Barbed Wire Crawl</h3>
+<p class="text-on-surface-variant text-sm mt-1">200m tactical crawl. Low clearance.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Live Map -->
+<div class="lg:col-span-7">
+<div class="bg-surface-container-low h-full flex flex-col">
+<div class="p-6 flex items-center justify-between border-b border-surface-container-highest/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-dim" data-icon="map">map</span>
+<h2 class="font-headline font-bold text-xl uppercase tracking-tight">Live Course Map</h2>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 bg-surface-container border border-outline-variant/30 flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="zoom_in">zoom_in</span>
+</button>
+<button class="w-10 h-10 bg-surface-container border border-outline-variant/30 flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="my_location">my_location</span>
+</button>
+</div>
+</div>
+<div class="flex-grow relative overflow-hidden bg-black min-h-[400px]">
+<!-- Simulated Map Texture -->
+<div class="absolute inset-0 opacity-40 grayscale" data-alt="Top-down satellite view of a rugged mountain trail with dark forest and rocky terrain, atmospheric and low exposure" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAjIODzOJbgml1Bs86rf0wsJzbDC7hrJhZ_ekBkQfBUr_dli9sM-DeMwjD9u6EuCjkAv1hQJy0R3nsekJVAv7220nwQ7n2B5QuY8RQnVOvg5AfzHO4PsgiITkRSHveFKOUijwZ2eOoaYBRFNyQGLL-uAHv9CdlVxUw7F2lZxzqHAqjlC1MkWmp617DF-8M95tGLWGAz-0fPdeQ_nfuzequLEdgB4z91mUve5N1X7jUfkZ2a32BmM26ezb90dcDJpj3TbGZylYESjCA'); background-size: cover; background-position: center;"></div>
+<!-- Course Path SVG Overlay (Simulated) -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 400 300">
+<path d="M50,250 L120,200 L180,220 L250,150 L320,180 L380,80" fill="none" stroke="#262626" stroke-dasharray="8 4" stroke-width="4"></path>
+<path d="M50,250 L120,200 L180,220 L220,180" fill="none" stroke="#cafd00" stroke-width="4"></path>
+</svg>
+<!-- Runner Icon / HUD Indicator -->
+<div class="absolute left-[210px] top-[170px] -translate-x-1/2 -translate-y-1/2 z-10">
+<div class="relative">
+<!-- Ping Effect -->
+<div class="absolute inset-0 bg-primary-fixed rounded-full animate-ping opacity-25"></div>
+<!-- Icon Circle -->
+<div class="w-10 h-10 bg-primary-fixed flex items-center justify-center shadow-[0_0_20px_rgba(202,253,0,0.6)]">
+<span class="material-symbols-outlined text-on-primary font-bold" data-icon="directions_run" style="font-variation-settings: 'FILL' 1;">directions_run</span>
+</div>
+<!-- HUD Label -->
+<div class="absolute left-12 top-0 bg-black/80 backdrop-blur-md px-3 py-2 border-l-2 border-primary-fixed whitespace-nowrap">
+<span class="block text-[10px] font-black text-primary-fixed uppercase leading-none">BIB #2481</span>
+<span class="block text-xs font-headline font-bold text-white mt-1">KM 4.2 of 10</span>
+</div>
+</div>
+</div>
+<!-- Checkpoint Pins on Map -->
+<div class="absolute left-[45px] top-[245px] w-3 h-3 bg-surface-container-highest border-2 border-white rounded-full"></div>
+<div class="absolute left-[375px] top-[75px] w-3 h-3 bg-surface-container-highest border-2 border-white rounded-full"></div>
+<!-- Zoom Indicators -->
+<div class="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md px-4 py-2 border border-outline-variant/20">
+<span class="font-label text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Zone: Sector 4 - High Altitude</span>
+</div>
+</div>
+<!-- Map Legend / Stats Bar -->
+<div class="bg-surface-container p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+<div>
+<span class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">Elevation</span>
+<span class="block text-lg font-headline font-bold text-white">412 M</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">Heart Rate</span>
+<span class="block text-lg font-headline font-bold text-error">168 BPM</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">Incline</span>
+<span class="block text-lg font-headline font-bold text-white">+12%</span>
+</div>
+<div>
+<span class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1">Hydration</span>
+<span class="block text-lg font-headline font-bold text-secondary">82%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Weather / Environmental Context Section -->
+<section class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container-low p-6 flex items-center gap-6">
+<div class="w-16 h-16 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-primary-dim" data-icon="wb_sunny">wb_sunny</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-lg uppercase tracking-tight">Course Conditions</h4>
+<p class="text-on-surface-variant text-sm">Dry Track. Temp: 24°C. Humidity: 45%. Optimal racing window remains open.</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 flex items-center gap-6">
+<div class="w-16 h-16 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-secondary" data-icon="groups">groups</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-lg uppercase tracking-tight">Proximity Alert</h4>
+<p class="text-on-surface-variant text-sm">Next competitor (BIB #1102) is <span class="text-white font-bold">140m ahead</span>. Estimated catch: 4 mins.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center bg-[#131313] h-20 px-4 border-t border-[#262626]/50">
+<a class="flex flex-col items-center justify-center text-[#cafd00] shadow-[0_4px_12px_rgba(202,253,0,0.2)]" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="tire_repair" style="font-variation-settings: 'FILL' 1;">tire_repair</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">My Race</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#adaaaa] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="explore">explore</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#adaaaa] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Results</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#adaaaa] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

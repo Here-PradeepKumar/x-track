@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#CCFF00",
+              "background": "#0A0A0A",
+              "surface": "#131313",
+              "surface-variant": "#262626",
+              "on-surface": "#FFFFFF",
+              "on-surface-variant": "#ADAAAA",
+              "outline": "#333333",
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk", "sans-serif"],
+              "body": ["Space Grotesk", "sans-serif"],
+              "label": ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0px",
+              "lg": "0px",
+              "xl": "0px",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .kinetic-gradient {
+        background: linear-gradient(135deg, #CCFF00 0%, #99CC00 100%);
+      }
+      .glass-stat {
+        background: rgba(19, 19, 20, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(204, 255, 0, 0.1);
+      }
+      body {
+        min-height: max(884px, 100dvh);
+        letter-spacing: -0.02em;
+      }
+      .text-glow {
+        text-shadow: 0 0 20px rgba(204, 255, 0, 0.3);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-black">
+<!-- TopAppBar (from COMPONENTS_11) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#0e0e0e]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#cafd00]" data-icon="sensors">sensors</span>
+<h1 class="text-xl font-black text-[#cafd00] tracking-widest font-['Space_Grotesk'] uppercase">X-TRACK</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-[#262626] active:scale-95 duration-100 transition-all hover:bg-[#262626]">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3tT3lFiO5HYdUjN5PRCvFvA7AmP6JWxRO2HFqiyGYV7T52Sudc0bU4h9erfMGsy7FTiYfR3rFvRyDYVY-4ADZ2k2cVZkUKXEjMz7olBKUe_uI3whO4cGZFminafxHFAfuhBwEtSmz7BVZHOHktVJEo3dS2gDAb3lUfGPqkrWQqccSSBbseQgzkw3SC0gRZ0InTQ8RkLjWxkC1BGdJzy2bPRDZxzPV7QaDBv1eJx0uSCEHnmiR7rBKp356SyJDpGl8uChrjkm9YME"/>
+</div>
+</header>
+<main class="pt-24 pb-28 px-6 max-w-5xl mx-auto space-y-10">
+<!-- Last Race Summary Card -->
+<section>
+<div class="bg-surface border-l-4 border-primary p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<span class="text-primary font-bold text-[10px] uppercase tracking-[0.3em] block mb-2">LAST RACE RESULT</span>
+<h3 class="text-2xl font-black italic tracking-tighter">SPARTAN TRIFECTA</h3>
+</div>
+<div class="flex gap-8">
+<div>
+<span class="text-on-surface-variant font-bold text-[10px] uppercase tracking-widest block">RANK</span>
+<span class="text-3xl font-black text-on-surface tracking-tighter">#124</span>
+</div>
+<div>
+<span class="text-on-surface-variant font-bold text-[10px] uppercase tracking-widest block">TIME</span>
+<span class="text-3xl font-black text-on-surface tracking-tighter">01:42:12</span>
+</div>
+<div class="hidden sm:block">
+<span class="text-on-surface-variant font-bold text-[10px] uppercase tracking-widest block">PACE</span>
+<span class="text-3xl font-black text-on-surface tracking-tighter">4:48<span class="text-sm font-normal text-on-surface-variant">/km</span></span>
+</div>
+</div>
+<button class="text-primary font-bold text-xs uppercase tracking-widest hover:bg-surface-variant px-4 py-2 transition-colors border border-primary/20">
+                VIEW SPLITS
+            </button>
+</div>
+</section>
+<!-- Featured Event: Devil Circuit -->
+<section class="relative group">
+<div class="relative h-[520px] w-full overflow-hidden bg-surface-variant border border-outline/50">
+<img alt="Devil Circuit Event" class="w-full h-full object-cover opacity-50 scale-105 group-hover:scale-110 transition-transform duration-[2000ms]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlhWq58BH3PWSUDc9sqEWIOUHmfr9Cyyxo9CI-O5-Mx5cVvJkukBLnLpkGygOhizIMbnxpDSgqOLTLAuKBcjLKwpCFixgst1EAVEY84Cfi7BJ8L4WeZ7ctMJCbJ1KHrojQn83KsQ4hshEf31_Ipp-5nCdWMuu_NrxyQc1zBxbRd-7AdAnrDBhEFWM-QBqNGY3P1iCiVrQpaqhY2YBwXevcNii6hzmX0Jw30qPjZZd_QClW3kf8xoWmpQC-OGFTcXL3DTroIYQEfBk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full">
+<div class="flex items-center gap-3 mb-6">
+<span class="bg-primary text-black font-black text-[10px] px-3 py-1 uppercase tracking-widest">CONFIRMED</span>
+<span class="text-white/80 font-bold text-[10px] uppercase tracking-[0.2em]">DEC 14, 2024</span>
+</div>
+<h2 class="text-7xl md:text-9xl font-black italic tracking-tighter text-white mb-8 uppercase leading-[0.85] text-glow">
+                    Devil Circuit<br/><span class="text-primary">NCR</span>
+</h2>
+<div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+<button class="kinetic-gradient text-black font-black text-sm uppercase tracking-[0.2em] px-10 py-5 shadow-[0_0_30px_rgba(204,255,0,0.4)] active:scale-95 transition-transform">
+                        VIEW BIB INFO
+                    </button>
+<div class="glass-stat flex items-center gap-6 px-8 py-4">
+<div>
+<span class="text-on-surface-variant font-bold text-[10px] uppercase tracking-widest block mb-1">WAVE</span>
+<span class="text-xl font-black text-white leading-none">ELITE 07:00</span>
+</div>
+<div class="w-px h-10 bg-primary/30"></div>
+<div>
+<span class="text-on-surface-variant font-bold text-[10px] uppercase tracking-widest block mb-1">DISTANCE</span>
+<span class="text-xl font-black text-white leading-none">15 KM</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Other Upcoming Events -->
+<section class="space-y-6">
+<div class="flex justify-between items-end border-b border-outline pb-4">
+<h3 class="text-xs font-black uppercase tracking-[0.3em] text-primary">OTHER UPCOMING EVENTS</h3>
+<button class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] hover:text-primary transition-colors">SEE ALL</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Event Card 1 -->
+<div class="bg-surface group cursor-pointer overflow-hidden border border-outline hover:border-primary/50 transition-all">
+<div class="flex">
+<div class="w-36 h-36 overflow-hidden shrink-0 relative">
+<img alt="Sunfeast 10K" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqeXYUnNhTJY1T13sbNgGJJW-Q46TmvFQ1_vXF9D-NSEvelKs2KUgukfkB17Y55p1JivmGTzn_18nM2SqKsEtGDvL7bYAdUs6aISjikHk8rjLVDMt91UE61RHEtEzUa-K7z0nNYXtw4NiAcntHJt9n2Rq6qu1Mi-gn1IsNIUcwBh5Il67byOinaOumsizU2Muk0TWYVKi7wBG9fN6GRbunxzIoA_l5Q7caZDCjalkN70ZptiQCxTfjJh_LaChvZDVSVJT02AQgjW8"/>
+<div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="p-5 flex flex-col justify-center">
+<span class="text-primary font-black text-[9px] uppercase tracking-[0.2em] mb-2">JAN 05 • BENGALURU</span>
+<h4 class="text-xl font-black uppercase leading-tight mb-3 italic tracking-tight">Sunfeast World 10K</h4>
+<div class="flex gap-2 items-center">
+<span class="material-symbols-outlined text-on-surface-variant text-base" data-icon="confirmation_number">confirmation_number</span>
+<span class="text-on-surface-variant font-bold text-[10px] uppercase tracking-wider">REGISTRATIONS OPEN</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="bg-surface group cursor-pointer overflow-hidden border border-outline hover:border-primary/50 transition-all">
+<div class="flex">
+<div class="w-36 h-36 overflow-hidden shrink-0 relative">
+<img alt="Ruggedian" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfs28Cp6P1-Q5_mw3HaKPIV2rUfs0C1FBefuVpulyf9f9BltiWi2TgBg3lKUmuesTRqdGkpJmwt3ulIyTcgByRoc1Pjyvg_zCspenrXujWnWitMQ0p-lbNeySkkYAhCWGjWLJT-9ew_sMI8ZqKj-lFiYZIkUUVD-2PppIuiMaKtz0RPO0_TuHc6k533qNklKh06NvDEwVBrvUndbnvZymhOPr9ne8dtrSQIGMXGF1VwFIlkLgRVi0AOVmC90_feDWFwl84t5wJq1Q"/>
+<div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="p-5 flex flex-col justify-center">
+<span class="text-primary font-black text-[9px] uppercase tracking-[0.2em] mb-2">FEB 18 • KOLHAPUR</span>
+<h4 class="text-xl font-black uppercase leading-tight mb-3 italic tracking-tight">Ruggedian Obstacle</h4>
+<div class="flex gap-2 items-center">
+<span class="material-symbols-outlined text-on-surface-variant text-base" data-icon="confirmation_number">confirmation_number</span>
+<span class="text-on-surface-variant font-bold text-[10px] uppercase tracking-wider">WAITLIST ONLY</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Performance Graph -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12">
+<div class="md:col-span-2 bg-surface p-8 border-l-4 border-primary shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant mb-2">WEEKLY TRAINING LOAD</h4>
+<div class="text-5xl font-black tracking-tighter">42.5<span class="text-lg font-bold ml-2 text-primary">KM</span></div>
+</div>
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="trending_up">trending_up</span>
+</div>
+<div class="flex items-end gap-3 h-32">
+<div class="bg-surface-variant w-full h-[40%] hover:bg-primary/20 transition-colors"></div>
+<div class="bg-surface-variant w-full h-[65%] hover:bg-primary/20 transition-colors"></div>
+<div class="bg-surface-variant w-full h-[55%] hover:bg-primary/20 transition-colors"></div>
+<div class="bg-primary w-full h-[90%] shadow-[0_0_20px_rgba(204,255,0,0.4)]"></div>
+<div class="bg-surface-variant w-full h-[45%] hover:bg-primary/20 transition-colors"></div>
+<div class="bg-surface-variant w-full h-[30%] hover:bg-primary/20 transition-colors"></div>
+<div class="bg-surface-variant w-full h-[20%] hover:bg-primary/20 transition-colors"></div>
+</div>
+</div>
+<div class="bg-surface p-8 flex flex-col justify-between border border-outline relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-9xl" data-icon="timer">timer</span>
+</div>
+<span class="material-symbols-outlined text-primary text-4xl mb-6" data-icon="timer" style="font-variation-settings: 'FILL' 1;">timer</span>
+<div>
+<h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant mb-2">TOTAL RACE TIME</h4>
+<div class="text-4xl font-black tracking-tighter">84h 12m</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline">
+<p class="text-[11px] font-bold text-on-surface-variant leading-relaxed tracking-tight">TOP 5% OF GLOBAL ATHLETES IN X-TRACK ECOSYSTEM.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (from COMPONENTS_11) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 bg-[#0e0e0e] shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+<a class="flex flex-col items-center justify-center text-[#adaaaa] px-4 py-2 hover:text-white active:bg-[#262626] transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="speed">speed</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-tight uppercase">DASHBOARD</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#cafd00] shadow-[0_0_10px_rgba(202,253,0,0.2)] bg-[#1a1919] px-4 py-2 active:bg-[#262626] transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="share_location">share_location</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-tight uppercase">TRACKING</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#adaaaa] px-4 py-2 hover:text-white active:bg-[#262626] transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="inventory_2">inventory_2</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-tight uppercase">LOGISTICS</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#adaaaa] px-4 py-2 hover:text-white active:bg-[#262626] transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_circle">account_circle</span>
+<span class="font-['Space_Grotesk'] text-[10px] font-bold tracking-tight uppercase">PROFILE</span>
+</a>
+</nav>
+</body></html>

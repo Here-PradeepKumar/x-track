@@ -104,7 +104,7 @@ export function ExploreScreen() {
             </View>
             <Text style={styles.featuredTitle}>
               Devil Circuit{'\n'}
-              <Text style={{ color: Colors.primary }}>NCR</Text>
+              <Text style={{ color: Colors.primaryContainer }}>NCR</Text>
             </Text>
             <View style={styles.featuredActions}>
               <TouchableOpacity>
@@ -172,7 +172,7 @@ export function ExploreScreen() {
                   <Text style={styles.bentoUnit}>KM</Text>
                 </View>
               </View>
-              <MaterialIcons name="trending-up" size={24} color={Colors.primary} />
+              <MaterialIcons name="trending-up" size={24} color={Colors.electricOrange} />
             </View>
             <View style={styles.barChart}>
               {WEEKLY_BARS.map((h, i) => (
@@ -183,7 +183,7 @@ export function ExploreScreen() {
                       {
                         height: `${h}%`,
                         backgroundColor:
-                          i === 3 ? Colors.primaryDim : Colors.surfaceContainerHighest,
+                          i === 3 ? Colors.electricOrange : Colors.surfaceContainerHighest,
                       },
                     ]}
                   />
@@ -194,7 +194,7 @@ export function ExploreScreen() {
 
           {/* Total Race Time */}
           <View style={styles.bentoSmall}>
-            <MaterialIcons name="timer" size={24} color={Colors.primary} />
+            <MaterialIcons name="timer" size={24} color={Colors.electricOrange} />
             <View>
               <Text style={styles.bentoLabel}>TOTAL RACE TIME</Text>
               <Text style={[styles.bentoValue, { fontSize: 28 }]}>84h 12m</Text>
@@ -227,6 +227,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 2,
     gap: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.electricOrange,
   },
   cardLabel: {
     fontFamily: 'Lexend_400Regular',
@@ -271,11 +273,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 2,
+    borderWidth: 1,
+    borderColor: Colors.electricOrange + '33',
   },
   viewSplitsText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 11,
-    color: Colors.primary,
+    color: Colors.electricOrange,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -316,7 +320,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   confirmedBadge: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryContainer,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 2,
@@ -324,7 +328,7 @@ const styles = StyleSheet.create({
   confirmedText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 9,
-    color: Colors.onPrimary,
+    color: Colors.onPrimaryContainer,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -412,7 +416,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 10,
-    color: Colors.primary,
+    color: Colors.electricOrange,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -441,7 +445,7 @@ const styles = StyleSheet.create({
   eventDateLoc: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 9,
-    color: Colors.primary,
+    color: Colors.electricOrange,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -475,7 +479,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 2,
     borderLeftWidth: 4,
-    borderLeftColor: Colors.primary,
+    borderLeftColor: Colors.electricOrange,
     gap: 16,
   },
   bentoSmall: {

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>X-TRACK | KINETIC MONOLITH ADMIN</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#cafd00",
+                        "surface": "#0e0e0e",
+                        "on-primary-fixed": "#3a4a00",
+                        "primary-dim": "#beee00",
+                        "secondary": "#00eefc",
+                        "primary": "#f3ffca",
+                        "error": "#ff7351",
+                        "tertiary-dim": "#ebebeb",
+                        "tertiary": "#f9f9f9",
+                        "surface-variant": "#262626",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container-high": "#201f1f",
+                        "on-surface": "#ffffff",
+                        "on-secondary-fixed-variant": "#005e64",
+                        "on-surface-variant": "#adaaaa",
+                        "on-secondary-container": "#e3fdff",
+                        "on-primary": "#516700",
+                        "secondary-container": "#006970",
+                        "on-primary-fixed-variant": "#526900",
+                        "surface-container-low": "#131313",
+                        "on-error-container": "#ffd2c8",
+                        "inverse-primary": "#516700",
+                        "on-secondary-fixed": "#003f43",
+                        "background": "#0e0e0e",
+                        "surface-dim": "#0e0e0e",
+                        "outline": "#777575",
+                        "tertiary-container": "#ebebeb",
+                        "secondary-fixed": "#00eefc",
+                        "on-tertiary-fixed": "#4f5051",
+                        "on-tertiary-fixed-variant": "#6c6d6e",
+                        "on-error": "#450900",
+                        "inverse-surface": "#fcf8f8",
+                        "tertiary-fixed-dim": "#f0f1f1",
+                        "on-primary-container": "#4a5e00",
+                        "surface-container-lowest": "#000000",
+                        "secondary-fixed-dim": "#00deec",
+                        "surface-container": "#1a1919",
+                        "on-tertiary-container": "#555757",
+                        "on-secondary": "#005359",
+                        "error-dim": "#d53d18",
+                        "tertiary-fixed": "#ffffff",
+                        "primary-fixed": "#cafd00",
+                        "surface-tint": "#f3ffca",
+                        "secondary-dim": "#00deec",
+                        "on-tertiary": "#5e5f60",
+                        "outline-variant": "#494847",
+                        "primary-fixed-dim": "#beee00",
+                        "surface-container-highest": "#262626",
+                        "inverse-on-surface": "#565554",
+                        "on-background": "#ffffff",
+                        "error-container": "#b92902"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0rem",
+                        "lg": "0rem",
+                        "xl": "0rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .kinetic-glow {
+            text-shadow: 0 0 8px rgba(202, 253, 0, 0.4);
+        }
+        .asymmetric-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+<!-- SIDE NAVIGATION BAR -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r-0 bg-[#0e0e0e] flex flex-col py-6 px-4 z-50">
+<div class="mb-12 px-2">
+<h1 class="text-2xl font-black text-[#cafd00] tracking-tighter uppercase font-headline">X-TRACK</h1>
+<p class="text-[10px] text-on-surface-variant font-headline tracking-[0.2em] uppercase mt-1">KINETIC MONOLITH</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 font-headline uppercase tracking-tighter text-sm text-[#cafd00] bg-[#1a1919] border-l-4 border-[#cafd00] shadow-[0_0_8px_rgba(202,253,0,0.2)] transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-headline uppercase tracking-tighter text-sm text-[#adaaaa] hover:bg-[#1a1919] hover:text-[#cafd00] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+<span>Live Tracking</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-headline uppercase tracking-tighter text-sm text-[#adaaaa] hover:bg-[#1a1919] hover:text-[#cafd00] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span>Participants</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-headline uppercase tracking-tighter text-sm text-[#adaaaa] hover:bg-[#1a1919] hover:text-[#cafd00] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="branding_watermark">branding_watermark</span>
+<span>BIB Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-headline uppercase tracking-tighter text-sm text-[#adaaaa] hover:bg-[#1a1919] hover:text-[#cafd00] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span>Race Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-headline uppercase tracking-tighter text-sm text-[#adaaaa] hover:bg-[#1a1919] hover:text-[#cafd00] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span>System Logs</span>
+</a>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full py-3 bg-primary-container text-on-primary font-headline font-bold uppercase tracking-tighter text-xs hover:bg-primary-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                Initialize Telemetry
+            </button>
+</div>
+</aside>
+<!-- TOP NAVIGATION BAR -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#0e0e0e]/80 backdrop-blur-md z-40 border-b border-[#2c2c2c]/30 flex justify-between items-center px-8 ml-64">
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined text-sm" data-icon="search">search</span>
+<input class="bg-surface-container-high border-none text-[10px] font-headline tracking-widest pl-10 pr-4 py-2 w-64 focus:ring-1 focus:ring-primary-container" placeholder="SEARCH OPERATIONAL DATA..." type="text"/>
+</div>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-4 text-[10px] font-headline tracking-[0.2em] text-[#cafd00]">
+<span class="w-2 h-2 rounded-full bg-[#cafd00] animate-pulse"></span>
+                SYSTEM STATUS: OPTIMAL
+            </div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors" data-icon="settings">settings</span>
+</div>
+<div class="h-8 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-[10px] font-headline font-bold uppercase tracking-tighter">Command Unit</p>
+<p class="text-[9px] text-on-surface-variant font-headline uppercase">Administrator 01</p>
+</div>
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" data-icon="account_circle" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN CONTENT CANVAS -->
+<main class="ml-64 pt-24 px-8 pb-12 min-h-screen bg-surface">
+<!-- DASHBOARD HEADER STATS -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="bg-surface-container p-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" data-icon="directions_run">directions_run</span>
+</div>
+<p class="text-on-surface-variant text-[10px] font-headline uppercase tracking-[0.2em] mb-2">Active Athletes</p>
+<h2 class="text-4xl font-headline font-black text-primary-container tracking-tighter kinetic-glow">1,284</h2>
+<div class="mt-4 flex items-center gap-2">
+<span class="text-[10px] text-secondary font-headline">+12% VS LAST INTERVAL</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-0.5 bg-primary-container/20">
+<div class="h-full bg-primary-container w-[72%]"></div>
+</div>
+</div>
+<div class="bg-surface-container p-6 relative overflow-hidden">
+<p class="text-on-surface-variant text-[10px] font-headline uppercase tracking-[0.2em] mb-2">Avg. Completion</p>
+<h2 class="text-4xl font-headline font-black text-white tracking-tighter">64.2%</h2>
+<div class="mt-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-xs text-primary-container" data-icon="trending_up">trending_up</span>
+<span class="text-[10px] text-on-surface-variant font-headline uppercase tracking-widest">PACE STABILIZED</span>
+</div>
+</div>
+<div class="bg-surface-container p-6 relative overflow-hidden">
+<p class="text-on-surface-variant text-[10px] font-headline uppercase tracking-[0.2em] mb-2">Obstacle Density</p>
+<h2 class="text-4xl font-headline font-black text-white tracking-tighter">0.84</h2>
+<p class="text-[10px] text-on-surface-variant font-headline uppercase tracking-widest mt-1">UNITS / SQ KM</p>
+<div class="mt-3 h-1 w-full bg-surface-container-high">
+<div class="h-full bg-secondary w-1/3"></div>
+</div>
+</div>
+<div class="bg-surface-container p-6 relative overflow-hidden">
+<p class="text-on-surface-variant text-[10px] font-headline uppercase tracking-[0.2em] mb-2">System Integrity</p>
+<h2 class="text-4xl font-headline font-black text-[#cafd00] tracking-tighter kinetic-glow">99.9%</h2>
+<div class="mt-4 flex items-center gap-2">
+<span class="text-[10px] text-on-surface-variant font-headline uppercase tracking-widest">ENCRYPTION ACTIVE</span>
+</div>
+</div>
+</div>
+<!-- CENTRAL SECTION: MAP & ANALYTICS -->
+<div class="asymmetric-grid mb-8">
+<!-- LIVE RACE MAP -->
+<div class="bg-surface-container relative min-h-[500px] border-l-2 border-primary-container">
+<div class="absolute top-0 left-0 w-full p-6 z-10 flex justify-between items-start pointer-events-none">
+<div>
+<h3 class="font-headline font-black text-xl uppercase tracking-tighter text-white">Live Race Map</h3>
+<p class="text-[10px] font-headline tracking-[0.2em] text-on-surface-variant">SECTOR 04 - THE RIDGEWAY</p>
+</div>
+<div class="flex gap-2 pointer-events-auto">
+<button class="bg-surface-container-highest px-3 py-1 text-[10px] font-headline uppercase tracking-widest border border-outline-variant/30 hover:border-primary-container transition-all">2D VIEW</button>
+<button class="bg-primary-container text-on-primary px-3 py-1 text-[10px] font-headline uppercase tracking-widest font-bold">TOPOGRAPHIC</button>
+</div>
+</div>
+<!-- SIMULATED MAP UI -->
+<div class="absolute inset-0 grayscale contrast-125 opacity-40 bg-cover bg-center" data-alt="Dark monochrome topographic map of a rugged mountain terrain with high contrast elevation lines and technical data overlays" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1P3xjRoUVGYFsF2RugKsHE6Pge0ElabrJAFosSr0WRTR9HWHRvSbgrLrA6zvk2KHIXWvOgYtiTkggTWhXPSGu9BFuu8V30EmN9dDC54mUbcQelSzHfkkELkl703SBtQphLoJN6h63WnWyIA-J6sO-jtgqztFBQ_S3LFjfpQ83aX-VRt8oG6ka9Tn1RXlgfHzn1k5wHjSCD3jbbiyjwX2HiGPuDc04bdS-cWGgtsOHeDUODPsnthJ8R7QhWkeFqwsnaLL6EGhas_k')">
+</div>
+<!-- MAP OVERLAYS -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 1000 500">
+<path d="M 100,400 L 250,350 L 400,380 L 550,200 L 700,250 L 900,100" fill="none" stroke="#cafd00" stroke-dasharray="8 4" stroke-width="3"></path>
+<circle cx="100" cy="400" fill="#cafd00" r="5"></circle>
+<circle class="animate-ping" cx="550" cy="200" fill="#00eefc" r="8"></circle>
+<circle cx="550" cy="200" fill="#00eefc" r="5"></circle>
+<circle cx="900" cy="100" fill="#cafd00" r="5"></circle>
+</svg>
+<div class="absolute bottom-6 right-6 flex flex-col gap-2">
+<div class="bg-black/60 backdrop-blur-sm p-4 border-l-2 border-secondary">
+<p class="text-[9px] font-headline text-secondary uppercase tracking-widest mb-1">Current Focus</p>
+<p class="text-sm font-headline font-bold text-white uppercase">SQUAD-DELTA (4)</p>
+<p class="text-[10px] text-on-surface-variant mt-1">LAT: 51.5074° N<br/>LNG: 0.1278° W</p>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: TELEMETRY FEED -->
+<div class="space-y-4">
+<div class="bg-surface-container p-6">
+<h3 class="font-headline font-bold text-sm uppercase tracking-widest mb-4 flex items-center justify-between">
+                        Pulse Feed
+                        <span class="text-[10px] text-on-surface-variant font-normal">LIVE UPDATES</span>
+</h3>
+<div class="space-y-4">
+<div class="flex gap-4 border-l-2 border-primary-container pl-4 py-1">
+<div>
+<p class="text-[10px] text-on-surface-variant font-headline">14:22:04</p>
+<p class="text-xs font-bold uppercase">BIB #1044 Crosses Sector 3</p>
+</div>
+</div>
+<div class="flex gap-4 border-l-2 border-secondary pl-4 py-1">
+<div>
+<p class="text-[10px] text-on-surface-variant font-headline">14:21:58</p>
+<p class="text-xs font-bold uppercase">Medical Alert: Sector 1 (Handled)</p>
+</div>
+</div>
+<div class="flex gap-4 border-l-2 border-primary-container pl-4 py-1">
+<div>
+<p class="text-[10px] text-on-surface-variant font-headline">14:20:15</p>
+<p class="text-xs font-bold uppercase">Lead Pack reaches 'The Incline'</p>
+</div>
+</div>
+<div class="flex gap-4 border-l-2 border-white/20 pl-4 py-1">
+<div>
+<p class="text-[10px] text-on-surface-variant font-headline">14:18:44</p>
+<p class="text-xs font-bold uppercase">System: Satellite Link Re-stabilized</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2 border border-outline-variant/30 text-[10px] font-headline uppercase tracking-[0.2em] hover:bg-surface-container-highest transition-colors">View All Logs</button>
+</div>
+<div class="bg-surface-container p-6 overflow-hidden relative">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline font-bold text-sm uppercase tracking-widest">Ambient Load</h3>
+<span class="text-primary-container font-headline font-bold text-xs">88%</span>
+</div>
+<div class="flex items-end gap-1 h-20">
+<div class="bg-primary-container w-full h-[40%]"></div>
+<div class="bg-primary-container w-full h-[60%]"></div>
+<div class="bg-primary-container w-full h-[55%]"></div>
+<div class="bg-primary-container w-full h-[80%]"></div>
+<div class="bg-primary-container w-full h-[95%]"></div>
+<div class="bg-primary-container w-full h-[70%]"></div>
+<div class="bg-primary-container w-full h-[85%]"></div>
+<div class="bg-primary-container w-full h-[60%]"></div>
+<div class="bg-secondary w-full h-[90%]"></div>
+<div class="bg-primary-container w-full h-[45%]"></div>
+</div>
+<p class="text-[9px] text-on-surface-variant font-headline uppercase tracking-[0.2em] mt-4">DATA THROUGHPUT OPTIMIZED</p>
+</div>
+</div>
+</div>
+<!-- BIB MANAGEMENT TABLE -->
+<section class="bg-surface-container-low border-t border-outline-variant/10">
+<div class="p-6 flex justify-between items-center border-b border-outline-variant/10">
+<h3 class="font-headline font-black text-xl uppercase tracking-tighter">BIB Management</h3>
+<div class="flex gap-4">
+<div class="bg-surface-container-high px-3 py-2 flex items-center gap-4 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="text-[10px] font-headline tracking-widest text-on-surface-variant">FILTER: ALL STATUS</span>
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+</div>
+<button class="bg-secondary-container text-secondary px-4 py-2 text-[10px] font-headline font-bold uppercase tracking-widest">Export Manifest</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container">
+<tr>
+<th class="p-4 text-[10px] font-headline uppercase tracking-[0.2em] text-on-surface-variant">BIB ID</th>
+<th class="p-4 text-[10px] font-headline uppercase tracking-[0.2em] text-on-surface-variant">PARTICIPANT NAME</th>
+<th class="p-4 text-[10px] font-headline uppercase tracking-[0.2em] text-on-surface-variant">STATUS</th>
+<th class="p-4 text-[10px] font-headline uppercase tracking-[0.2em] text-on-surface-variant">LAST CHECKPOINT</th>
+<th class="p-4 text-[10px] font-headline uppercase tracking-[0.2em] text-on-surface-variant">EST. ARRIVAL</th>
+<th class="p-4 text-[10px] font-headline uppercase tracking-[0.2em] text-on-surface-variant text-right">ACTION</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="p-4 font-headline font-bold text-primary-container">#1044</td>
+<td class="p-4 uppercase text-xs font-semibold tracking-tight">Eriksson, Lukas</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-2 px-2 py-1 bg-primary-container/10 text-primary-container text-[10px] font-headline font-bold border-l-2 border-primary-container uppercase">
+                                    On Track
+                                </span>
+</td>
+<td class="p-4 text-xs text-on-surface-variant font-headline">Sector 03: The Flats</td>
+<td class="p-4 text-xs font-headline">15:45:00</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="p-4 font-headline font-bold text-primary-container">#1089</td>
+<td class="p-4 uppercase text-xs font-semibold tracking-tight">Chen, Wei</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-2 px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-headline font-bold border-l-2 border-secondary uppercase">
+                                    Idle
+                                </span>
+</td>
+<td class="p-4 text-xs text-on-surface-variant font-headline">Sector 01: Base</td>
+<td class="p-4 text-xs font-headline">N/A</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="p-4 font-headline font-bold text-primary-container">#0922</td>
+<td class="p-4 uppercase text-xs font-semibold tracking-tight">O'Connor, Sarah</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-2 px-2 py-1 bg-white/10 text-white text-[10px] font-headline font-bold border-l-2 border-white uppercase">
+                                    Finished
+                                </span>
+</td>
+<td class="p-4 text-xs text-on-surface-variant font-headline">Sector 10: Finish Line</td>
+<td class="p-4 text-xs font-headline">COMPLETE</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="p-4 font-headline font-bold text-primary-container">#1102</td>
+<td class="p-4 uppercase text-xs font-semibold tracking-tight">Müller, Hans</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-2 px-2 py-1 bg-error/10 text-error text-[10px] font-headline font-bold border-l-2 border-error uppercase">
+                                    DNS
+                                </span>
+</td>
+<td class="p-4 text-xs text-on-surface-variant font-headline">N/A</td>
+<td class="p-4 text-xs font-headline">N/A</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-surface-container-lowest flex justify-between items-center">
+<p class="text-[10px] font-headline text-on-surface-variant uppercase tracking-widest">Displaying 1-10 of 1,284 Records</p>
+<div class="flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center bg-surface-container hover:bg-surface-container-highest transition-colors"><span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span></button>
+<button class="w-8 h-8 flex items-center justify-center bg-primary-container text-on-primary font-bold text-[10px]">1</button>
+<button class="w-8 h-8 flex items-center justify-center bg-surface-container hover:bg-surface-container-highest transition-colors text-[10px]">2</button>
+<button class="w-8 h-8 flex items-center justify-center bg-surface-container hover:bg-surface-container-highest transition-colors text-[10px]">3</button>
+<button class="w-8 h-8 flex items-center justify-center bg-surface-container hover:bg-surface-container-highest transition-colors"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+</section>
+</main>
+<!-- FLOATING HUD ELEMENT (TOOLTIP MOCK) -->
+<div class="fixed bottom-8 left-72 bg-black border border-primary-container p-3 z-50 shadow-2xl pointer-events-none opacity-90">
+<div class="flex items-center gap-3">
+<div class="w-1 h-8 bg-primary-container"></div>
+<div>
+<p class="text-[9px] font-headline text-primary-container uppercase tracking-widest">Active Link</p>
+<p class="text-xs font-bold font-headline uppercase">SAT-04 SYNC: 242ms</p>
+</div>
+</div>
+</div>
+</body></html>

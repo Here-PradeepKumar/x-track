@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#CCFF00",
+              "on-primary": "#000000",
+              "background": "#0e0e0e",
+              "surface": "#131313",
+              "surface-container": "#1a1919",
+              "surface-variant": "#262626",
+              "on-surface": "#ffffff",
+              "on-surface-variant": "#adaaaa",
+              "outline": "#333333"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk", "sans-serif"],
+              "body": ["Space Grotesk", "sans-serif"],
+              "label": ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0px",
+              "lg": "0px",
+              "xl": "0px",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .electric-gradient {
+        background: linear-gradient(135deg, #CCFF00 0%, #a8d200 100%);
+      }
+      .scan-glow {
+        box-shadow: 0 0 40px rgba(204, 255, 0, 0.15);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 z-50 flex justify-between items-center w-full px-6 py-4 bg-[#0e0e0e] border-b border-white/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="sensors">sensors</span>
+<h1 class="text-xl font-black text-primary tracking-widest font-headline uppercase">X-TRACK</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-headline text-[10px] font-bold tracking-widest text-primary border border-primary px-3 py-1 uppercase">VOLUNTEER MODE</span>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-white/10 active:scale-95 transition-transform duration-100">
+<img alt="Volunteer Profile" class="w-full h-full object-cover grayscale brightness-125" data-alt="User profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYQGZDWENG3S1v6iWOjWtSlZQ3CITBnJRfp5jQLkoZn1Wbvt30mLfCL7NM9-YXCSMwITmKbbkCdfn6qH1kHDF1Rpno-FM34WkBqXuFtkos_GbMirGfS9iwx7ANCaP_LRBN8HWqcePVMNpfI0HyoOaZ3mIHenvAGjF370doEGWceKKu7Mr7uqYqUFNIxGbsLv1ASLLi1kYd7tn4tHixoSfiZxVJXdXDLv-i3CNYDnP1kmk8edRhji5y3Rw2NHOrBh1najlPHMsiBq0"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-xl mx-auto min-h-screen flex flex-col">
+<!-- Instructional Hero: High Contrast Outdoor Interface -->
+<section class="flex-grow flex flex-col items-center justify-center text-center space-y-12 py-8">
+<div class="space-y-4">
+<h2 class="font-headline font-extrabold text-5xl tracking-tighter leading-none text-white uppercase italic">
+                    TAP NFC BAND <br/>
+<span class="text-primary">TO REGISTER BIB</span>
+</h2>
+<p class="font-label text-on-surface-variant text-xs tracking-widest uppercase font-bold">Hold wristband near device scanner</p>
+</div>
+<!-- Central Scanning Icon / Kinetic Aesthetic -->
+<div class="relative w-64 h-64 flex items-center justify-center">
+<div class="absolute inset-0 border border-primary/20 scale-100"></div>
+<div class="absolute inset-4 border border-primary/10 scale-100"></div>
+<div class="w-48 h-48 bg-surface-container flex items-center justify-center scan-glow border border-primary/30 rounded-full">
+<div class="bg-primary w-24 h-24 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-5xl text-black" data-icon="contactless" style="font-variation-settings: 'wght' 400;">contactless</span>
+</div>
+</div>
+<!-- Status Indicator -->
+<div class="absolute -bottom-2 bg-primary px-6 py-2 flex items-center gap-3">
+<span class="w-2 h-2 bg-black animate-pulse"></span>
+<span class="font-headline text-[11px] font-black tracking-[0.2em] uppercase text-black">SCANNING...</span>
+</div>
+</div>
+</section>
+<!-- Dynamic Data Fields -->
+<section class="space-y-3 w-full">
+<div class="grid grid-cols-1 gap-3">
+<!-- BIB Number Field -->
+<div class="bg-surface-container border-l-4 border-primary p-5 flex flex-col">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold mb-1">BIB ASSIGNMENT</span>
+<div class="flex justify-between items-end">
+<span class="font-headline font-black text-4xl text-white tracking-tighter"># -- -- --</span>
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="tag">tag</span>
+</div>
+</div>
+<!-- Participant Name Field -->
+<div class="bg-surface-container border-l-4 border-surface-variant p-5 flex flex-col">
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest font-bold mb-1">PARTICIPANT PROFILE</span>
+<div class="flex justify-between items-end">
+<span class="font-headline font-bold text-xl text-white italic tracking-tight uppercase">READY FOR INPUT</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="badge">badge</span>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="pt-6 space-y-4">
+<button class="bg-primary w-full py-6 flex items-center justify-center gap-3 active:scale-[0.97] transition-all group">
+<span class="font-headline font-black text-2xl tracking-tighter uppercase text-black italic">CONFIRM BIB</span>
+<span class="material-symbols-outlined text-black text-3xl group-active:translate-x-1 transition-transform" data-icon="arrow_forward_ios">arrow_forward_ios</span>
+</button>
+<button class="w-full py-4 font-headline text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant hover:text-primary transition-colors border border-white/5">
+                    Manual Search Entry
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 bg-background border-t border-white/5">
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+<span class="font-headline text-[10px] font-bold tracking-tight uppercase">DASHBOARD</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary px-4 py-2 bg-surface-container/50 border-t-2 border-primary transition-all">
+<span class="material-symbols-outlined" data-icon="share_location">share_location</span>
+<span class="font-headline text-[10px] font-bold tracking-tight uppercase">TRACKING</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-headline text-[10px] font-bold tracking-tight uppercase">LOGISTICS</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-white transition-all">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-headline text-[10px] font-bold tracking-tight uppercase">PROFILE</span>
+</button>
+</nav>
+<!-- Decorative Monolith Elements -->
+<div class="fixed inset-0 -z-10 bg-background pointer-events-none overflow-hidden">
+<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+<div class="absolute bottom-0 left-0 w-full h-[1px] bg-primary/10"></div>
+</div>
+</body></html>

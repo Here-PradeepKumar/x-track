@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>X-TRACK ADMIN | Electric Performance Control</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error-container": "#9f0519",
+              "on-primary-container": "#000000",
+              "surface": "#0a0a0a",
+              "on-background": "#ffffff",
+              "surface-bright": "#1a1a1a",
+              "primary": "#ccff00",
+              "secondary": "#00f0ff",
+              "background": "#0a0a0a",
+              "surface-container-low": "#111111",
+              "surface-container-highest": "#222222",
+              "on-surface": "#ffffff",
+              "on-surface-variant": "#adaaaa",
+              "outline": "#333333",
+              "primary-container": "#ccff00",
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk", "Inter", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .kinetic-gradient {
+            background: linear-gradient(90deg, #ccff00 0%, #a3cc00 100%);
+        }
+        .voltage-border {
+            border-left: 4px solid #ccff00;
+            box-shadow: -8px 0 15px -5px rgba(204, 255, 0, 0.3);
+        }
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(204, 255, 0, 0.1);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #ccff00; }
+        .glitch-hover:hover {
+            text-shadow: 2px 0 #00f0ff, -2px 0 #ccff00;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary selection:text-on-primary-container">
+<!-- TopAppBar (from COMPONENTS_12) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0e0e0e] border-b border-[#2c2c2c]">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black italic text-[#cafd00] font-['Space_Grotesk'] uppercase tracking-tighter">X-TRACK</span>
+<div class="hidden md:flex items-center gap-2 bg-[#2c2c2c] px-3 py-1.5 rounded-none">
+<span class="material-symbols-outlined text-[#adaaaa] text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm font-label w-64 text-on-surface placeholder-[#adaaaa]" placeholder="SYSTEM SEARCH..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-[#1a1919] transition-colors duration-150 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[#adaaaa]" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#1a1919] transition-colors duration-150 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[#adaaaa]" data-icon="settings">settings</span>
+</button>
+<button class="p-2 hover:bg-[#1a1919] transition-colors duration-150 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[#adaaaa]" data-icon="terminal">terminal</span>
+</button>
+<div class="h-8 w-8 rounded-none border border-[#cafd00] p-0.5 flex items-center justify-center">
+<img alt="Admin Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfDZu6icVA5vJKpK-iOy-AJRKefiJtNgjndJ96cBOts_MRaxoq-4LOu1ptoBeQ284Ln5jkuRymgvUQGq3rLeMosoe2UFfd55WujWUq3LVrSrG3jEQu-s4R3rLB1Q79NFObNImsZSPtYDmnrpMbLruwhhMP06qWSG0SeDEXkCcAxtjNvPcDbxiSexexRN2WRzlEFaQdo3ioy_QyZH8ViADiKicFOW-YDDDJf9HQCDA4BWeP16Er16DTuC_Z4Zv5pTAxzbsSyckU5AE"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (from COMPONENTS_12) -->
+<aside class="fixed left-0 top-0 h-full w-64 pt-16 flex flex-col z-40 bg-[#131313]">
+<div class="px-6 py-8 border-b border-[#2c2c2c]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-[#1a1919] border border-[#cafd00] flex items-center justify-center">
+<span class="material-symbols-outlined text-[#cafd00]" data-icon="admin_panel_settings">admin_panel_settings</span>
+</div>
+<div>
+<p class="text-[#cafd00] font-['Space_Grotesk'] font-bold text-xs tracking-widest">OPERATOR_01</p>
+<p class="text-[10px] text-[#adaaaa] font-label uppercase tracking-tighter">Level 4 Access</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 mt-4">
+<a class="flex items-center gap-3 bg-[#1a1919] text-[#cafd00] border-l-4 border-[#cafd00] px-6 py-4 font-['Space_Grotesk'] font-bold text-xs tracking-widest shadow-[0_0_8px_rgba(202,253,0,0.2)]" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span>TELEMETRY</span>
+</a>
+<a class="flex items-center gap-3 text-[#adaaaa] opacity-70 px-6 py-4 hover:bg-[#1a1919] hover:text-[#cafd00] transition-all duration-200 font-['Space_Grotesk'] font-bold text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span>FLEET</span>
+</a>
+<a class="flex items-center gap-3 text-[#adaaaa] opacity-70 px-6 py-4 hover:bg-[#1a1919] hover:text-[#cafd00] transition-all duration-200 font-['Space_Grotesk'] font-bold text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+<span>DIAGNOSTICS</span>
+</a>
+<a class="flex items-center gap-3 text-[#adaaaa] opacity-70 px-6 py-4 hover:bg-[#1a1919] hover:text-[#cafd00] transition-all duration-200 font-['Space_Grotesk'] font-bold text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span>ENERGY</span>
+</a>
+<a class="flex items-center gap-3 text-[#adaaaa] opacity-70 px-6 py-4 hover:bg-[#1a1919] hover:text-[#cafd00] transition-all duration-200 font-['Space_Grotesk'] font-bold text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>LOGS</span>
+</a>
+<a class="flex items-center gap-3 text-[#adaaaa] opacity-70 px-6 py-4 hover:bg-[#1a1919] hover:text-[#cafd00] transition-all duration-200 font-['Space_Grotesk'] font-bold text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>USERS</span>
+</a>
+</nav>
+<div class="px-6 mb-6">
+<button class="w-full bg-[#1a1919] border border-red-500/50 text-red-500 font-['Space_Grotesk'] font-bold py-3 text-[10px] tracking-[0.2em] hover:bg-red-500 hover:text-white transition-all active:scale-95">
+            SYSTEM_SHUTDOWN
+        </button>
+</div>
+<div class="pt-4 border-t border-[#2c2c2c] mb-6">
+<a class="flex items-center gap-3 text-[#adaaaa] opacity-70 px-6 py-3 hover:bg-[#1a1919] hover:text-[#cafd00] transition-all font-['Space_Grotesk'] font-bold text-[10px] tracking-widest" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help">help</span>
+<span>SUPPORT</span>
+</a>
+<a class="flex items-center gap-3 text-[#adaaaa] opacity-70 px-6 py-3 hover:bg-[#1a1919] hover:text-[#cafd00] transition-all font-['Space_Grotesk'] font-bold text-[10px] tracking-widest" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="code">code</span>
+<span>API</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-16 min-h-screen bg-surface">
+<div class="p-6 grid grid-cols-12 gap-6">
+<!-- Dashboard Header Stats -->
+<div class="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+<div class="bg-surface-container-low p-5 border border-outline/50 flex flex-col">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Active Athletes</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-4xl font-black font-headline tracking-tighter">1,284</span>
+<span class="text-primary text-xs font-label">/ +12%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 border border-outline/50 flex flex-col">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">Avg. Completion</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-4xl font-black font-headline tracking-tighter">02:45</span>
+<span class="text-on-surface-variant text-xs font-label uppercase">Hrs</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 voltage-border flex flex-col">
+<span class="text-primary font-label text-[10px] uppercase tracking-[0.2em]">Obstacle Density</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-4xl font-black font-headline tracking-tighter">HIGH</span>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="warning">warning</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 border border-outline/50 flex flex-col">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em]">NFC Poll Rate</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-4xl font-black font-headline tracking-tighter">99.8</span>
+<span class="text-secondary text-xs font-label">%</span>
+</div>
+</div>
+</div>
+<!-- Live Race Map -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-low border border-outline/50 min-h-[500px] relative overflow-hidden flex flex-col">
+<div class="p-4 flex items-center justify-between border-b border-outline/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="map">map</span>
+<h3 class="font-headline font-bold uppercase tracking-widest text-sm">Race Map // Sector_Alpha</h3>
+</div>
+<div class="flex gap-2">
+<span class="flex items-center gap-2 px-3 py-1 bg-[#1a1a1a] border border-primary/30 text-[10px] font-label uppercase text-primary">
+<span class="w-2 h-2 bg-primary animate-ping rounded-full"></span> LIVE_FEED
+                    </span>
+<span class="flex items-center gap-2 px-3 py-1 bg-[#1a1a1a] border border-outline/50 text-[10px] font-label uppercase text-on-surface-variant hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined text-[14px]" data-icon="layers">layers</span> TOPO_VIEW
+                    </span>
+</div>
+</div>
+<div class="flex-1 relative bg-black/50">
+<div class="absolute inset-0 grayscale contrast-125 opacity-20 mix-blend-screen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBv5jxTz6BYSNsJEYgTWSGcmphNqxaylQ8pQLaQfZtFlVH1d-R39YNdilPg_bftQcLCLFyvIHdsJYcHPNwlsWA0nIbR2N6qjwWwyVyOy_sKhy61HVB3_2WPd73Ohi4nd3nMdJ3vyybInlyg0w--S61SJc5jxyacWvumwIjmHrN7_3UiiaH4iG8F5RDBwZtQH3EtR7TCuSlWc1JJn0fRD3_Uu5n6Bnrn-3HJnKvGwJk-UPuBeKyD98zbrhCaU5NdvyB8VH0Uumeh0Yo'); background-size: cover; background-position: center;"></div>
+<!-- Tactical Overlays -->
+<div class="absolute top-[30%] left-[40%] w-20 h-20 bg-primary/10 border border-primary/40 rounded-none flex items-center justify-center">
+<div class="w-2 h-2 bg-primary shadow-[0_0_15px_#ccff00]"></div>
+<div class="absolute -top-6 -left-6 text-[8px] font-label text-primary bg-black/80 px-1">OBJ_04</div>
+</div>
+<div class="absolute top-[65%] left-[60%] w-32 h-32 bg-secondary/10 border border-secondary/40 rounded-none flex items-center justify-center">
+<div class="w-3 h-3 bg-secondary shadow-[0_0_15px_#00f0ff]"></div>
+<div class="absolute -bottom-6 -right-6 text-[8px] font-label text-secondary bg-black/80 px-1">SECTOR_07</div>
+</div>
+<!-- Floating Data Modules -->
+<div class="absolute bottom-6 left-6 right-6 flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+<div class="glass-panel p-4 min-w-[200px]">
+<p class="text-[9px] text-on-surface-variant font-label uppercase tracking-widest mb-1">Obstacle 04: The Wall</p>
+<p class="text-2xl font-black font-headline text-primary">242 <span class="text-[10px] text-on-surface-variant font-label">UNIT_COUNT</span></p>
+<div class="w-full h-1 bg-[#222222] mt-3">
+<div class="bg-primary h-full w-[85%]"></div>
+</div>
+</div>
+<div class="glass-panel p-4 min-w-[200px]">
+<p class="text-[9px] text-on-surface-variant font-label uppercase tracking-widest mb-1">Obstacle 07: Mud Pit</p>
+<p class="text-2xl font-black font-headline text-secondary">118 <span class="text-[10px] text-on-surface-variant font-label">UNIT_COUNT</span></p>
+<div class="w-full h-1 bg-[#222222] mt-3">
+<div class="bg-secondary h-full w-[30%]"></div>
+</div>
+</div>
+<div class="glass-panel p-4 min-w-[200px]">
+<p class="text-[9px] text-on-surface-variant font-label uppercase tracking-widest mb-1">Final Sprint</p>
+<p class="text-2xl font-black font-headline text-white">56 <span class="text-[10px] text-on-surface-variant font-label">UNIT_COUNT</span></p>
+<div class="w-full h-1 bg-[#222222] mt-3">
+<div class="bg-white h-full w-[15%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Real-time Stats Sidebar -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+<!-- System Health Widget -->
+<div class="bg-surface-container-low p-6 border border-outline/50">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline font-extrabold uppercase tracking-widest text-xs">System Integrity</h3>
+<span class="text-[9px] font-label text-primary border border-primary/40 px-3 py-1 bg-primary/5">NOMINAL</span>
+</div>
+<div class="space-y-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" data-icon="sensors">sensors</span>
+<span class="font-label text-xs tracking-wider">RFID GATE CLUSTER</span>
+</div>
+<span class="text-sm font-black font-headline text-primary">99.2%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" data-icon="router">router</span>
+<span class="font-label text-xs tracking-wider">MESH NODE LATENCY</span>
+</div>
+<span class="text-sm font-black font-headline text-secondary">12ms</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" data-icon="battery_full">battery_full</span>
+<span class="font-label text-xs tracking-wider">REMOTE SCANNERS</span>
+</div>
+<span class="text-sm font-black font-headline text-on-surface">84%</span>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-outline/30">
+<p class="text-[9px] text-on-surface-variant font-label uppercase tracking-[0.3em] mb-4">Traffic Density Pattern</p>
+<div class="flex items-end gap-1.5 h-16">
+<div class="bg-primary/40 w-full h-[60%]"></div>
+<div class="bg-primary/60 w-full h-[80%]"></div>
+<div class="bg-primary/30 w-full h-[40%]"></div>
+<div class="bg-primary w-full h-[95%]"></div>
+<div class="bg-primary/80 w-full h-[70%]"></div>
+<div class="bg-secondary/60 w-full h-[55%]"></div>
+<div class="bg-secondary w-full h-[85%]"></div>
+</div>
+</div>
+</div>
+<!-- Obstacle Clearance Stats -->
+<div class="bg-surface-container-low p-6 border border-outline/50 flex-1">
+<h3 class="font-headline font-extrabold uppercase tracking-widest text-xs mb-8">Performance Throughput</h3>
+<div class="space-y-8">
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-[10px] font-label uppercase tracking-widest text-on-surface-variant">
+<span>Rope Climb</span>
+<span class="text-primary font-bold">42s</span>
+</div>
+<div class="h-1.5 bg-[#222222]">
+<div class="h-full bg-primary w-[65%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-[10px] font-label uppercase tracking-widest text-on-surface-variant">
+<span>Cold Plunge</span>
+<span class="text-secondary font-bold">18s</span>
+</div>
+<div class="h-1.5 bg-[#222222]">
+<div class="h-full bg-secondary w-[25%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-[10px] font-label uppercase tracking-widest text-on-surface-variant">
+<span>Monkey Bars</span>
+<span class="text-on-surface font-bold">58s</span>
+</div>
+<div class="h-1.5 bg-[#222222]">
+<div class="h-full bg-on-surface w-[85%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-[10px] font-label uppercase tracking-widest text-on-surface-variant">
+<span>Barbed Wire</span>
+<span class="text-primary font-bold">110s</span>
+</div>
+<div class="h-1.5 bg-[#222222]">
+<div class="h-full bg-primary w-[95%]"></div>
+</div>
+</div>
+</div>
+<button class="w-full mt-10 py-4 bg-transparent border border-outline hover:border-primary hover:text-primary transition-all text-[10px] font-label uppercase tracking-[0.3em] font-bold">
+                    [ ACCESS_FULL_METRICS ]
+                </button>
+</div>
+</div>
+<!-- BIB Search & Participant Table -->
+<div class="col-span-12 bg-surface-container-low border border-outline/50">
+<div class="p-6 border-b border-outline/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div>
+<h3 class="font-headline font-black uppercase tracking-widest text-xl text-primary">Personnel Tracking</h3>
+<p class="text-[10px] text-on-surface-variant font-label uppercase tracking-widest mt-1">Real-time status lookup // biometric data</p>
+</div>
+<div class="flex gap-2">
+<div class="bg-[#1a1a1a] border border-outline px-4 py-2.5 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs font-label text-on-surface w-56 placeholder-on-surface-variant/40" placeholder="SEARCH BIB_ID OR ALIAS" type="text"/>
+</div>
+<button class="bg-[#1a1a1a] border border-outline px-4 py-2.5 hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-[9px] font-label uppercase tracking-[0.25em] text-on-surface-variant border-b border-outline/30 bg-black/20">
+<th class="px-8 py-5 font-bold">BIB_ID</th>
+<th class="px-8 py-5 font-bold">PARTICIPANT</th>
+<th class="px-8 py-5 font-bold">LAST_SCAN_POINT</th>
+<th class="px-8 py-5 font-bold">STATUS</th>
+<th class="px-8 py-5 font-bold">ELAPSED_T</th>
+<th class="px-8 py-5 font-bold text-right">COMMANDS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline/10">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-8 py-5 font-headline font-black text-primary tracking-tighter">#4822</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 border border-primary/20 p-0.5 grayscale group-hover:grayscale-0 transition-all">
+<img class="w-full h-full object-cover" data-alt="Male athlete profile portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfDZu6icVA5vJKpK-iOy-AJRKefiJtNgjndJ96cBOts_MRaxoq-4LOu1ptoBeQ284Ln5jkuRymgvUQGq3rLeMosoe2UFfd55WujWUq3LVrSrG3jEQu-s4R3rLB1Q79NFObNImsZSPtYDmnrpMbLruwhhMP06qWSG0SeDEXkCcAxtjNvPcDbxiSexexRN2WRzlEFaQdo3ioy_QyZH8ViADiKicFOW-YDDDJf9HQCDA4BWeP16Er16DTuC_Z4Zv5pTAxzbsSyckU5AE"/>
+</div>
+<div>
+<p class="text-sm font-black font-headline tracking-tight uppercase group-hover:text-primary">Marcus Chen</p>
+<p class="text-[9px] text-on-surface-variant font-label tracking-widest">ELITE_WAVE_01</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5 text-[11px] font-label uppercase tracking-tight text-on-surface-variant">Gate 14 // Water Crossing</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 bg-primary/10 border border-primary/30 text-primary text-[9px] font-bold font-label uppercase tracking-widest">ON_TRACK</span>
+</td>
+<td class="px-8 py-5 font-headline font-black text-sm text-secondary">01:14:32</td>
+<td class="px-8 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-secondary/5 transition-colors group">
+<td class="px-8 py-5 font-headline font-black text-primary tracking-tighter">#1903</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 border border-secondary/20 p-0.5 grayscale group-hover:grayscale-0 transition-all">
+<img class="w-full h-full object-cover" data-alt="Female athlete profile portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBcl4pQhLzT8lWvjDEMEhHcn5ZyG_n0574LkRicmjkRuXIKsP0o4BHYI6mP69e_Z7fshvFSahEOEhtcZJNbVJcbxYFOK67n33XPLVe0NwhSZZkleWeT10PG3bagtBQnx_MTaufg_uPAnNMurerasjKNLJDe8n7ob9Vi-SM0QV5VcMRLCKuw4vzXcSUJP-qRutqFQVvLRq28-CvXOXHyqcSdryLr8yvjcBUS5ad0_dzerIa1zISbZW2j8TREoCIf20_3wJgRyHZzDI"/>
+</div>
+<div>
+<p class="text-sm font-black font-headline tracking-tight uppercase group-hover:text-secondary">Sarah J. Miller</p>
+<p class="text-[9px] text-on-surface-variant font-label tracking-widest">OPEN_WAVE_04</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5 text-[11px] font-label uppercase tracking-tight text-on-surface-variant">Gate 08 // The Vault</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 bg-[#222222] border border-outline text-on-surface-variant text-[9px] font-bold font-label uppercase tracking-widest">IDLE_SCAN</span>
+</td>
+<td class="px-8 py-5 font-headline font-black text-sm text-on-surface">02:08:15</td>
+<td class="px-8 py-5 text-right">
+<button class="text-on-surface-variant hover:text-secondary"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group border-b border-outline/30">
+<td class="px-8 py-5 font-headline font-black text-primary tracking-tighter">#7731</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 border border-primary/20 p-0.5 grayscale group-hover:grayscale-0 transition-all">
+<img class="w-full h-full object-cover" data-alt="Male athlete profile portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_RRrfSQj7k2L5K23DcnVGTSqPDmQxQ2T2846nYZxZTWE-95kSV3tatLDiON1M0F5HwJOW3atzDovjLUzFU9RFiY4EEN8_uu53em1F6PV48IffJS3MC-TIgosabTcGEJ_3MpqLj5nOanvd81ZKV8_GDC7zE7z225SSbkdWSRe7VvpeiGuesUebFY1z0ssOrXCLxG_RGc1H7Tt_pPOGWIP1fdytylddYnDdul84bajjqMEYtT-5pvUSoPK4CP21kdmCn9SC4_U-om8"/>
+</div>
+<div>
+<p class="text-sm font-black font-headline tracking-tight uppercase group-hover:text-primary">David Ortiz</p>
+<p class="text-[9px] text-on-surface-variant font-label tracking-widest">ELITE_WAVE_01</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5 text-[11px] font-label uppercase tracking-tight text-on-surface-variant">COURSE_FINISH</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 bg-primary border border-primary text-black text-[9px] font-black font-label uppercase tracking-widest">FINISHED</span>
+</td>
+<td class="px-8 py-5 font-headline font-black text-sm text-primary">00:58:12</td>
+<td class="px-8 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 flex justify-center">
+<button class="text-[10px] font-label uppercase tracking-[0.4em] text-on-surface-variant hover:text-primary transition-all font-bold">
+                    [ FETCH_ADDITIONAL_UNITS ]
+                </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Only for Live Management) -->
+<button class="fixed bottom-10 right-10 kinetic-gradient w-16 h-16 rounded-none flex items-center justify-center shadow-[0_0_30px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all z-50 group border border-black/20">
+<span class="material-symbols-outlined text-black text-3xl group-hover:animate-pulse" data-icon="broadcast_on_home">broadcast_on_home</span>
+</button>
+</body></html>

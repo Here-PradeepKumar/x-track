@@ -45,7 +45,7 @@ export function ResultsScreen() {
 
           {/* Diagonal accent */}
           <LinearGradient
-            colors={[Colors.primary + '0D', Colors.transparent]}
+            colors={[Colors.primaryContainer + '0D', Colors.transparent]}
             style={styles.diagonalAccent}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -76,7 +76,7 @@ export function ResultsScreen() {
                 </View>
                 <View style={styles.metricBox}>
                   <Text style={styles.metricBoxLabel}>FINAL RANK</Text>
-                  <Text style={styles.metricBoxValue}>42nd</Text>
+                  <Text style={[styles.metricBoxValue, { color: Colors.secondary, fontStyle: 'italic' }]}>42nd</Text>
                 </View>
               </View>
             </View>
@@ -122,7 +122,7 @@ export function ResultsScreen() {
             faster than previous personal best.
           </Text>
           <View style={styles.prBadge}>
-            <MaterialIcons name="military-tech" size={20} color={Colors.primary} />
+            <MaterialIcons name="military-tech" size={20} color={Colors.electricOrange} />
             <Text style={styles.prText}>Personal Record: Obstacle Split</Text>
           </View>
         </View>
@@ -132,11 +132,11 @@ export function ResultsScreen() {
           <Text style={styles.splitsTitle}>SPLIT BREAKDOWN</Text>
           <View style={styles.splitsList}>
             {[
-              { km: '0-5 KM', time: '22:14', pace: '4:26/km', delta: 'PR' },
-              { km: '5-10 KM', time: '24:08', pace: '4:49/km', delta: '+2:34' },
-              { km: '10-15 KM', time: '28:00', pace: '5:36/km', delta: '+5:22' },
+              { km: '0-5 KM', time: '22:14', pace: '4:26/km', delta: 'PR', accent: Colors.secondary },
+              { km: '5-10 KM', time: '24:08', pace: '4:49/km', delta: '+2:34', accent: Colors.outlineVariant },
+              { km: '10-15 KM', time: '28:00', pace: '5:36/km', delta: '+5:22', accent: Colors.primaryContainer },
             ].map((split, i) => (
-              <View key={i} style={styles.splitRow}>
+              <View key={i} style={[styles.splitRow, { borderTopWidth: 2, borderTopColor: split.accent }]}>
                 <Text style={styles.splitKm}>{split.km}</Text>
                 <Text style={styles.splitTime}>{split.time}</Text>
                 <Text style={styles.splitPace}>{split.pace}</Text>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   eventLabel: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 9,
-    color: Colors.primary,
+    color: Colors.electricOrange,
     letterSpacing: 4,
     textTransform: 'uppercase',
     marginBottom: 2,
@@ -237,9 +237,10 @@ const styles = StyleSheet.create({
   totalTime: {
     fontFamily: 'Inter_900Black',
     fontSize: 64,
-    color: Colors.onSurface,
+    color: Colors.primaryContainer,
     letterSpacing: -3,
     lineHeight: 68,
+    fontStyle: 'italic',
   },
   metricsRow: {
     flexDirection: 'row',
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
   },
   metricBoxPrimary: {
     borderLeftWidth: 4,
-    borderLeftColor: Colors.primary,
+    borderLeftColor: Colors.primaryContainer,
   },
   metricBoxLabel: {
     fontFamily: 'Lexend_400Regular',
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
   brandName: {
     fontFamily: 'Inter_900Black',
     fontSize: 18,
-    color: Colors.primary,
+    color: Colors.electricOrange,
     fontStyle: 'italic',
     letterSpacing: -0.5,
     textAlign: 'right',
@@ -438,7 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceContainerHighest,
   },
   splitDeltaPR: {
-    backgroundColor: Colors.primary + '1A',
+    backgroundColor: Colors.electricOrange + '1A',
   },
   splitDeltaText: {
     fontFamily: 'Lexend_700Bold',
@@ -448,6 +449,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   splitDeltaTextPR: {
-    color: Colors.primary,
+    color: Colors.electricOrange,
   },
 });

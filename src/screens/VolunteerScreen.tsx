@@ -115,7 +115,7 @@ export function VolunteerScreen() {
       {/* Background radial accent */}
       <View style={styles.bgAccent}>
         <LinearGradient
-          colors={[Colors.primary + '0D', 'transparent']}
+          colors={[Colors.primaryContainer + '0D', 'transparent']}
           style={StyleSheet.absoluteFillObject}
           start={{ x: 0.5, y: 0.5 }}
           end={{ x: 1, y: 1 }}
@@ -164,9 +164,7 @@ export function VolunteerScreen() {
                   : 'contactless'
               }
               size={72}
-              color={
-                scanState === 'success' ? Colors.primary : Colors.primary
-              }
+              color={Colors.primaryFixed}
               style={styles.scanIcon}
             />
           </Animated.View>
@@ -179,10 +177,10 @@ export function VolunteerScreen() {
                 {
                   backgroundColor:
                     scanState === 'success'
-                      ? Colors.primary
+                      ? Colors.primaryFixed
                       : scanState === 'scanning'
                       ? Colors.primaryDim
-                      : Colors.primary,
+                      : Colors.primaryFixed,
                 },
               ]}
             />
@@ -198,7 +196,7 @@ export function VolunteerScreen() {
 
         {/* Data Fields */}
         <View style={styles.dataSection}>
-          <View style={styles.dataField}>
+          <View style={[styles.dataField, styles.dataFieldBib]}>
             <Text style={styles.fieldLabel}>BIB NUMBER</Text>
             <View style={styles.fieldRow}>
               <Text style={styles.fieldValue}>
@@ -208,7 +206,7 @@ export function VolunteerScreen() {
             </View>
           </View>
 
-          <View style={styles.dataField}>
+          <View style={[styles.dataField, styles.dataFieldName]}>
             <Text style={styles.fieldLabel}>PARTICIPANT NAME</Text>
             <View style={styles.fieldRow}>
               <Text style={[styles.fieldValue, !athlete && styles.fieldPlaceholder]}>
@@ -302,7 +300,7 @@ export function VolunteerScreen() {
                 <Text style={styles.recentName}>{entry.name}</Text>
               </View>
               <View style={styles.recentRight}>
-                <MaterialIcons name="check-circle" size={14} color={Colors.primary} />
+                <MaterialIcons name="check-circle" size={14} color={Colors.electricOrange} />
                 <Text style={styles.recentTime}>{entry.time}</Text>
               </View>
             </View>
@@ -368,7 +366,7 @@ const styles = StyleSheet.create({
     height: 220,
     borderRadius: 110,
     borderWidth: 2,
-    borderColor: Colors.primary,
+    borderColor: Colors.primaryFixed,
   },
   middleRing: {
     position: 'absolute',
@@ -376,7 +374,7 @@ const styles = StyleSheet.create({
     height: 196,
     borderRadius: 98,
     borderWidth: 1,
-    borderColor: Colors.primary + '1A',
+    borderColor: Colors.primaryFixed + '1A',
   },
   scanCenter: {
     width: 160,
@@ -424,10 +422,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   dataField: {
-    backgroundColor: Colors.surfaceContainerHighest,
+    backgroundColor: Colors.surfaceContainerHigh,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 2,
+  },
+  dataFieldBib: {
+    borderLeftWidth: 2,
+    borderLeftColor: Colors.primaryContainer,
+  },
+  dataFieldName: {
+    borderLeftWidth: 2,
+    borderLeftColor: Colors.secondary,
   },
   fieldLabel: {
     fontFamily: 'Lexend_400Regular',
@@ -484,7 +490,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   manualSearchBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryContainer,
     paddingHorizontal: 20,
     borderRadius: 2,
     alignItems: 'center',
@@ -552,7 +558,7 @@ const styles = StyleSheet.create({
   recentBib: {
     fontFamily: 'Lexend_700Bold',
     fontSize: 13,
-    color: Colors.primary,
+    color: Colors.electricOrange,
     letterSpacing: 1,
   },
   recentName: {

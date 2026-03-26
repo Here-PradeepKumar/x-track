@@ -30,7 +30,8 @@
     "react-native-screens": "3.31.1",
     "react-native-web": "~0.19.10",
     "@x-track/firebase": "*",
-    "@x-track/ui": "*"
+    "@x-track/ui": "*",
+    "@react-native-community/cli-platform-android": "13.6.9"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

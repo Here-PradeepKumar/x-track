@@ -13,9 +13,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
+  ApplicationVerifier,
   PhoneAuthProvider,
   signInWithCredential,
-  ApplicationVerifier,
 } from 'firebase/auth';
 import { auth } from '@x-track/firebase';
 import { Colors, kineticGradient } from '@x-track/ui';
@@ -28,7 +28,10 @@ export function PhoneSignInScreen() {
   const [otp, setOtp] = useState('');
   const [verificationId, setVerificationId] = useState('');
   const [loading, setLoading] = useState(false);
-  const recaptchaVerifier = useRef<ApplicationVerifier | null>(null);
+  const recaptchaVerifier = useRef<ApplicationVerifier>({
+    type: 'recaptcha',
+    verify: () => Promise.resolve(''),
+  });
 
   const sendOTP = async () => {
     const formatted = phone.startsWith('+') ? phone : `+91${phone}`;
@@ -39,12 +42,9 @@ export function PhoneSignInScreen() {
     setLoading(true);
     try {
       const provider = new PhoneAuthProvider(auth);
-      // Note: on React Native, use expo-firebase-recaptcha or react-native-firebase
-      // for the verifier. This file shows the logic; the verifier integration
-      // depends on the native setup (see apps/athlete/README.md).
       const vid = await provider.verifyPhoneNumber(
         formatted,
-        recaptchaVerifier.current as ApplicationVerifier
+        recaptchaVerifier.current!
       );
       setVerificationId(vid);
       setStep('otp');

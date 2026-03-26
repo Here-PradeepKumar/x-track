@@ -143,7 +143,7 @@ export const createOrganizerInvite = functions.https.onCall(async (_data, contex
 export const acceptOrganizerInvite = functions.https.onCall(async (data, context) => {
   if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
 
-  const { inviteId } = data as { inviteId: string };
+  const { inviteId, displayName } = data as { inviteId: string; displayName?: string };
   const inviteRef = db.doc(`invitations/${inviteId}`);
   const inviteSnap = await inviteRef.get();
 
@@ -167,7 +167,11 @@ export const acceptOrganizerInvite = functions.https.onCall(async (data, context
 
   // Set role via Admin SDK (client cannot write role field directly)
   await db.doc(`users/${uid}`).set(
-    { role: 'organizer', createdAt: admin.firestore.FieldValue.serverTimestamp() },
+    {
+      role: 'organizer',
+      ...(displayName ? { displayName } : {}),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    },
     { merge: true }
   );
 
@@ -223,7 +227,7 @@ export const createVolunteerInvite = functions.https.onCall(async (data, context
 export const acceptVolunteerInvite = functions.https.onCall(async (data, context) => {
   if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
 
-  const { inviteId } = data as { inviteId: string };
+  const { inviteId, displayName } = data as { inviteId: string; displayName?: string };
   const inviteRef = db.doc(`invitations/${inviteId}`);
   const inviteSnap = await inviteRef.get();
 
@@ -251,6 +255,7 @@ export const acceptVolunteerInvite = functions.https.onCall(async (data, context
       role: 'volunteer',
       assignedEventId: invite.targetEventId,
       assignedMilestoneId: invite.targetMilestoneId,
+      ...(displayName ? { displayName } : {}),
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     },
     { merge: true }

@@ -16,13 +16,14 @@ import * as SplashScreen from 'expo-splash-screen';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { VolunteerNavigator } from './src/navigation/VolunteerNavigator';
 import { PhoneSignInScreen } from './src/screens/PhoneSignInScreen';
+import { AcceptInviteScreen } from './src/screens/AcceptInviteScreen';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { Colors } from '@x-track/ui';
 
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { user, loading } = useAuth();
+  const { user, userDoc, loading } = useAuth();
 
   if (loading) {
     return (
@@ -34,6 +35,10 @@ function RootNavigator() {
 
   if (!user) {
     return <PhoneSignInScreen />;
+  }
+
+  if (!userDoc?.assignedEventId) {
+    return <AcceptInviteScreen />;
   }
 
   return (

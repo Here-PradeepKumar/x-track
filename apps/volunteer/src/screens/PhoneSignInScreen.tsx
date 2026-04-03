@@ -13,11 +13,11 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
-  ApplicationVerifier,
   PhoneAuthProvider,
   signInWithCredential,
 } from 'firebase/auth';
-import { auth } from '@x-track/firebase';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import { auth, firebaseConfig } from '@x-track/firebase';
 import { Colors, kineticGradient } from '@x-track/ui';
 
 type Step = 'phone' | 'otp';
@@ -28,10 +28,7 @@ export function PhoneSignInScreen() {
   const [otp, setOtp] = useState('');
   const [verificationId, setVerificationId] = useState('');
   const [loading, setLoading] = useState(false);
-  const recaptchaVerifier = useRef<ApplicationVerifier>({
-    type: 'recaptcha',
-    verify: () => Promise.resolve(''),
-  });
+  const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
 
   const sendOTP = async () => {
     const formatted = phone.startsWith('+') ? phone : `+91${phone}`;
@@ -150,6 +147,11 @@ export function PhoneSignInScreen() {
           </>
         )}
       </View>
+      <FirebaseRecaptchaVerifierModal
+        ref={recaptchaVerifier}
+        firebaseConfig={firebaseConfig}
+        attemptInvisibleVerification
+      />
     </KeyboardAvoidingView>
   );
 }

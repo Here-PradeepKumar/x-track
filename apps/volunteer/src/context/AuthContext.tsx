@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, UserDoc } from '@x-track/firebase';
 
 interface VolunteerUserDoc extends UserDoc {
@@ -31,32 +31,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (firebaseUser) {
         const ref = doc(db, 'users', firebaseUser.uid);
-        const snap = await getDoc(ref);
+        let initialised = false;
 
-        if (snap.exists()) {
-          setUserDoc(snap.data() as VolunteerUserDoc);
-        } else {
-          // New device sign-in — volunteer doc created after invite acceptance.
-          // Create a placeholder; role will be set to 'volunteer' by Cloud Function
-          // when they accept their invite.
-          const newDoc = {
-            uid: firebaseUser.uid,
-            role: 'volunteer' as const,
-            displayName: '',
-            phone: firebaseUser.phoneNumber ?? null,
-            email: null,
-            photoURL: null,
-            createdAt: serverTimestamp(),
-          };
-          await setDoc(ref, newDoc);
-          const created = await getDoc(ref);
-          setUserDoc(created.data() as VolunteerUserDoc);
-        }
+        const unsubscribeDoc = onSnapshot(ref, async (snap) => {
+          if (!snap.exists() && !initialised) {
+            // First sign-in — create placeholder doc; Cloud Function will
+            // set assignedEventId + assignedMilestoneId on invite acceptance.
+            initialised = true;
+            await setDoc(ref, {
+              uid: firebaseUser.uid,
+              role: 'volunteer' as const,
+              displayName: '',
+              phone: firebaseUser.phoneNumber ?? null,
+              email: null,
+              photoURL: null,
+              createdAt: serverTimestamp(),
+            });
+          } else if (snap.exists()) {
+            setUserDoc(snap.data() as VolunteerUserDoc);
+          }
+          setLoading(false);
+        });
+
+        return unsubscribeDoc;
       } else {
         setUserDoc(null);
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
     return unsubscribe;

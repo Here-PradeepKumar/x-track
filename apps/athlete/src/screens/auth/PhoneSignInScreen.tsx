@@ -45,7 +45,8 @@ export function PhoneSignInScreen() {
       setVerificationId(vid);
       setStep('otp');
     } catch (e: any) {
-      Alert.alert('Error', e.message ?? 'Could not send OTP.');
+      const code = e?.code ? ` [${e.code}]` : '';
+      Alert.alert('Error', (e.message ?? 'Could not send OTP.') + code);
     } finally {
       setLoading(false);
     }

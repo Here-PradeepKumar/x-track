@@ -17,7 +17,8 @@
       "adaptiveIcon": {
         "backgroundColor": "#0e0e0f"
       },
-      "package": "com.xtrack.athlete"
+      "package": "com.xtrack.athlete",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png",

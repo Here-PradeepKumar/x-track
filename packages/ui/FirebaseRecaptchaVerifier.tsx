@@ -95,7 +95,7 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
     }));
 
     return (
-      <View style={{ width: 0, height: 0, overflow: 'hidden' }}>
+      <View pointerEvents="none" style={{ position: 'absolute', width: 300, height: 400, top: -450, left: 0 }}>
         <WebView
           ref={wvRef}
           javaScriptEnabled

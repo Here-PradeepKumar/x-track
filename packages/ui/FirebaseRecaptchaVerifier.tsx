@@ -1,5 +1,5 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
-import { View } from 'react-native';
+import React, { useRef, forwardRef, useImperativeHandle, useState } from 'react';
+import { View, Modal, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 
 type FirebaseConfig = {
@@ -14,116 +14,114 @@ export interface RecaptchaVerifierRef {
   _reset(): void;
 }
 
-function getHtml(config: FirebaseConfig): string {
-  return `<!DOCTYPE html><html>
-<head>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
-  <script>firebase.initializeApp(${JSON.stringify(config)});</script>
-  <style>html,body{height:100%;padding:0;margin:0;}</style>
-</head>
-<body>
-  <button id="rcb" type="button" style="width:100%;height:100%;border:0;" onclick="onClickBtn()"></button>
-  <script>
-    var timer;
-    function onVerify(token){
-      if(timer){clearInterval(timer);timer=null;}
-      window.ReactNativeWebView.postMessage(JSON.stringify({type:'verify',token:token}));
-    }
-    function onLoad(){
-      window.rv=new firebase.auth.RecaptchaVerifier('rcb',{size:'invisible',callback:onVerify});
-      window.rv.render().then(function(){
-        window.ReactNativeWebView.postMessage(JSON.stringify({type:'load'}));
-      }).catch(onError);
-    }
-    function onError(){
-      window.ReactNativeWebView.postMessage(JSON.stringify({type:'error'}));
-    }
-    function onClickBtn(){
-      if(!timer){
-        timer=setInterval(function(){
-          var ifs=document.getElementsByTagName('iframe');
-          for(var i=0;i<ifs.length;i++){
-            var p=ifs[i].parentNode?ifs[i].parentNode.parentNode:null;
-            var hidden=p&&p.style.opacity=='0';
-            if(!hidden&&(ifs[i].title==='recaptcha challenge'||ifs[i].src.indexOf('bframe')>=0)){
-              clearInterval(timer);timer=null;
-              window.ReactNativeWebView.postMessage(JSON.stringify({type:'fullChallenge'}));
-              return;
-            }
-          }
-        },100);
-      }
-    }
-    window.addEventListener('message',function(e){
-      if(e.data&&e.data.verify) document.getElementById('rcb').click();
-    });
-  </script>
-  <script src="https://www.google.com/recaptcha/api.js?onload=onLoad&render=explicit" onerror="onError()"></script>
-</body></html>`;
-}
+// Hosted on Firebase Hosting so reCAPTCHA sees the correct authorized origin
+const RECAPTCHA_URL = 'https://xtrack-prod-1774479059.web.app/recaptcha.html';
 
 export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { firebaseConfig: FirebaseConfig }>(
   ({ firebaseConfig }, ref) => {
     const wvRef = useRef<WebView>(null);
     const loadedRef = useRef(false);
     const pendingRef = useRef<{ resolve: (t: string) => void; reject: (e: Error) => void } | null>(null);
+    const [visible, setVisible] = useState(false);
+
+    const inject = (msg: object) => {
+      wvRef.current?.injectJavaScript(
+        `(function(){window.dispatchEvent(new MessageEvent('message',{data:${JSON.stringify(msg)}}));}());true;`
+      );
+    };
 
     useImperativeHandle(ref, () => ({
       type: 'recaptcha' as const,
+
       verify(): Promise<string> {
         return new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
             pendingRef.current = null;
-            reject(new Error('reCAPTCHA timed out. Check your internet connection and try again.'));
+            setVisible(false);
+            reject(new Error('reCAPTCHA timed out. Check your connection and try again.'));
           }, 30000);
+
           pendingRef.current = {
             resolve: (t) => { clearTimeout(timeout); resolve(t); },
             reject: (e) => { clearTimeout(timeout); reject(e); },
           };
-          if (loadedRef.current && wvRef.current) {
-            wvRef.current.injectJavaScript(
-              `window.dispatchEvent(new MessageEvent('message',{data:{verify:true}}));true;`
-            );
+
+          if (loadedRef.current) {
+            inject({ type: 'verify' });
+          } else {
+            // WebView not loaded yet — show it and wait for the load event
+            setVisible(true);
           }
         });
       },
+
       _reset(): void {
-        // Called by Firebase SDK after verification completes — no-op for WebView-based verifier
+        // Called by Firebase SDK after verification — no-op
       },
     }));
 
     return (
-      <View pointerEvents="none" style={{ position: 'absolute', width: 300, height: 400, top: -450, left: 0 }}>
-        <WebView
-          ref={wvRef}
-          javaScriptEnabled
-          mixedContentMode="always"
-          source={{ baseUrl: `https://${firebaseConfig.authDomain}`, html: getHtml(firebaseConfig) }}
-          onMessage={(e) => {
-            const data = JSON.parse(e.nativeEvent.data);
-            if (data.type === 'load') {
-              loadedRef.current = true;
-              if (pendingRef.current && wvRef.current) {
-                wvRef.current.injectJavaScript(
-                  `window.dispatchEvent(new MessageEvent('message',{data:{verify:true}}));true;`
-                );
-              }
-            } else if (data.type === 'verify' && pendingRef.current) {
-              pendingRef.current.resolve(data.token);
-              pendingRef.current = null;
-            } else if ((data.type === 'error' || data.type === 'fullChallenge') && pendingRef.current) {
-              pendingRef.current.reject(new Error(
-                data.type === 'fullChallenge'
-                  ? 'reCAPTCHA requires manual verification — not supported in this build.'
-                  : 'Failed to load reCAPTCHA.'
-              ));
-              pendingRef.current = null;
-            }
-          }}
-        />
-      </View>
+      <Modal
+        visible={visible}
+        transparent
+        animationType="none"
+        onRequestClose={() => {
+          if (pendingRef.current) {
+            pendingRef.current.reject(new Error('reCAPTCHA cancelled.'));
+            pendingRef.current = null;
+          }
+          setVisible(false);
+        }}
+      >
+        {/* Full-screen invisible overlay — only shown when reCAPTCHA needs a challenge */}
+        <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+          <View style={styles.webviewContainer}>
+            <WebView
+              ref={wvRef}
+              javaScriptEnabled
+              originWhitelist={['*']}
+              source={{ uri: RECAPTCHA_URL }}
+              onLoad={() => {
+                // Send Firebase config to the page so it can initialise RecaptchaVerifier
+                inject({ type: 'init', config: firebaseConfig });
+              }}
+              onMessage={(e) => {
+                try {
+                  const data = JSON.parse(e.nativeEvent.data);
+
+                  if (data.type === 'load') {
+                    loadedRef.current = true;
+                    setVisible(false); // reCAPTCHA ready, hide until verify is triggered
+                    // If verify() was called while we were waiting for load, fire it now
+                    if (pendingRef.current) {
+                      inject({ type: 'verify' });
+                    }
+                  } else if (data.type === 'verify' && pendingRef.current) {
+                    setVisible(false);
+                    pendingRef.current.resolve(data.token);
+                    pendingRef.current = null;
+                  } else if (data.type === 'error' && pendingRef.current) {
+                    setVisible(false);
+                    pendingRef.current.reject(new Error(data.message || 'reCAPTCHA failed.'));
+                    pendingRef.current = null;
+                  }
+                } catch (_) {}
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     );
   }
 );
+
+const styles = StyleSheet.create({
+  webviewContainer: {
+    position: 'absolute',
+    // Positioned off screen — only slides in if a full visible challenge is needed
+    bottom: -300,
+    left: 0,
+    right: 0,
+    height: 300,
+  },
+});

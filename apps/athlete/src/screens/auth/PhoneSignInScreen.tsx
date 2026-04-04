@@ -16,9 +16,8 @@ import {
   PhoneAuthProvider,
   signInWithCredential,
 } from 'firebase/auth';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { auth, firebaseConfig } from '@x-track/firebase';
-import { Colors, kineticGradient } from '@x-track/ui';
+import { Colors, kineticGradient, FirebaseRecaptchaVerifier, type RecaptchaVerifierRef } from '@x-track/ui';
 
 type Step = 'phone' | 'otp';
 
@@ -28,7 +27,7 @@ export function PhoneSignInScreen() {
   const [otp, setOtp] = useState('');
   const [verificationId, setVerificationId] = useState('');
   const [loading, setLoading] = useState(false);
-  const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
+  const recaptchaVerifier = useRef<RecaptchaVerifierRef>(null);
 
   const sendOTP = async () => {
     const formatted = phone.startsWith('+') ? phone : `+91${phone}`;
@@ -151,10 +150,9 @@ export function PhoneSignInScreen() {
           </>
         )}
       </View>
-      <FirebaseRecaptchaVerifierModal
+      <FirebaseRecaptchaVerifier
         ref={recaptchaVerifier}
         firebaseConfig={firebaseConfig}
-        attemptInvisibleVerification
       />
     </KeyboardAvoidingView>
   );

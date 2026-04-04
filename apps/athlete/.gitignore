@@ -1,2 +1,3 @@
 # Android native folder — managed by EAS Prebuild (CNG)
 /android
+.expo/

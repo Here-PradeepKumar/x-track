@@ -16,8 +16,8 @@ export default function AcceptInviteForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const inviteId = searchParams.get('id') ?? '';
-  const inviteType = (searchParams.get('type') ?? 'organizer') as InviteType;
+  const inviteId = searchParams?.get('id') ?? '';
+  const inviteType = (searchParams?.get('type') ?? 'organizer') as InviteType;
 
   const [step, setStep] = useState<'form' | 'done'>('form');
   const [email, setEmail] = useState('');

@@ -11,6 +11,7 @@ type FirebaseConfig = {
 export interface RecaptchaVerifierRef {
   readonly type: 'recaptcha';
   verify(): Promise<string>;
+  _reset(): void;
 }
 
 function getHtml(config: FirebaseConfig): string {
@@ -79,6 +80,9 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
             );
           }
         });
+      },
+      _reset(): void {
+        // Called by Firebase SDK after verification completes — no-op for WebView-based verifier
       },
     }));
 

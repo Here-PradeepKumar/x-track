@@ -32,9 +32,10 @@ function getHtml(config: FirebaseConfig): string {
       window.ReactNativeWebView.postMessage(JSON.stringify({type:'verify',token:token}));
     }
     function onLoad(){
-      window.ReactNativeWebView.postMessage(JSON.stringify({type:'load'}));
       window.rv=new firebase.auth.RecaptchaVerifier('rcb',{size:'invisible',callback:onVerify});
-      window.rv.render();
+      window.rv.render().then(function(){
+        window.ReactNativeWebView.postMessage(JSON.stringify({type:'load'}));
+      }).catch(onError);
     }
     function onError(){
       window.ReactNativeWebView.postMessage(JSON.stringify({type:'error'}));
@@ -73,7 +74,14 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
       type: 'recaptcha' as const,
       verify(): Promise<string> {
         return new Promise((resolve, reject) => {
-          pendingRef.current = { resolve, reject };
+          const timeout = setTimeout(() => {
+            pendingRef.current = null;
+            reject(new Error('reCAPTCHA timed out. Check your internet connection and try again.'));
+          }, 30000);
+          pendingRef.current = {
+            resolve: (t) => { clearTimeout(timeout); resolve(t); },
+            reject: (e) => { clearTimeout(timeout); reject(e); },
+          };
           if (loadedRef.current && wvRef.current) {
             wvRef.current.injectJavaScript(
               `window.dispatchEvent(new MessageEvent('message',{data:{verify:true}}));true;`

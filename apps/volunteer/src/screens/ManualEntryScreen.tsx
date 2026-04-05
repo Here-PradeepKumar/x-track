@@ -154,6 +154,10 @@ export default function ManualEntryScreen() {
     }
 
     const bibData = bibSnap.data();
+    if (bibData.active === false) {
+      showBibError(`BIB ${bib} is inactive`);
+      return;
+    }
     const entry: BoardEntry = {
       id: nextId(),
       bibNumber: bib,

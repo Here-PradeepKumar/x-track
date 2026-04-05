@@ -72,6 +72,7 @@ export interface BibDoc {
   nfcTagId: string | null;    // null for events without NFC wristbands (e.g. Hyrox)
   wave: string;
   category: string;
+  active: boolean;            // false = blocked in volunteer app
   registeredAt: Timestamp;
 }
 

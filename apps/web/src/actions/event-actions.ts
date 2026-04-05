@@ -117,6 +117,40 @@ export async function importBibs(
   return { imported: total };
 }
 
+export async function updateBib(
+  eventId: string,
+  bibNumber: string,
+  updates: { athletePhone?: string; nfcTagId?: string; wave?: string; category?: string }
+) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+  await adminDb.doc(`events/${eventId}/bibs/${bibNumber}`).update(updates);
+  revalidatePath(`/organizer/events/${eventId}/bibs`);
+}
+
+export async function removeBib(eventId: string, bibNumber: string) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+  await adminDb.doc(`events/${eventId}/bibs/${bibNumber}`).delete();
+  revalidatePath(`/organizer/events/${eventId}/bibs`);
+}
+
+export async function setBibActive(eventId: string, bibNumber: string, active: boolean) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+  await adminDb.doc(`events/${eventId}/bibs/${bibNumber}`).update({ active });
+  revalidatePath(`/organizer/events/${eventId}/bibs`);
+}
+
 export async function importVolunteers(
   eventId: string,
   volunteers: Array<{ displayName: string; phone: string }>

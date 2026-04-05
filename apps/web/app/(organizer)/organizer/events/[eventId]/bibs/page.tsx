@@ -22,10 +22,11 @@ export default async function BibsPage({ params }: Props) {
 
   const bibs = snap.docs.map((d) => ({
     bibNumber: d.id,
-    athletePhone: d.data().athletePhone as string,
-    nfcTagId: d.data().nfcTagId as string,
-    wave: d.data().wave as string,
-    category: d.data().category as string,
+    athletePhone: (d.data().athletePhone as string) ?? '',
+    nfcTagId: (d.data().nfcTagId as string) ?? '',
+    wave: (d.data().wave as string) ?? '',
+    category: (d.data().category as string) ?? '',
+    active: (d.data().active as boolean) ?? true,
   }));
 
   return (

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSessionUser, getUserRole } from '@/lib/auth-session';
 import { adminDb } from '@/lib/firebase-admin';
+import SignOutButton from '@/components/SignOutButton';
 
 export default async function SuperAdminDashboard() {
   const user = await getSessionUser();
@@ -25,6 +26,7 @@ export default async function SuperAdminDashboard() {
       <header style={styles.header}>
         <span style={styles.brand}>X-TRACK</span>
         <span style={styles.roleChip}>SUPER ADMIN</span>
+        <SignOutButton style={styles.signOut} />
       </header>
 
       <h1 style={styles.pageTitle}>Dashboard</h1>
@@ -59,6 +61,16 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: '16px',
     marginBottom: '40px',
+  },
+  signOut: {
+    marginLeft: 'auto',
+    background: 'none',
+    border: 'none',
+    color: '#adaaaa',
+    fontSize: '12px',
+    letterSpacing: '1px',
+    cursor: 'pointer',
+    padding: 0,
   },
   brand: {
     fontSize: '22px',

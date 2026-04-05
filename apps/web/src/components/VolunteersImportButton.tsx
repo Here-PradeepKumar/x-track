@@ -3,8 +3,8 @@
 import { useState, useRef } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import * as XLSX from 'xlsx';
 
-// Initialise (or reuse) Firebase app on client
 function getFirebaseApp() {
   if (getApps().length > 0) return getApp();
   return initializeApp({
@@ -26,47 +26,64 @@ interface ParsedVolunteer {
   phone: string;
 }
 
+function parseWorkbook(file: File): Promise<ParsedVolunteer[]> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        const wb = XLSX.read(data, { type: 'array' });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows: Record<string, string>[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+        if (rows.length === 0) { resolve([]); return; }
+
+        // Find columns case-insensitively
+        const sample = rows[0];
+        const keys = Object.keys(sample);
+        const nameKey = keys.find((k) =>
+          ['displayname', 'name', 'volunteername', 'volunteer_name'].includes(k.toLowerCase().replace(/\s/g, ''))
+        );
+        const phoneKey = keys.find((k) =>
+          ['phone', 'phonenumber', 'phone_number', 'mobile'].includes(k.toLowerCase().replace(/\s/g, ''))
+        );
+
+        if (!phoneKey) { resolve([]); return; }
+
+        const volunteers: ParsedVolunteer[] = rows
+          .map((row) => ({
+            displayName: nameKey ? String(row[nameKey] ?? '').trim() : '',
+            phone: String(row[phoneKey] ?? '').trim(),
+          }))
+          .filter((v) => v.phone.length > 0);
+
+        resolve(volunteers);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
 export default function VolunteersImportButton({ eventId }: Props) {
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const parseCSV = (text: string): ParsedVolunteer[] => {
-    const lines = text.split('\n').filter((l) => l.trim());
-    if (lines.length < 2) return [];
-
-    const headers = lines[0].split(',').map((h) => h.trim().toLowerCase().replace(/\s+/g, ''));
-
-    const nameIdx = headers.findIndex((h) => ['displayname', 'name', 'volunteerName', 'volunteer_name'].includes(h));
-    const phoneIdx = headers.findIndex((h) => ['phone', 'phonenumber', 'phone_number', 'mobile'].includes(h));
-
-    if (phoneIdx === -1) return [];
-
-    return lines
-      .slice(1)
-      .map((line) => {
-        const cols = line.split(',').map((c) => c.trim().replace(/^"|"$/g, ''));
-        return {
-          displayName: nameIdx >= 0 ? (cols[nameIdx] ?? '') : '',
-          phone: cols[phoneIdx] ?? '',
-        };
-      })
-      .filter((v) => v.phone.length > 0);
-  };
-
   const handleImport = async () => {
     const file = fileRef.current?.files?.[0];
-    if (!file) return;
+    if (!file) { setResult('Please select a file first.'); return; }
 
     setImporting(true);
     setResult(null);
 
     try {
-      const text = await file.text();
-      const volunteers = parseCSV(text);
+      const volunteers = await parseWorkbook(file);
 
       if (volunteers.length === 0) {
-        setResult('No valid rows found. Check CSV format.');
+        setResult('No valid rows found. Make sure columns are named "displayName" and "phone".');
         return;
       }
 
@@ -75,7 +92,7 @@ export default function VolunteersImportButton({ eventId }: Props) {
       const importFn = httpsCallable(functions, 'importVolunteersCSV');
       const res = await importFn({ eventId, volunteers }) as any;
 
-      setResult(`${res.data.imported} volunteers imported successfully.`);
+      setResult(`${res.data.imported} volunteers imported.`);
       if (fileRef.current) fileRef.current.value = '';
     } catch (err: any) {
       setResult(`Error: ${err?.message ?? 'Import failed'}`);
@@ -89,23 +106,19 @@ export default function VolunteersImportButton({ eventId }: Props) {
       <input
         ref={fileRef}
         type="file"
-        accept=".csv"
+        accept=".csv,.xlsx,.xls"
         style={styles.fileInput}
         onChange={() => setResult(null)}
       />
-      <button
-        onClick={handleImport}
-        disabled={importing}
-        style={styles.btn}
-      >
-        {importing ? 'Importing…' : 'Import CSV'}
+      <button onClick={handleImport} disabled={importing} style={styles.btn}>
+        {importing ? 'Importing…' : 'Import'}
       </button>
       {result && (
-        <span style={{ ...styles.result, color: result.startsWith('Error') ? '#ff7351' : '#cafd00' }}>
+        <span style={{ ...styles.result, color: result.startsWith('Error') || result.startsWith('No valid') ? '#ff7351' : '#cafd00' }}>
           {result}
         </span>
       )}
-      <span style={styles.hint}>CSV columns: displayName, phone (10-digit or +91 format)</span>
+      <span style={styles.hint}>Accepts .xlsx or .csv — columns: displayName, phone</span>
     </div>
   );
 }
@@ -122,15 +135,16 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
   },
   btn: {
-    background: '#1a1a1a',
-    color: '#cafd00',
-    border: '1px solid rgba(202,253,0,0.4)',
+    background: '#cafd00',
+    color: '#0e0e0f',
+    border: 'none',
     borderRadius: '2px',
-    padding: '8px 18px',
+    padding: '8px 20px',
     fontSize: '11px',
     fontWeight: 700,
     letterSpacing: '1px',
     cursor: 'pointer',
+    textTransform: 'uppercase' as const,
   },
   result: { fontSize: '12px', letterSpacing: '0.3px' },
   hint: { fontSize: '10px', color: '#494847', letterSpacing: '0.5px', width: '100%' },

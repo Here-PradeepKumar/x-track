@@ -42,27 +42,6 @@
       ]
     },
     {
-      "collectionGroup": "bibs",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
-        { "fieldPath": "nfcTagId", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "bibs",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
-        { "fieldPath": "athleteUid", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "milestones",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "order", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "athleteRaces",
       "queryScope": "COLLECTION",
       "fields": [
@@ -71,10 +50,12 @@
       ]
     },
     {
-      "collectionGroup": "roster",
-      "queryScope": "COLLECTION_GROUP",
+      "collectionGroup": "checkpoints",
+      "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "phone", "order": "ASCENDING" }
+        { "fieldPath": "eventId", "order": "ASCENDING" },
+        { "fieldPath": "volunteerUid", "order": "ASCENDING" },
+        { "fieldPath": "scannedAt", "order": "DESCENDING" }
       ]
     }
   ],

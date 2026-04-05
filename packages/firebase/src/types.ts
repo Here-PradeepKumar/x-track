@@ -62,6 +62,15 @@ export interface MilestoneDoc {
   assignedAt: Timestamp | null;
 }
 
+// ─── Categories (sub-collection of events) ───────────────────────────────────
+
+export interface CategoryDoc {
+  id: string;             // 'man', 'super_man', 'women', 'super_women'
+  name: string;           // 'Man', 'Super Man', 'Women', 'Super Women'
+  order: number;          // display order
+  milestoneWeights: Record<string, number | null>; // milestoneId → kg (null = no weight)
+}
+
 // ─── BIBs (sub-collection of events) ─────────────────────────────────────────
 
 export interface BibDoc {

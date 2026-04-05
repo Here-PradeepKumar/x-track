@@ -98,6 +98,7 @@ export interface RosterEntry {
   phone: string;       // E.164 without leading + (e.g. "919876543210")
   displayName: string;
   eventId: string;
+  active: boolean;     // false = blocked from login
   importedAt: Timestamp;
 }
 

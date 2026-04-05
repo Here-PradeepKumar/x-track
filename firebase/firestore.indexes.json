@@ -57,6 +57,14 @@
         { "fieldPath": "volunteerUid", "order": "ASCENDING" },
         { "fieldPath": "scannedAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "roster",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "phone", "order": "ASCENDING" },
+        { "fieldPath": "active", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

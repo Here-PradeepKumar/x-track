@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { Timestamp, WriteBatch } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSessionUser, getUserRole } from '@/lib/auth-session';
@@ -72,6 +73,30 @@ export async function discardEvent(eventId: string) {
 
   await ref.delete();
   redirect('/organizer');
+}
+
+export async function setVolunteerActive(eventId: string, phone: string, active: boolean) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  await adminDb.doc(`events/${eventId}/roster/${phone}`).update({ active });
+  revalidatePath(`/organizer/events/${eventId}/volunteers`);
+}
+
+export async function removeVolunteerFromRoster(eventId: string, phone: string) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  await adminDb.doc(`events/${eventId}/roster/${phone}`).delete();
+  revalidatePath(`/organizer/events/${eventId}/volunteers`);
 }
 
 export async function createHyroxMilestones(eventId: string) {

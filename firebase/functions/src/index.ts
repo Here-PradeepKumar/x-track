@@ -426,8 +426,9 @@ export const importVolunteersCSV = functions.https.onCall(async (data, context) 
       phone,
       displayName: vol.displayName || '',
       eventId,
+      active: true,
       importedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    }, { merge: true });
     count++;
 
     if (count === 500) {
@@ -460,6 +461,7 @@ export const getMyEvents = functions.https.onCall(async (_data, context) => {
   const rosterSnap = await db
     .collectionGroup('roster')
     .where('phone', '==', normalizedPhone)
+    .where('active', '==', true)
     .get();
 
   if (rosterSnap.empty) return { events: [] };

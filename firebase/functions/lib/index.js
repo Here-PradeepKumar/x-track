@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.importBibsCSV = exports.assignVolunteerToMilestone = exports.acceptVolunteerInvite = exports.createVolunteerInvite = exports.acceptOrganizerInvite = exports.createOrganizerInvite = exports.onCheckpointCreated = void 0;
+exports.getMyEvents = exports.importVolunteersCSV = exports.importBibsCSV = exports.assignVolunteerToMilestone = exports.acceptVolunteerInvite = exports.createVolunteerInvite = exports.acceptOrganizerInvite = exports.createOrganizerInvite = exports.onCheckpointCreated = void 0;
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 admin.initializeApp();
@@ -11,7 +11,7 @@ const db = admin.firestore();
 exports.onCheckpointCreated = functions.firestore
     .document('checkpoints/{checkpointId}')
     .onCreate(async (snap) => {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const data = snap.data();
     const { eventId, milestoneId, bibNumber, athleteUid, scannedAt } = data;
     // Fetch milestone metadata for display in the athlete app
@@ -39,6 +39,7 @@ exports.onCheckpointCreated = functions.firestore
         milestoneName: milestone.name,
         milestoneOrder: milestone.order,
         distanceMark: milestone.distanceMark,
+        repCount: (_c = data.repCount) !== null && _c !== void 0 ? _c : null,
         scannedAt,
         volunteerUid: data.volunteerUid,
     };
@@ -61,7 +62,7 @@ exports.onCheckpointCreated = functions.firestore
     else {
         const existing = raceSnap.data();
         const checkpoints = [
-            ...((_c = existing.checkpoints) !== null && _c !== void 0 ? _c : []),
+            ...((_d = existing.checkpoints) !== null && _d !== void 0 ? _d : []),
             checkpointEntry,
         ];
         const isFinished = milestone.order >= totalMilestones;
@@ -271,5 +272,89 @@ exports.importBibsCSV = functions.https.onCall(async (data, context) => {
         batches.push(batch);
     await Promise.all(batches.map((b) => b.commit()));
     return { imported: bibs.length };
+});
+// ─── importVolunteersCSV ──────────────────────────────────────────────────────
+// Called by Organizer from web. Bulk-writes volunteer roster entries so only
+// pre-registered phone numbers can access the volunteer app.
+exports.importVolunteersCSV = functions.https.onCall(async (data, context) => {
+    var _a, _b;
+    if (!context.auth)
+        throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
+    const callerDoc = await db.doc(`users/${context.auth.uid}`).get();
+    if (((_a = callerDoc.data()) === null || _a === void 0 ? void 0 : _a.role) !== 'organizer') {
+        throw new functions.https.HttpsError('permission-denied', 'Organizer only.');
+    }
+    const { eventId, volunteers } = data;
+    const eventSnap = await db.doc(`events/${eventId}`).get();
+    if (!eventSnap.exists || ((_b = eventSnap.data()) === null || _b === void 0 ? void 0 : _b.organizerId) !== context.auth.uid) {
+        throw new functions.https.HttpsError('permission-denied', 'Not your event.');
+    }
+    // Normalize phone to E.164 digits only (no leading +)
+    const normalizePhone = (raw) => {
+        const digits = raw.replace(/\D/g, '');
+        if (digits.length === 10)
+            return `91${digits}`; // 10-digit Indian
+        if (digits.length === 11 && digits.startsWith('0'))
+            return `91${digits.slice(1)}`; // 011-digit
+        return digits; // already fully qualified or international
+    };
+    const batches = [];
+    let batch = db.batch();
+    let count = 0;
+    for (const vol of volunteers) {
+        const phone = normalizePhone(vol.phone);
+        if (!phone)
+            continue;
+        const ref = db.doc(`events/${eventId}/roster/${phone}`);
+        batch.set(ref, {
+            phone,
+            displayName: vol.displayName || '',
+            eventId,
+            active: true,
+            importedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+        count++;
+        if (count === 500) {
+            batches.push(batch);
+            batch = db.batch();
+            count = 0;
+        }
+    }
+    if (count > 0)
+        batches.push(batch);
+    await Promise.all(batches.map((b) => b.commit()));
+    return { imported: volunteers.length };
+});
+// ─── getMyEvents ──────────────────────────────────────────────────────────────
+// Called by volunteer app after phone OTP sign-in.
+// Returns the list of active events this phone number is registered for.
+// Empty result means the phone is not in any roster — app should block access.
+exports.getMyEvents = functions.https.onCall(async (_data, context) => {
+    if (!context.auth)
+        throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
+    const phone = context.auth.token.phone_number;
+    if (!phone)
+        throw new functions.https.HttpsError('failed-precondition', 'Phone auth required.');
+    // Normalize: strip leading +
+    const normalizedPhone = phone.replace(/^\+/, '');
+    const rosterSnap = await db
+        .collectionGroup('roster')
+        .where('phone', '==', normalizedPhone)
+        .where('active', '==', true)
+        .get();
+    if (rosterSnap.empty)
+        return { events: [] };
+    const eventIds = [...new Set(rosterSnap.docs.map((d) => d.data().eventId))];
+    const eventSnaps = await Promise.all(eventIds.map((id) => db.doc(`events/${id}`).get()));
+    const events = eventSnaps
+        .filter((snap) => { var _a; return snap.exists && ((_a = snap.data()) === null || _a === void 0 ? void 0 : _a.status) === 'active'; })
+        .map((snap) => {
+        var _a, _b;
+        return ({
+            eventId: snap.id,
+            eventName: (_b = (_a = snap.data()) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : '',
+        });
+    });
+    return { events };
 });
 //# sourceMappingURL=index.js.map

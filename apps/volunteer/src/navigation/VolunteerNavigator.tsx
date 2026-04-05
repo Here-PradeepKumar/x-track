@@ -3,13 +3,13 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NFCScanScreen } from '../screens/NFCScanScreen';
+import ManualEntryScreen from '../screens/ManualEntryScreen';
 import { VolunteerProfileScreen } from '../screens/VolunteerProfileScreen';
 import { Colors } from '@x-track/ui';
 
 const Tab = createBottomTabNavigator();
 
-type TabIconName = 'contactless' | 'person';
+type TabIconName = 'edit' | 'person';
 
 function TabBar({
   state,
@@ -21,7 +21,7 @@ function TabBar({
 }) {
   const insets = useSafeAreaInsets();
   const tabs: { label: string; icon: TabIconName }[] = [
-    { label: 'SCAN', icon: 'contactless' },
+    { label: 'ENTRY', icon: 'edit' },
     { label: 'PROFILE', icon: 'person' },
   ];
 
@@ -80,7 +80,7 @@ export function VolunteerNavigator() {
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Scan" component={NFCScanScreen} />
+      <Tab.Screen name="Entry" component={ManualEntryScreen} />
       <Tab.Screen name="Profile" component={VolunteerProfileScreen} />
     </Tab.Navigator>
   );

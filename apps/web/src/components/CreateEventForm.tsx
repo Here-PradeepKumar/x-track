@@ -1,19 +1,21 @@
 'use client';
 
-import { useRef } from 'react';
+import { useState } from 'react';
 import { createEvent } from '@/actions/event-actions';
 
 export default function CreateEventForm({ organizerUid: _ }: { organizerUid: string }) {
-  const formRef = useRef<HTMLFormElement>(null);
+  const [raceType, setRaceType] = useState<'custom' | 'hyrox'>('custom');
 
   return (
-    <form ref={formRef} action={createEvent} style={styles.form}>
+    <form action={createEvent} style={styles.form}>
+      <input type="hidden" name="raceType" value={raceType} />
+
       <div style={styles.field}>
         <label style={styles.label}>Event Name</label>
         <input
           name="name"
           type="text"
-          placeholder="e.g. Mud Warrior Challenge 2025"
+          placeholder="e.g. HYROX Bangalore 2026"
           required
           style={styles.input}
         />
@@ -24,7 +26,7 @@ export default function CreateEventForm({ organizerUid: _ }: { organizerUid: str
         <input
           name="location"
           type="text"
-          placeholder="e.g. Coorg, Karnataka"
+          placeholder="e.g. BIEC, Tumkur Road, Bangalore"
           required
           style={styles.input}
         />
@@ -32,12 +34,7 @@ export default function CreateEventForm({ organizerUid: _ }: { organizerUid: str
 
       <div style={styles.field}>
         <label style={styles.label}>Race Date</label>
-        <input
-          name="date"
-          type="date"
-          required
-          style={styles.input}
-        />
+        <input name="date" type="date" required style={styles.input} />
       </div>
 
       <div style={styles.field}>
@@ -45,9 +42,33 @@ export default function CreateEventForm({ organizerUid: _ }: { organizerUid: str
         <textarea
           name="description"
           placeholder="A brief description of the event…"
-          rows={4}
+          rows={3}
           style={{ ...styles.input, resize: 'vertical' }}
         />
+      </div>
+
+      <div style={styles.field}>
+        <label style={styles.label}>Race Type</label>
+        <div style={styles.raceTypePills}>
+          {(['custom', 'hyrox'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setRaceType(t)}
+              style={{
+                ...styles.pill,
+                ...(raceType === t ? styles.pillActive : {}),
+              }}
+            >
+              {t === 'hyrox' ? 'HYROX' : 'CUSTOM'}
+            </button>
+          ))}
+        </div>
+        {raceType === 'hyrox' && (
+          <p style={styles.hyroxNote}>
+            16 milestones auto-created: 8×Run + SkiErg, Sled Push, Sled Pull, Burpee, Row, Farmers Carry, Lunges, Wall Balls. Rep counting enabled for Burpee, Lunges &amp; Wall Balls.
+          </p>
+        )}
       </div>
 
       <div style={styles.actions}>
@@ -71,6 +92,32 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#fff',
     outline: 'none',
     fontFamily: 'inherit',
+  },
+  raceTypePills: { display: 'flex', gap: '8px' },
+  pill: {
+    background: '#131313',
+    border: '1px solid #494847',
+    borderRadius: '2px',
+    padding: '8px 20px',
+    fontSize: '11px',
+    fontWeight: 900,
+    letterSpacing: '2px',
+    color: '#adaaaa',
+    cursor: 'pointer',
+  },
+  pillActive: {
+    background: '#cafd00',
+    border: '1px solid #cafd00',
+    color: '#3a4a00',
+  },
+  hyroxNote: {
+    fontSize: '11px',
+    color: '#cafd00',
+    background: 'rgba(202,253,0,0.08)',
+    border: '1px solid rgba(202,253,0,0.2)',
+    borderRadius: '2px',
+    padding: '10px 14px',
+    lineHeight: 1.6,
   },
   actions: { display: 'flex', gap: '12px', justifyContent: 'flex-end', paddingTop: '8px' },
   cancelBtn: {

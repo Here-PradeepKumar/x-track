@@ -88,8 +88,10 @@ service cloud.firestore {
         && request.resource.data.volunteerUid == request.auth.uid
         && request.resource.data.keys().hasAll([
              'eventId','milestoneId','bibNumber','athleteUid',
-             'volunteerUid','nfcTagId','scannedAt'
-           ]);
+             'volunteerUid','scannedAt','entryMethod'
+           ])
+        && (!request.resource.data.keys().hasAny(['nfcTagId'])
+             || request.resource.data.nfcTagId is string);
 
       allow update, delete: if false;
     }

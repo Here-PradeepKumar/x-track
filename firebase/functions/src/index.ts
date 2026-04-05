@@ -12,7 +12,9 @@ interface CheckpointDoc {
   bibNumber: string;
   athleteUid: string;
   volunteerUid: string;
-  nfcTagId: string;
+  nfcTagId: string | null;
+  repCount: number | null;
+  entryMethod: 'nfc' | 'manual';
   scannedAt: admin.firestore.Timestamp;
 }
 
@@ -63,6 +65,7 @@ export const onCheckpointCreated = functions.firestore
       milestoneName: milestone.name,
       milestoneOrder: milestone.order,
       distanceMark: milestone.distanceMark,
+      repCount: data.repCount ?? null,
       scannedAt,
       volunteerUid: data.volunteerUid,
     };
@@ -194,7 +197,7 @@ export const createVolunteerInvite = functions.https.onCall(async (data, context
     throw new functions.https.HttpsError('permission-denied', 'Organizer only.');
   }
 
-  const { eventId, milestoneId } = data as { eventId: string; milestoneId: string };
+  const { eventId, milestoneId } = data as { eventId: string; milestoneId: string | null };
 
   // Verify caller owns this event
   const eventSnap = await db.doc(`events/${eventId}`).get();

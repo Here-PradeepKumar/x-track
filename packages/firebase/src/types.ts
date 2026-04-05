@@ -22,7 +22,7 @@ export interface InvitationDoc {
   id: string;
   type: InvitationType;
   targetEventId: string | null;       // null for organizer invites
-  targetMilestoneId: string | null;
+  targetMilestoneId: string | null;   // null for zone coordinators
   createdBy: string;                  // superadmin uid
   expiresAt: Timestamp;
   usedAt: Timestamp | null;
@@ -47,12 +47,17 @@ export interface EventDoc {
 
 // ─── Milestones (sub-collection of events) ───────────────────────────────────
 
+export type StationType = 'run' | 'station';
+
 export interface MilestoneDoc {
   id: string;
   eventId: string;
-  name: string;               // e.g. "The Mud Pit"
+  name: string;               // e.g. "Wall Balls"
   order: number;              // 1, 2, 3 …
-  distanceMark: string;       // e.g. "0.8 MILE"
+  distanceMark: string;       // e.g. "100 REPS"
+  stationType: StationType;   // 'run' | 'station'
+  requiresRepCount: boolean;  // true for Burpee, Lunges, Wall Balls
+  repTarget: number | null;   // e.g. 100 for Wall Balls, null for runs
   assignedVolunteerUid: string | null;
   assignedAt: Timestamp | null;
 }
@@ -64,13 +69,15 @@ export interface BibDoc {
   eventId: string;
   athleteUid: string;
   athletePhone: string;
-  nfcTagId: string;           // hardware serial of NFC wristband chip
+  nfcTagId: string | null;    // null for events without NFC wristbands (e.g. Hyrox)
   wave: string;
   category: string;
   registeredAt: Timestamp;
 }
 
 // ─── Checkpoints (top-level, high-write) ─────────────────────────────────────
+
+export type CheckpointEntryMethod = 'nfc' | 'manual';
 
 export interface CheckpointDoc {
   id: string;
@@ -79,7 +86,9 @@ export interface CheckpointDoc {
   bibNumber: string;
   athleteUid: string;
   volunteerUid: string;
-  nfcTagId: string;
+  nfcTagId: string | null;          // null for manual-entry events
+  repCount: number | null;          // for rep-count stations (Wall Balls, etc.)
+  entryMethod: CheckpointEntryMethod;
   scannedAt: Timestamp;
 }
 
@@ -90,6 +99,7 @@ export interface CheckpointEntry {
   milestoneName: string;
   milestoneOrder: number;
   distanceMark: string;
+  repCount: number | null;
   scannedAt: Timestamp;
   volunteerUid: string;
 }

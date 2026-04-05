@@ -1,0 +1,9 @@
+node_modules
+.expo
+apps/athlete
+apps/volunteer
+apps/web/.next
+apps/web/node_modules
+firebase
+packages/ui/node_modules
+result

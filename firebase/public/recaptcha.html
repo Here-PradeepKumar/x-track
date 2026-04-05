@@ -34,6 +34,11 @@
     function init(cfg) {
       config = cfg;
       try {
+        // Clear any existing verifier before re-initialising (called by _reset())
+        if (rv) {
+          try { rv.clear(); } catch (_) {}
+          rv = null;
+        }
         if (!firebase.apps.length) {
           firebase.initializeApp(config);
         }

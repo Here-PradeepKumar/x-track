@@ -5,7 +5,21 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "@testing-library/jest-native/extend-expect"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@x-track/.*|firebase|@firebase/.*)"
+    ],
+    "moduleNameMapper": {
+      "^@x-track/firebase$": "<rootDir>/../../packages/firebase/src/index.ts",
+      "^@x-track/ui$": "<rootDir>/../../packages/ui/index.ts"
+    }
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.3",
@@ -31,7 +45,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^30.0.0",
     "@types/react": "~18.2.45",
+    "jest": "^29.7.0",
+    "jest-expo": "^51.0.4",
+    "react-test-renderer": "^18.2.0",
     "typescript": "~5.3.3"
   },
   "private": true,

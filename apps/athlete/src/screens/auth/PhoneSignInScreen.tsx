@@ -30,9 +30,14 @@ export function PhoneSignInScreen() {
   const recaptchaVerifier = useRef<RecaptchaVerifierRef>(null);
 
   const sendOTP = async () => {
-    const formatted = phone.startsWith('+') ? phone : `+91${phone}`;
-    if (formatted.length < 10) {
-      Alert.alert('Invalid number', 'Enter a valid phone number.');
+    const formatted = phone.trim().startsWith('+') ? phone.trim() : `+91${phone.trim()}`;
+    // +91 (3 chars) + 10 digits = 13; anything shorter is incomplete
+    if (formatted.length < 13) {
+      Alert.alert('Invalid number', 'Enter a valid 10-digit phone number.');
+      return;
+    }
+    if (!recaptchaVerifier.current) {
+      Alert.alert('Not ready', 'reCAPTCHA is still loading. Please wait a moment.');
       return;
     }
     setLoading(true);
@@ -40,7 +45,7 @@ export function PhoneSignInScreen() {
       const provider = new PhoneAuthProvider(auth);
       const vid = await provider.verifyPhoneNumber(
         formatted,
-        recaptchaVerifier.current!
+        recaptchaVerifier.current
       );
       setVerificationId(vid);
       setStep('otp');

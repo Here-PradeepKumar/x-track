@@ -22,6 +22,8 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
     const wvRef = useRef<WebView>(null);
     const readyRef = useRef(false);   // true once rv.render() completed in the page
     const pendingRef = useRef<{ resolve: (t: string) => void; reject: (e: Error) => void } | null>(null);
+    const configRef = useRef(firebaseConfig);
+    configRef.current = firebaseConfig;
 
     const inject = useCallback((msg: object) => {
       wvRef.current?.injectJavaScript(
@@ -53,7 +55,11 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
       },
 
       _reset(): void {
-        // Called by Firebase SDK after verification — no-op
+        // Firebase calls this after every verifyPhoneNumber attempt.
+        // Re-initialise the WebView reCAPTCHA so the next OTP send works.
+        readyRef.current = false;
+        pendingRef.current = null;
+        inject({ type: 'init', config: configRef.current });
       },
     }));
 

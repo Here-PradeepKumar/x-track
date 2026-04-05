@@ -1,52 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase-client';
+import { useRef } from 'react';
+import { createEvent } from '@/actions/event-actions';
 
-interface Props { organizerUid: string }
-
-export default function CreateEventForm({ organizerUid }: Props) {
-  const router = useRouter();
-  const [name, setName] = useState('');
-  const [location, setLocation] = useState('');
-  const [date, setDate] = useState('');
-  const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const docRef = await addDoc(collection(db, 'events'), {
-        organizerId: organizerUid,
-        name: name.trim(),
-        location: location.trim(),
-        description: description.trim(),
-        date: Timestamp.fromDate(new Date(date)),
-        status: 'draft',
-        coverImageUrl: null,
-        createdAt: Timestamp.now(),
-      });
-      router.push(`/organizer/events/${docRef.id}`);
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to create event.');
-      setLoading(false);
-    }
-  };
+export default function CreateEventForm({ organizerUid: _ }: { organizerUid: string }) {
+  const formRef = useRef<HTMLFormElement>(null);
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
+    <form ref={formRef} action={createEvent} style={styles.form}>
       <div style={styles.field}>
         <label style={styles.label}>Event Name</label>
         <input
+          name="name"
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Mud Warrior Challenge 2025"
           required
           style={styles.input}
@@ -56,9 +22,8 @@ export default function CreateEventForm({ organizerUid }: Props) {
       <div style={styles.field}>
         <label style={styles.label}>Location</label>
         <input
+          name="location"
           type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
           placeholder="e.g. Coorg, Karnataka"
           required
           style={styles.input}
@@ -68,9 +33,8 @@ export default function CreateEventForm({ organizerUid }: Props) {
       <div style={styles.field}>
         <label style={styles.label}>Race Date</label>
         <input
+          name="date"
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
           required
           style={styles.input}
         />
@@ -79,21 +43,16 @@ export default function CreateEventForm({ organizerUid }: Props) {
       <div style={styles.field}>
         <label style={styles.label}>Description (optional)</label>
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          name="description"
           placeholder="A brief description of the event…"
           rows={4}
           style={{ ...styles.input, resize: 'vertical' }}
         />
       </div>
 
-      {error && <p style={styles.error}>{error}</p>}
-
       <div style={styles.actions}>
         <a href="/organizer" style={styles.cancelBtn}>Cancel</a>
-        <button type="submit" disabled={loading} style={styles.submitBtn}>
-          {loading ? 'Creating…' : 'Create Event'}
-        </button>
+        <button type="submit" style={styles.submitBtn}>Create Event</button>
       </div>
     </form>
   );
@@ -113,7 +72,6 @@ const styles: Record<string, React.CSSProperties> = {
     outline: 'none',
     fontFamily: 'inherit',
   },
-  error: { fontSize: '13px', color: '#ff7351' },
   actions: { display: 'flex', gap: '12px', justifyContent: 'flex-end', paddingTop: '8px' },
   cancelBtn: {
     padding: '12px 24px',

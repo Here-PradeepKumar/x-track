@@ -34,6 +34,46 @@ export async function createEvent(formData: FormData) {
   redirect(`/organizer/events/${ref.id}`);
 }
 
+export async function activateEvent(eventId: string) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const ref = adminDb.doc(`events/${eventId}`);
+  const snap = await ref.get();
+  if (!snap.exists || snap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  await ref.update({ status: 'active' });
+  redirect(`/organizer/events/${eventId}`);
+}
+
+export async function completeEvent(eventId: string) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const ref = adminDb.doc(`events/${eventId}`);
+  const snap = await ref.get();
+  if (!snap.exists || snap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  await ref.update({ status: 'completed' });
+  redirect(`/organizer/events/${eventId}`);
+}
+
+export async function discardEvent(eventId: string) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const ref = adminDb.doc(`events/${eventId}`);
+  const snap = await ref.get();
+  if (!snap.exists || snap.data()?.organizerId !== user.uid) redirect('/organizer');
+  if (snap.data()?.status !== 'draft') throw new Error('Only draft events can be discarded.');
+
+  await ref.delete();
+  redirect('/organizer');
+}
+
 export async function createHyroxMilestones(eventId: string) {
   const user = await getSessionUser();
   if (!user) redirect('/login');

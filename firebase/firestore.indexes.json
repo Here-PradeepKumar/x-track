@@ -69,6 +69,13 @@
         { "fieldPath": "athleteUid", "order": "ASCENDING" },
         { "fieldPath": "startedAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "roster",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "phone", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser, getUserRole } from '@/lib/auth-session';
 import { adminDb } from '@/lib/firebase-admin';
 import CreateVolunteerInviteButton from '@/components/CreateVolunteerInviteButton';
+import VolunteersImportButton from '@/components/VolunteersImportButton';
 
 interface Props { params: { eventId: string } }
 
@@ -44,6 +45,18 @@ export default async function VolunteersPage({ params }: Props) {
     assignedMilestoneId: (d.data().assignedMilestoneId as string) || null,
   }));
 
+  // Fetch imported volunteer roster
+  const rosterSnap = await adminDb
+    .collection(`events/${eventId}/roster`)
+    .orderBy('importedAt', 'desc')
+    .limit(200)
+    .get();
+
+  const roster = rosterSnap.docs.map((d) => ({
+    phone: d.data().phone as string,
+    displayName: (d.data().displayName as string) || '—',
+  }));
+
   // Build milestone map for lookup
   const milestoneMap = Object.fromEntries(milestones.map((m) => [m.id, m]));
 
@@ -55,10 +68,41 @@ export default async function VolunteersPage({ params }: Props) {
 
       <div style={styles.titleRow}>
         <h1 style={styles.title}>Volunteers</h1>
-        <CreateVolunteerInviteButton
-          eventId={eventId}
-          milestones={unassignedMilestones.map((m) => ({ id: m.id, name: m.name, order: m.order }))}
-        />
+        <div style={styles.titleActions}>
+          <VolunteersImportButton eventId={eventId} />
+          <CreateVolunteerInviteButton
+            eventId={eventId}
+            milestones={unassignedMilestones.map((m) => ({ id: m.id, name: m.name, order: m.order }))}
+          />
+        </div>
+      </div>
+
+      {/* Roster — imported phone numbers */}
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>Imported Roster ({roster.length})</h2>
+        {roster.length === 0 ? (
+          <p style={styles.emptyHint}>
+            No volunteers imported yet. Upload a CSV with columns <code style={styles.code}>displayName</code> and <code style={styles.code}>phone</code>.
+          </p>
+        ) : (
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                {['Name', 'Phone'].map((h) => (
+                  <th key={h} style={styles.th}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {roster.map((r) => (
+                <tr key={r.phone} style={styles.tr}>
+                  <td style={styles.td}>{r.displayName}</td>
+                  <td style={styles.td}>{r.phone}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Milestone assignment overview */}
@@ -148,7 +192,10 @@ export default async function VolunteersPage({ params }: Props) {
 const styles: Record<string, React.CSSProperties> = {
   page: { maxWidth: '960px', margin: '0 auto', padding: '32px 24px' },
   back: { color: '#adaaaa', fontSize: '13px', textDecoration: 'none', display: 'block', marginBottom: '24px' },
-  titleRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' },
+  titleRow: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '32px', gap: '16px', flexWrap: 'wrap' },
+  titleActions: { display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end' },
+  emptyHint: { fontSize: '13px', color: '#494847', letterSpacing: '0.3px' },
+  code: { fontFamily: 'monospace', background: '#1a1a1a', padding: '1px 5px', borderRadius: '2px', fontSize: '12px' },
   title: { fontSize: '22px', fontWeight: 900, color: '#fff' },
   section: { marginBottom: '40px' },
   sectionTitle: { fontSize: '11px', color: '#adaaaa', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '16px' },

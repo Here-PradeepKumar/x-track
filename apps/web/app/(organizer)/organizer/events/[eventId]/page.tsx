@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser, getUserRole } from '@/lib/auth-session';
 import { adminDb } from '@/lib/firebase-admin';
 import Link from 'next/link';
+import EventActions from '@/components/EventActions';
 
 interface Props { params: { eventId: string } }
 
@@ -38,16 +39,15 @@ export default async function EventDetailPage({ params }: Props) {
 
       {/* Event Header */}
       <div style={styles.eventHeader}>
-        <div>
-          <div style={styles.statusRow}>
-            <span style={styles.status(event.status)}>{event.status?.toUpperCase()}</span>
-            <span style={styles.date}>
-              {event.date?.toDate?.()?.toLocaleDateString('en-IN') ?? '—'}
-            </span>
-          </div>
-          <h1 style={styles.eventName}>{event.name}</h1>
-          <p style={styles.location}>{event.location}</p>
+        <div style={styles.statusRow}>
+          <span style={styles.status(event.status)}>{event.status?.toUpperCase()}</span>
+          <span style={styles.date}>
+            {event.date?.toDate?.()?.toLocaleDateString('en-IN') ?? '—'}
+          </span>
         </div>
+        <h1 style={styles.eventName}>{event.name}</h1>
+        <p style={styles.location}>{event.location}</p>
+        <EventActions eventId={eventId} status={event.status} />
       </div>
 
       {/* Navigation tiles */}

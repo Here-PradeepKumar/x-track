@@ -382,3 +382,97 @@ export const importBibsCSV = functions.https.onCall(async (data, context) => {
 
   return { imported: bibs.length };
 });
+
+// ─── importVolunteersCSV ──────────────────────────────────────────────────────
+// Called by Organizer from web. Bulk-writes volunteer roster entries so only
+// pre-registered phone numbers can access the volunteer app.
+
+export const importVolunteersCSV = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
+
+  const callerDoc = await db.doc(`users/${context.auth.uid}`).get();
+  if (callerDoc.data()?.role !== 'organizer') {
+    throw new functions.https.HttpsError('permission-denied', 'Organizer only.');
+  }
+
+  const { eventId, volunteers } = data as {
+    eventId: string;
+    volunteers: Array<{ displayName: string; phone: string }>;
+  };
+
+  const eventSnap = await db.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== context.auth.uid) {
+    throw new functions.https.HttpsError('permission-denied', 'Not your event.');
+  }
+
+  // Normalize phone to E.164 digits only (no leading +)
+  const normalizePhone = (raw: string): string => {
+    const digits = raw.replace(/\D/g, '');
+    if (digits.length === 10) return `91${digits}`;                          // 10-digit Indian
+    if (digits.length === 11 && digits.startsWith('0')) return `91${digits.slice(1)}`; // 011-digit
+    return digits; // already fully qualified or international
+  };
+
+  const batches: ReturnType<typeof db.batch>[] = [];
+  let batch = db.batch();
+  let count = 0;
+
+  for (const vol of volunteers) {
+    const phone = normalizePhone(vol.phone);
+    if (!phone) continue;
+
+    const ref = db.doc(`events/${eventId}/roster/${phone}`);
+    batch.set(ref, {
+      phone,
+      displayName: vol.displayName || '',
+      eventId,
+      importedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    count++;
+
+    if (count === 500) {
+      batches.push(batch);
+      batch = db.batch();
+      count = 0;
+    }
+  }
+
+  if (count > 0) batches.push(batch);
+  await Promise.all(batches.map((b) => b.commit()));
+
+  return { imported: volunteers.length };
+});
+
+// ─── getMyEvents ──────────────────────────────────────────────────────────────
+// Called by volunteer app after phone OTP sign-in.
+// Returns the list of active events this phone number is registered for.
+// Empty result means the phone is not in any roster — app should block access.
+
+export const getMyEvents = functions.https.onCall(async (_data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
+
+  const phone = context.auth.token.phone_number;
+  if (!phone) throw new functions.https.HttpsError('failed-precondition', 'Phone auth required.');
+
+  // Normalize: strip leading +
+  const normalizedPhone = phone.replace(/^\+/, '');
+
+  const rosterSnap = await db
+    .collectionGroup('roster')
+    .where('phone', '==', normalizedPhone)
+    .get();
+
+  if (rosterSnap.empty) return { events: [] };
+
+  const eventIds = [...new Set(rosterSnap.docs.map((d) => d.data().eventId as string))];
+  const eventSnaps = await Promise.all(eventIds.map((id) => db.doc(`events/${id}`).get()));
+
+  const events = eventSnaps
+    .filter((snap) => snap.exists && snap.data()?.status === 'active')
+    .map((snap) => ({
+      eventId: snap.id,
+      eventName: (snap.data()?.name as string) ?? '',
+    }));
+
+  return { events };
+});

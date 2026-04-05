@@ -64,6 +64,12 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/events/$(eventId)).data.organizerId == request.auth.uid;
       }
 
+      // ── roster sub-collection (volunteer phone allowlist) ────────────────
+      // All reads and writes are via Cloud Functions (Admin SDK) only.
+      match /roster/{phone} {
+        allow read, write: if false;
+      }
+
       // ── bibs sub-collection ───────────────────────────────────────────────
       match /bibs/{bibNumber} {
         // Athletes can read their own bib

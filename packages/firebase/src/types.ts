@@ -92,6 +92,15 @@ export interface CheckpointDoc {
   scannedAt: Timestamp;
 }
 
+// ─── Volunteer Roster (sub-collection of events) ─────────────────────────────
+
+export interface RosterEntry {
+  phone: string;       // E.164 without leading + (e.g. "919876543210")
+  displayName: string;
+  eventId: string;
+  importedAt: Timestamp;
+}
+
 // ─── Athlete Races (denormalised, updated by Cloud Function) ─────────────────
 
 export interface CheckpointEntry {

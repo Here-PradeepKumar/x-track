@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "@x-track/firebase": "*",
     "@x-track/ui": "*",
     "firebase": "^10.12.0",

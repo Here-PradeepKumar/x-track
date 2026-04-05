@@ -75,6 +75,53 @@ export async function discardEvent(eventId: string) {
   redirect('/organizer');
 }
 
+export async function importVolunteers(
+  eventId: string,
+  volunteers: Array<{ displayName: string; phone: string }>
+) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  const normalizePhone = (raw: string): string => {
+    const digits = raw.replace(/\D/g, '');
+    if (digits.length === 10) return `91${digits}`;
+    if (digits.length === 11 && digits.startsWith('0')) return `91${digits.slice(1)}`;
+    return digits;
+  };
+
+  let batch = adminDb.batch();
+  let count = 0;
+  let total = 0;
+
+  for (const vol of volunteers) {
+    const phone = normalizePhone(vol.phone);
+    if (!phone) continue;
+    const ref = adminDb.doc(`events/${eventId}/roster/${phone}`);
+    batch.set(ref, {
+      phone,
+      displayName: vol.displayName || '',
+      eventId,
+      active: true,
+      importedAt: Timestamp.now(),
+    }, { merge: true });
+    count++;
+    total++;
+    if (count === 500) {
+      await batch.commit();
+      batch = adminDb.batch();
+      count = 0;
+    }
+  }
+  if (count > 0) await batch.commit();
+
+  revalidatePath(`/organizer/events/${eventId}/volunteers`);
+  return { imported: total };
+}
+
 export async function setVolunteerActive(eventId: string, phone: string, active: boolean) {
   const user = await getSessionUser();
   if (!user) redirect('/login');

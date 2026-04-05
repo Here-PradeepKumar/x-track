@@ -17,7 +17,7 @@ function getAdminApp(): admin.app.App {
     credential: serviceAccount
       ? admin.credential.cert(serviceAccount)
       : admin.credential.applicationDefault(),
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim(),
   });
 }
 

@@ -10,13 +10,14 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { signOut } from 'firebase/auth';
-import { auth } from '@x-track/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '@x-track/firebase';
 import { Colors } from '@x-track/ui';
 import { useAuth } from '../context/AuthContext';
 
 export function VolunteerProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { user, userDoc } = useAuth();
+  const { user, userDoc, registeredEvents } = useAuth();
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure?', [
@@ -25,8 +26,15 @@ export function VolunteerProfileScreen() {
     ]);
   };
 
-  const eventId = (userDoc as any)?.assignedEventId;
-  const milestoneId = (userDoc as any)?.assignedMilestoneId;
+  const handleSwitchEvent = (eventId: string) => {
+    if (!user) return;
+    const ref = doc(db, 'users', user.uid);
+    void updateDoc(ref, { assignedEventId: eventId, assignedMilestoneId: null });
+  };
+
+  const eventId = userDoc?.assignedEventId;
+  const milestoneId = userDoc?.assignedMilestoneId;
+  const currentEventName = registeredEvents.find(e => e.eventId === eventId)?.eventName;
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 80 }]}>
@@ -59,8 +67,8 @@ export function VolunteerProfileScreen() {
           <View style={styles.infoRow}>
             <MaterialIcons name="event" size={18} color={Colors.onSurfaceVariant} />
             <View>
-              <Text style={styles.infoLabel}>EVENT ID</Text>
-              <Text style={styles.infoValue}>{eventId ?? 'Not assigned'}</Text>
+              <Text style={styles.infoLabel}>EVENT</Text>
+              <Text style={styles.infoValue}>{currentEventName ?? eventId ?? 'Not assigned'}</Text>
             </View>
           </View>
 
@@ -94,6 +102,33 @@ export function VolunteerProfileScreen() {
             </View>
           </View>
         </View>
+
+        {/* Event switcher — only shown when registered for multiple events */}
+        {registeredEvents.length > 1 && (
+          <View style={styles.infoCard}>
+            <Text style={styles.cardTitle}>SWITCH EVENT</Text>
+            {registeredEvents.map((event) => (
+              <TouchableOpacity
+                key={event.eventId}
+                style={[
+                  styles.eventRow,
+                  event.eventId === eventId && styles.eventRowActive,
+                ]}
+                onPress={() => handleSwitchEvent(event.eventId)}
+              >
+                <Text style={[
+                  styles.eventRowText,
+                  event.eventId === eventId && styles.eventRowTextActive,
+                ]}>
+                  {event.eventName}
+                </Text>
+                {event.eventId === eventId && (
+                  <MaterialIcons name="check-circle" size={16} color={Colors.primaryFixed} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* Sign out */}
         <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
@@ -209,6 +244,28 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.onSurfaceVariant,
     lineHeight: 17,
+  },
+  eventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: Colors.outlineVariant,
+  },
+  eventRowActive: {
+    borderColor: Colors.primaryFixed,
+    backgroundColor: 'rgba(202,253,0,0.06)',
+  },
+  eventRowText: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 13,
+    color: Colors.onSurfaceVariant,
+  },
+  eventRowTextActive: {
+    color: Colors.primaryFixed,
   },
   signOutBtn: {
     width: '100%',

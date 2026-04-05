@@ -19,7 +19,6 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@x-track/firebase';
 import { VolunteerNavigator } from './src/navigation/VolunteerNavigator';
 import { PhoneSignInScreen } from './src/screens/PhoneSignInScreen';
-import { AcceptInviteScreen } from './src/screens/AcceptInviteScreen';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { Colors } from '@x-track/ui';
 
@@ -58,10 +57,6 @@ function RootNavigator() {
 
   if (notRegistered) {
     return <NotRegisteredScreen />;
-  }
-
-  if (!userDoc?.assignedEventId) {
-    return <AcceptInviteScreen />;
   }
 
   return (

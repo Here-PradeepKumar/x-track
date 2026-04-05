@@ -82,7 +82,7 @@ export type CheckpointEntryMethod = 'nfc' | 'manual';
 export interface CheckpointDoc {
   id: string;
   eventId: string;
-  milestoneId: string;
+  milestoneId: string | null;   // null when volunteer is event-bound only (no milestone assignment)
   bibNumber: string;
   athleteUid: string;
   volunteerUid: string;

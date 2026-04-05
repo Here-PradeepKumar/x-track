@@ -95,25 +95,27 @@ export function NFCScanScreen() {
   // ── Fetch assigned event/milestone metadata ──────────────────────────────────
 
   useEffect(() => {
-    if (!eventId || !milestoneId) return;
+    if (!eventId) return;
 
     getDoc(doc(db, 'events', eventId)).then((snap) => {
       if (snap.exists()) setEventName(snap.data().name ?? '');
     });
-    getDoc(doc(db, `events/${eventId}/milestones`, milestoneId)).then((snap) => {
-      if (snap.exists()) setMilestoneName(snap.data().name ?? '');
-    });
+
+    if (milestoneId) {
+      getDoc(doc(db, `events/${eventId}/milestones`, milestoneId)).then((snap) => {
+        if (snap.exists()) setMilestoneName(snap.data().name ?? '');
+      });
+    }
   }, [eventId, milestoneId]);
 
   // ── Recent check-ins listener ────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!eventId || !milestoneId || !user) return;
+    if (!eventId || !user) return;
 
     const q = query(
       collection(db, 'checkpoints'),
       where('eventId', '==', eventId),
-      where('milestoneId', '==', milestoneId),
       where('volunteerUid', '==', user.uid),
       orderBy('scannedAt', 'desc'),
       limit(5)
@@ -210,13 +212,13 @@ export function NFCScanScreen() {
   // ── Confirm checkpoint ────────────────────────────────────────────────────────
 
   const confirmCheckpoint = async () => {
-    if (!scannedAthlete || !user || !eventId || !milestoneId) return;
+    if (!scannedAthlete || !user || !eventId) return;
     setScanState('confirming');
 
     try {
       await addDoc(collection(db, 'checkpoints'), {
         eventId,
-        milestoneId,
+        milestoneId: milestoneId || null,
         bibNumber: scannedAthlete.bibNumber,
         athleteUid: scannedAthlete.athleteUid,
         volunteerUid: user.uid,
@@ -238,7 +240,7 @@ export function NFCScanScreen() {
   const ringScale = ringAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.3] });
   const ringOpacity = ringAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.4, 0.1, 0] });
 
-  const isAssigned = !!eventId && !!milestoneId;
+  const isAssigned = !!eventId;
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 80 }]}>
@@ -260,18 +262,20 @@ export function NFCScanScreen() {
           <View style={styles.assignmentCard}>
             <Text style={styles.assignmentLabel}>YOUR ASSIGNMENT</Text>
             <Text style={styles.assignmentEvent}>{eventName || eventId}</Text>
-            <View style={styles.milestonePill}>
-              <MaterialIcons name="place" size={14} color={Colors.electricOrange} />
-              <Text style={styles.milestonePillText}>{milestoneName || milestoneId}</Text>
-            </View>
+            {milestoneId ? (
+              <View style={styles.milestonePill}>
+                <MaterialIcons name="place" size={14} color={Colors.electricOrange} />
+                <Text style={styles.milestonePillText}>{milestoneName || milestoneId}</Text>
+              </View>
+            ) : null}
           </View>
         ) : (
           <View style={styles.awaitingCard}>
             <MaterialIcons name="hourglass-empty" size={32} color={Colors.onSurfaceVariant} />
             <Text style={styles.awaitingTitle}>AWAITING ASSIGNMENT</Text>
             <Text style={styles.awaitingSubtitle}>
-              Your event organizer will assign you to a checkpoint.
-              Please check back shortly.
+              You have not been added to any active event roster yet.
+              Ask your organizer to import your phone number.
             </Text>
           </View>
         )}

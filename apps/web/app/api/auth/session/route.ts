@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
       sameSite: 'lax',
     });
     return res;
-  } catch {
+  } catch (err: any) {
+    console.error('[session] createSessionCookie failed:', err?.message ?? err);
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 }

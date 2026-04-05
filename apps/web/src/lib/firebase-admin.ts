@@ -4,9 +4,14 @@ import * as admin from 'firebase-admin';
 function getAdminApp(): admin.app.App {
   if (admin.apps.length > 0) return admin.apps[0]!;
 
-  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
-    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
-    : undefined;
+  let serviceAccount: object | undefined;
+  try {
+    const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    serviceAccount = raw ? JSON.parse(raw) : undefined;
+  } catch (e) {
+    console.error('[firebase-admin] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:', e);
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON');
+  }
 
   return admin.initializeApp({
     credential: serviceAccount

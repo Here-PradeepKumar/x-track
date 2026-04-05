@@ -239,7 +239,7 @@ export default function ManualEntryScreen() {
         <View style={styles.headerMeta}>
           <Text style={styles.eventName} numberOfLines={1}>{eventName}</Text>
           <View style={styles.chip}>
-            <Text style={styles.chipText}>ZONE COORD</Text>
+            <Text style={styles.chipText}>VOLUNTEER</Text>
           </View>
         </View>
       </View>

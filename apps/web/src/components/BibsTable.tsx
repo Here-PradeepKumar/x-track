@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { db } from '@/lib/firebase-client';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getApp } from 'firebase/app';
+import * as XLSX from 'xlsx';
+import { importBibs } from '@/actions/event-actions';
 
 interface Bib {
   bibNumber: string;
@@ -19,67 +17,99 @@ interface Props {
   bibs: Bib[];
 }
 
+function parseWorkbook(file: File): Promise<Bib[]> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const wb = XLSX.read(e.target?.result, { type: 'array' });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows: Record<string, string>[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+        const normalize = (key: string) => key.toLowerCase().replace(/[\s_]/g, '');
+
+        resolve(
+          rows
+            .map((row) => {
+              const get = (...aliases: string[]) => {
+                const k = Object.keys(row).find((k) => aliases.includes(normalize(k)));
+                return k ? String(row[k] ?? '').trim() : '';
+              };
+              return {
+                bibNumber: get('bibnumber', 'bib', 'bibnr', 'number'),
+                athletePhone: get('phone', 'athletephone', 'mobile', 'phonenumber'),
+                nfcTagId: get('nfctagid', 'nfc', 'nfctag', 'tagid'),
+                wave: get('wave'),
+                category: get('category', 'cat'),
+              };
+            })
+            .filter((b) => b.bibNumber.length > 0)
+        );
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function downloadSampleBibs() {
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([['bibNumber', 'phone', 'nfcTagId', 'wave', 'category']]);
+  ws['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 20 }, { wch: 10 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'BIBs');
+  XLSX.writeFile(wb, 'bib_import_template.xlsx');
+}
+
 export default function BibsTable({ eventId, bibs: initialBibs }: Props) {
   const [bibs, setBibs] = useState(initialBibs);
   const [newRow, setNewRow] = useState<Partial<Bib>>({});
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<string | null>(null);
 
   const handleAddRow = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRow.bibNumber?.trim()) return;
     setSaving(true);
     try {
-      await setDoc(doc(db, `events/${eventId}/bibs/${newRow.bibNumber!.trim()}`), {
+      await importBibs(eventId, [{
         bibNumber: newRow.bibNumber!.trim(),
-        eventId,
-        athleteUid: '',
         athletePhone: newRow.athletePhone?.trim() ?? '',
         nfcTagId: newRow.nfcTagId?.trim() ?? '',
         wave: newRow.wave?.trim() ?? '',
         category: newRow.category?.trim() ?? '',
-        registeredAt: serverTimestamp(),
-      });
+      }]);
       setBibs([...bibs, { ...newRow } as Bib]);
       setNewRow({});
       setAdding(false);
-    } catch (e: any) {
-      alert(e.message ?? 'Failed to add BIB.');
+    } catch (err: any) {
+      alert(err.message ?? 'Failed to add BIB.');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCsvImport = async () => {
-    if (!csvFile) return;
+  const handleImport = async () => {
+    if (!file) return;
     setImporting(true);
+    setImportResult(null);
     try {
-      const text = await csvFile.text();
-      const lines = text.split('\n').filter(Boolean);
-      const header = lines[0].split(',').map((h) => h.trim().toLowerCase());
-      const rows = lines.slice(1).map((line) => {
-        const values = line.split(',');
-        return Object.fromEntries(header.map((h, i) => [h, values[i]?.trim() ?? '']));
-      });
-
-      const bibsPayload = rows.map((r) => ({
-        bibNumber: r['bibnumber'] ?? r['bib'] ?? r['bib_number'] ?? '',
-        athletePhone: r['phone'] ?? r['athlete_phone'] ?? '',
-        nfcTagId: r['nfctagid'] ?? r['nfc_tag_id'] ?? r['nfc'] ?? '',
-        wave: r['wave'] ?? '',
-        category: r['category'] ?? '',
-      })).filter((b) => b.bibNumber);
-
-      const functions = getFunctions(getApp());
-      const importFn = httpsCallable(functions, 'importBibsCSV');
-      const result: any = await importFn({ eventId, bibs: bibsPayload });
-
-      alert(`Imported ${result.data.imported} BIBs successfully.`);
+      const parsed = await parseWorkbook(file);
+      if (parsed.length === 0) {
+        setImportResult('No valid rows found. Check that columns are: bibNumber, phone, wave, category.');
+        return;
+      }
+      const res = await importBibs(eventId, parsed);
+      setImportResult(`${res.imported} BIBs imported.`);
+      setFile(null);
+      // Refresh bib list
       window.location.reload();
-    } catch (e: any) {
-      alert(e.message ?? 'Import failed.');
+    } catch (err: any) {
+      setImportResult(`Error: ${err?.message ?? 'Import failed'}`);
     } finally {
       setImporting(false);
     }
@@ -87,18 +117,29 @@ export default function BibsTable({ eventId, bibs: initialBibs }: Props) {
 
   return (
     <div>
-      {/* CSV Import */}
-      <div style={styles.csvRow}>
+      {/* Import row */}
+      <div style={styles.importRow}>
         <input
           type="file"
-          accept=".csv"
-          onChange={(e) => setCsvFile(e.target.files?.[0] ?? null)}
+          accept=".csv,.xlsx,.xls"
+          onChange={(e) => { setFile(e.target.files?.[0] ?? null); setImportResult(null); }}
           style={styles.fileInput}
         />
-        <button onClick={handleCsvImport} disabled={!csvFile || importing} style={styles.importBtn}>
-          {importing ? 'Importing...' : 'Import CSV'}
+        <button onClick={handleImport} disabled={!file || importing} style={styles.importBtn}>
+          {importing ? 'Importing…' : 'Import'}
         </button>
-        <span style={styles.csvHint}>CSV columns: bibNumber, phone, nfcTagId, wave, category</span>
+        <button onClick={downloadSampleBibs} style={styles.sampleBtn}>
+          ↓ Sample Excel
+        </button>
+        {importResult && (
+          <span style={{
+            ...styles.importResult,
+            color: importResult.startsWith('Error') || importResult.startsWith('No valid') ? '#ff7351' : '#cafd00',
+          }}>
+            {importResult}
+          </span>
+        )}
+        <span style={styles.hint}>Accepts .xlsx or .csv — columns: bibNumber, phone, nfcTagId, wave, category</span>
       </div>
 
       <table style={styles.table}>
@@ -120,8 +161,7 @@ export default function BibsTable({ eventId, bibs: initialBibs }: Props) {
             </tr>
           ))}
 
-          {/* New row form */}
-          {adding ? (
+          {adding && (
             <tr style={styles.tr}>
               {(['bibNumber', 'athletePhone', 'nfcTagId', 'wave', 'category'] as (keyof Bib)[]).map((f) => (
                 <td key={f} style={styles.td}>
@@ -140,7 +180,7 @@ export default function BibsTable({ eventId, bibs: initialBibs }: Props) {
                 <button onClick={() => setAdding(false)} style={styles.cancelRowBtn}>✕</button>
               </td>
             </tr>
-          ) : null}
+          )}
         </tbody>
       </table>
 
@@ -152,10 +192,12 @@ export default function BibsTable({ eventId, bibs: initialBibs }: Props) {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  csvRow: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' },
+  importRow: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' },
   fileInput: { background: '#131313', border: '1px solid #494847', borderRadius: '2px', padding: '6px 10px', color: '#adaaaa', fontSize: '13px' },
-  importBtn: { background: '#00eefc', color: '#003f43', border: 'none', borderRadius: '2px', padding: '8px 16px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px' },
-  csvHint: { fontSize: '11px', color: '#adaaaa', fontFamily: 'monospace' },
+  importBtn: { background: '#00eefc', color: '#003f43', border: 'none', borderRadius: '2px', padding: '8px 16px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase' as const },
+  sampleBtn: { background: 'transparent', color: '#adaaaa', border: '1px solid #333', borderRadius: '2px', padding: '8px 14px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.5px' },
+  importResult: { fontSize: '12px', letterSpacing: '0.3px' },
+  hint: { fontSize: '10px', color: '#494847', letterSpacing: '0.5px', width: '100%' },
   table: { width: '100%', borderCollapse: 'collapse', marginBottom: '12px' },
   th: { fontSize: '9px', color: '#adaaaa', letterSpacing: '3px', padding: '10px 14px', textAlign: 'left', borderBottom: '1px solid #494847' },
   tr: { borderBottom: '1px solid #262626' },

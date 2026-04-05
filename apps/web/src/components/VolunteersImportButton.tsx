@@ -4,6 +4,14 @@ import { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { importVolunteers } from '@/actions/event-actions';
 
+function downloadSampleVolunteers() {
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([['displayName', 'phone']]);
+  ws['!cols'] = [{ wch: 20 }, { wch: 16 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'Volunteers');
+  XLSX.writeFile(wb, 'volunteer_import_template.xlsx');
+}
+
 interface Props {
   eventId: string;
 }
@@ -93,6 +101,9 @@ export default function VolunteersImportButton({ eventId }: Props) {
       <button onClick={handleImport} disabled={importing} style={styles.btn}>
         {importing ? 'Importing…' : 'Import'}
       </button>
+      <button onClick={downloadSampleVolunteers} style={styles.sampleBtn}>
+        ↓ Sample Excel
+      </button>
       {result && (
         <span style={{
           ...styles.result,
@@ -129,6 +140,7 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     textTransform: 'uppercase' as const,
   },
+  sampleBtn: { background: 'transparent', color: '#adaaaa', border: '1px solid #333', borderRadius: '2px', padding: '8px 14px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.5px' },
   result: { fontSize: '12px', letterSpacing: '0.3px' },
   hint: { fontSize: '10px', color: '#494847', letterSpacing: '0.5px', width: '100%' },
 };

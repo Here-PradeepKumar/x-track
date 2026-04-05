@@ -75,6 +75,48 @@ export async function discardEvent(eventId: string) {
   redirect('/organizer');
 }
 
+export async function importBibs(
+  eventId: string,
+  bibs: Array<{ bibNumber: string; athletePhone: string; nfcTagId: string; wave: string; category: string }>
+) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  let batch = adminDb.batch();
+  let count = 0;
+  let total = 0;
+
+  for (const bib of bibs) {
+    if (!bib.bibNumber) continue;
+    const ref = adminDb.doc(`events/${eventId}/bibs/${bib.bibNumber}`);
+    batch.set(ref, {
+      bibNumber: bib.bibNumber,
+      eventId,
+      athleteUid: '',
+      athletePhone: bib.athletePhone ?? '',
+      nfcTagId: bib.nfcTagId ?? '',
+      wave: bib.wave ?? '',
+      category: bib.category ?? '',
+      registeredAt: Timestamp.now(),
+    });
+    count++;
+    total++;
+    if (count === 500) {
+      await batch.commit();
+      batch = adminDb.batch();
+      count = 0;
+    }
+  }
+  if (count > 0) await batch.commit();
+
+  revalidatePath(`/organizer/events/${eventId}/bibs`);
+  return { imported: total };
+}
+
 export async function importVolunteers(
   eventId: string,
   volunteers: Array<{ displayName: string; phone: string }>

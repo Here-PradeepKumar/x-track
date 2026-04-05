@@ -68,7 +68,7 @@ export default function CategoryWeightsEditor({ eventId, stations, categories: i
     if (!name) return;
     startTransition(() => { void addCategory(eventId, name); });
     const id = name.toLowerCase().replace(/\s+/g, '_');
-    setCategories((prev) => [...prev, { id, name, order: prev.length + 1, milestoneWeights: {} }]);
+    setCategories((prev) => [...prev, { id, name, order: prev.length + 1, active: true, milestoneWeights: {} }]);
     setNewCatName('');
     setAddingCat(false);
   };

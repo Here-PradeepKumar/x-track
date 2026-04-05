@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { updateCategoryWeight, addCategory, removeCategory } from '@/actions/event-actions';
+import { updateCategoryWeight, addCategory, removeCategory, renameCategory, toggleCategoryActive } from '@/actions/event-actions';
 
 interface Station {
   id: string;
@@ -13,6 +13,7 @@ interface Category {
   id: string;
   name: string;
   order: number;
+  active: boolean;
   milestoneWeights: Record<string, number | null>;
 }
 
@@ -31,6 +32,8 @@ interface EditingCell {
 export default function CategoryWeightsEditor({ eventId, stations, categories: initialCategories }: Props) {
   const [categories, setCategories] = useState(initialCategories);
   const [editing, setEditing] = useState<EditingCell | null>(null);
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [editingCatName, setEditingCatName] = useState('');
   const [newCatName, setNewCatName] = useState('');
   const [addingCat, setAddingCat] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -70,10 +73,28 @@ export default function CategoryWeightsEditor({ eventId, stations, categories: i
     setAddingCat(false);
   };
 
-  const handleRemoveCategory = (categoryId: string) => {
-    if (!confirm('Remove this category? Athlete BIBs with this category will show no weight.')) return;
+  const handleRemoveCategory = (categoryId: string, name: string) => {
+    if (!confirm(`Remove category "${name}"? Athlete BIBs with this category will show no weight.`)) return;
     startTransition(() => { void removeCategory(eventId, categoryId); });
     setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+  };
+
+  const startRenameCategory = (cat: Category) => {
+    setEditingCatId(cat.id);
+    setEditingCatName(cat.name);
+  };
+
+  const commitRenameCategory = (categoryId: string) => {
+    const name = editingCatName.trim();
+    if (!name) { setEditingCatId(null); return; }
+    startTransition(() => { void renameCategory(eventId, categoryId, name); });
+    setCategories((prev) => prev.map((c) => c.id === categoryId ? { ...c, name } : c));
+    setEditingCatId(null);
+  };
+
+  const handleToggleCategoryActive = (categoryId: string, current: boolean) => {
+    startTransition(() => { void toggleCategoryActive(eventId, categoryId, !current); });
+    setCategories((prev) => prev.map((c) => c.id === categoryId ? { ...c, active: !current } : c));
   };
 
   if (stations.length === 0) {
@@ -89,11 +110,27 @@ export default function CategoryWeightsEditor({ eventId, stations, categories: i
               <th style={s.th}>Station</th>
               <th style={{ ...s.th, color: '#494847', fontSize: '9px' }}>Target</th>
               {categories.map((cat) => (
-                <th key={cat.id} style={s.th}>
-                  <div style={s.catHeader}>
-                    <span>{cat.name}</span>
-                    <button onClick={() => handleRemoveCategory(cat.id)} style={s.removeBtn} title="Remove category">×</button>
-                  </div>
+                <th key={cat.id} style={{ ...s.th, opacity: cat.active ? 1 : 0.4 }}>
+                  {editingCatId === cat.id ? (
+                    <input
+                      value={editingCatName}
+                      onChange={(e) => setEditingCatName(e.target.value)}
+                      onBlur={() => commitRenameCategory(cat.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') commitRenameCategory(cat.id); if (e.key === 'Escape') setEditingCatId(null); }}
+                      style={s.catInput}
+                      autoFocus
+                    />
+                  ) : (
+                    <div style={s.catHeader}>
+                      <span style={{ cursor: 'pointer' }} onClick={() => startRenameCategory(cat)} title="Click to rename">{cat.name}</span>
+                      <div style={s.catActions}>
+                        <button onClick={() => handleToggleCategoryActive(cat.id, cat.active)} style={s.toggleCatBtn} title={cat.active ? 'Deactivate' : 'Activate'}>
+                          {cat.active ? '●' : '○'}
+                        </button>
+                        <button onClick={() => handleRemoveCategory(cat.id, cat.name)} style={s.removeBtn} title="Remove category">×</button>
+                      </div>
+                    </div>
+                  )}
                 </th>
               ))}
               <th style={s.th}>
@@ -163,7 +200,9 @@ const s: Record<string, React.CSSProperties> = {
   tdWeight: { padding: '8px 14px', textAlign: 'center' },
   weightCell: { background: 'transparent', border: '1px solid #262626', borderRadius: '2px', padding: '5px 12px', color: '#cafd00', fontSize: '12px', fontWeight: 700, cursor: 'pointer', minWidth: '64px', textAlign: 'center' },
   weightInput: { background: '#1e1e1e', border: '1px solid #cafd00', borderRadius: '2px', padding: '5px 8px', color: '#cafd00', fontSize: '12px', width: '64px', textAlign: 'center' },
-  catHeader: { display: 'flex', alignItems: 'center', gap: '6px' },
+  catHeader: { display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'space-between' },
+  catActions: { display: 'flex', alignItems: 'center', gap: '2px' },
+  toggleCatBtn: { background: 'transparent', border: 'none', color: '#cafd00', fontSize: '10px', cursor: 'pointer', lineHeight: 1, padding: '0 2px' },
   removeBtn: { background: 'transparent', border: 'none', color: '#494847', fontSize: '14px', cursor: 'pointer', lineHeight: 1, padding: '0 2px' },
   addCatBtn: { background: 'transparent', color: '#cafd00', border: '1px dashed rgba(202,253,0,0.4)', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px', whiteSpace: 'nowrap' },
   addCatRow: { display: 'flex', gap: '4px', alignItems: 'center' },

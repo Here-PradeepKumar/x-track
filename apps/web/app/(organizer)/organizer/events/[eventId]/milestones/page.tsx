@@ -3,6 +3,7 @@ import { getSessionUser, getUserRole } from '@/lib/auth-session';
 import { adminDb } from '@/lib/firebase-admin';
 import AddMilestoneForm from '@/components/AddMilestoneForm';
 import CategoryWeightsEditor from '@/components/CategoryWeightsEditor';
+import MilestonesTable from '@/components/MilestonesTable';
 
 interface Props { params: { eventId: string } }
 
@@ -27,12 +28,14 @@ export default async function MilestonesPage({ params }: Props) {
     distanceMark: d.data().distanceMark as string,
     stationType: (d.data().stationType as string) ?? 'station',
     assignedVolunteerUid: (d.data().assignedVolunteerUid as string) || null,
+    active: (d.data().active as boolean) ?? true,
   }));
 
   const categories = categoriesSnap.docs.map((d) => ({
     id: d.id,
     name: d.data().name as string,
     order: d.data().order as number,
+    active: (d.data().active as boolean) ?? true,
     milestoneWeights: (d.data().milestoneWeights ?? {}) as Record<string, number | null>,
   }));
 
@@ -50,32 +53,13 @@ export default async function MilestonesPage({ params }: Props) {
       <table style={styles.table}>
         <thead>
           <tr>
-            {['#', 'Name', 'Target', 'Type', 'Volunteer'].map((h) => (
+            {['#', 'Name', 'Target', 'Type', 'Volunteer', 'Actions'].map((h) => (
               <th key={h} style={styles.th}>{h.toUpperCase()}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {milestones.map((m) => (
-            <tr key={m.id} style={styles.tr}>
-              <td style={styles.td}>{m.order}</td>
-              <td style={styles.td}>{m.name}</td>
-              <td style={{ ...styles.td, color: '#adaaaa', fontSize: '12px', fontFamily: 'monospace' }}>{m.distanceMark}</td>
-              <td style={styles.td}>
-                {m.stationType === 'run'
-                  ? <span style={styles.typeRun}>RUN</span>
-                  : <span style={styles.typeStation}>STATION</span>}
-              </td>
-              <td style={styles.td}>
-                {m.assignedVolunteerUid
-                  ? <span style={styles.assigned}>● Assigned</span>
-                  : <span style={styles.unassigned}>Unassigned</span>}
-              </td>
-            </tr>
-          ))}
-          {milestones.length === 0 && (
-            <tr><td colSpan={5} style={styles.empty}>No milestones yet.</td></tr>
-          )}
+          <MilestonesTable eventId={eventId} milestones={milestones} />
         </tbody>
       </table>
 
@@ -105,13 +89,6 @@ const styles: Record<string, React.CSSProperties> = {
   title: { fontSize: '22px', fontWeight: 900, color: '#fff' },
   table: { width: '100%', borderCollapse: 'collapse', marginBottom: '40px' },
   th: { fontSize: '9px', color: '#adaaaa', letterSpacing: '3px', padding: '10px 16px', textAlign: 'left', borderBottom: '1px solid #494847', textTransform: 'uppercase' },
-  tr: { borderBottom: '1px solid #1e1e1e' },
-  td: { padding: '12px 16px', fontSize: '14px', color: '#fff' },
-  typeRun: { fontSize: '9px', color: '#adaaaa', letterSpacing: '2px', fontWeight: 700 },
-  typeStation: { fontSize: '9px', color: '#cafd00', letterSpacing: '2px', fontWeight: 700 },
-  assigned: { color: '#cafd00', fontSize: '12px', letterSpacing: '1px' },
-  unassigned: { color: '#494847', fontSize: '12px', letterSpacing: '1px' },
-  empty: { padding: '40px', textAlign: 'center', color: '#adaaaa', fontSize: '13px' },
   section: { marginTop: '8px' },
   sectionTitle: { fontSize: '11px', color: '#adaaaa', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '8px' },
   sectionHint: { fontSize: '12px', color: '#494847', marginBottom: '20px', lineHeight: '1.5' },

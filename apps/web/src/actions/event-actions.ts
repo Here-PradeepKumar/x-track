@@ -325,3 +325,39 @@ export async function removeCategory(eventId: string, categoryId: string) {
   await adminDb.doc(`events/${eventId}/categories/${categoryId}`).delete();
   revalidatePath(`/organizer/events/${eventId}/milestones`);
 }
+
+export async function renameCategory(eventId: string, categoryId: string, name: string) {
+  await verifyOrganizerOwnsEvent(eventId);
+  await adminDb.doc(`events/${eventId}/categories/${categoryId}`).update({ name });
+  revalidatePath(`/organizer/events/${eventId}/milestones`);
+}
+
+export async function toggleCategoryActive(eventId: string, categoryId: string, active: boolean) {
+  await verifyOrganizerOwnsEvent(eventId);
+  await adminDb.doc(`events/${eventId}/categories/${categoryId}`).update({ active });
+  revalidatePath(`/organizer/events/${eventId}/milestones`);
+}
+
+// ─── Milestone actions ────────────────────────────────────────────────────────
+
+export async function updateMilestone(
+  eventId: string,
+  milestoneId: string,
+  data: { name: string; distanceMark: string; stationType: string }
+) {
+  await verifyOrganizerOwnsEvent(eventId);
+  await adminDb.doc(`events/${eventId}/milestones/${milestoneId}`).update(data);
+  revalidatePath(`/organizer/events/${eventId}/milestones`);
+}
+
+export async function toggleMilestoneActive(eventId: string, milestoneId: string, active: boolean) {
+  await verifyOrganizerOwnsEvent(eventId);
+  await adminDb.doc(`events/${eventId}/milestones/${milestoneId}`).update({ active });
+  revalidatePath(`/organizer/events/${eventId}/milestones`);
+}
+
+export async function deleteMilestone(eventId: string, milestoneId: string) {
+  await verifyOrganizerOwnsEvent(eventId);
+  await adminDb.doc(`events/${eventId}/milestones/${milestoneId}`).delete();
+  revalidatePath(`/organizer/events/${eventId}/milestones`);
+}

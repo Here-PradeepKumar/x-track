@@ -83,7 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 } else {
                   setRegisteredEvents(events);
                 }
-              } catch {
+              } catch (e: any) {
+                console.error('[AuthContext] getMyEvents failed:', e?.code, e?.message);
                 setNotRegistered(true);
               }
             }

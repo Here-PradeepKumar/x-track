@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser, getUserRole } from '@/lib/auth-session';
 import { adminDb } from '@/lib/firebase-admin';
 import Link from 'next/link';
+import SignOutButton from '@/components/SignOutButton';
 
 export default async function OrganizerDashboard() {
   const user = await getSessionUser();
@@ -27,11 +28,7 @@ export default async function OrganizerDashboard() {
       <header style={styles.header}>
         <span style={styles.brand}>X-TRACK</span>
         <span style={styles.chip}>ORGANIZER</span>
-        <a href="/api/auth/session" onClick={async (e) => {
-          e.preventDefault();
-          await fetch('/api/auth/session', { method: 'DELETE' });
-          window.location.href = '/login';
-        }} style={styles.signOut}>Sign Out</a>
+        <SignOutButton style={styles.signOut} />
       </header>
 
       <div style={styles.titleRow}>

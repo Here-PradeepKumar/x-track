@@ -11,6 +11,7 @@ export interface BoardEntry {
   athleteName: string;
   wave: string;
   category: string;
+  categoryWeight: number | null;  // kg for this athlete's category at this station
   milestoneId: string;
   milestoneName: string;
   requiresRepCount: boolean;
@@ -67,6 +68,7 @@ export default function ActiveBoard({ entries, onConfirm, onRemove, onRepChange 
           <Text style={styles.metaText}>
             {entry.wave} · {entry.category}
             {entry.athleteName ? ` · ${entry.athleteName}` : ''}
+            {entry.categoryWeight != null ? ` · ${entry.categoryWeight} kg` : ''}
           </Text>
 
           {/* Rep counter */}

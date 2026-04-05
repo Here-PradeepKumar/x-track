@@ -40,6 +40,12 @@ interface MilestoneSlim {
   repTarget: number | null;
 }
 
+interface CategorySlim {
+  id: string;
+  name: string;
+  milestoneWeights: Record<string, number | null>;
+}
+
 interface RecentEntry {
   id: string;
   bibNumber: string;
@@ -58,6 +64,7 @@ export default function ManualEntryScreen() {
   const preselectedMilestoneId = userDoc?.assignedMilestoneId ?? '';
 
   const [milestones, setMilestones] = useState<MilestoneSlim[]>([]);
+  const [categories, setCategories] = useState<CategorySlim[]>([]);
   const [eventName, setEventName] = useState('');
   const [selectedMilestoneId, setSelectedMilestoneId] = useState(preselectedMilestoneId);
   const [bibInput, setBibInput] = useState('');
@@ -69,14 +76,10 @@ export default function ManualEntryScreen() {
   useEffect(() => {
     if (!eventId) return;
     const load = async () => {
-      const [eventSnap, milestonesSnap] = await Promise.all([
+      const [eventSnap, milestonesSnap, categoriesSnap] = await Promise.all([
         getDoc(doc(db, 'events', eventId)),
-        getDocs(
-          query(
-            collection(db, `events/${eventId}/milestones`),
-            orderBy('order', 'asc')
-          )
-        ),
+        getDocs(query(collection(db, `events/${eventId}/milestones`), orderBy('order', 'asc'))),
+        getDocs(collection(db, `events/${eventId}/categories`)),
       ]);
       setEventName(eventSnap.data()?.name ?? '');
       const ms: MilestoneSlim[] = milestonesSnap.docs.map((d) => ({
@@ -89,6 +92,11 @@ export default function ManualEntryScreen() {
         repTarget: d.data().repTarget ?? null,
       }));
       setMilestones(ms);
+      setCategories(categoriesSnap.docs.map((d) => ({
+        id: d.id,
+        name: d.data().name as string,
+        milestoneWeights: (d.data().milestoneWeights ?? {}) as Record<string, number | null>,
+      })));
 
       // Pre-select assigned milestone if set, else first milestone
       if (preselectedMilestoneId && ms.some((m) => m.id === preselectedMilestoneId)) {
@@ -158,13 +166,22 @@ export default function ManualEntryScreen() {
       showBibError(`BIB ${bib} is inactive`);
       return;
     }
+
+    // Look up per-category weight for this station
+    const athleteCategory = (bibData.category ?? '') as string;
+    const catDoc = categories.find(
+      (c) => c.name.toLowerCase() === athleteCategory.toLowerCase()
+    );
+    const categoryWeight = catDoc?.milestoneWeights[selectedMilestoneId] ?? null;
+
     const entry: BoardEntry = {
       id: nextId(),
       bibNumber: bib,
       athleteUid: bibData.athleteUid ?? '',
       athleteName: bibData.athleteName ?? '',
       wave: bibData.wave ?? '',
-      category: bibData.category ?? '',
+      category: athleteCategory,
+      categoryWeight,
       milestoneId: selectedMilestoneId,
       milestoneName: selectedMilestone.name,
       requiresRepCount: selectedMilestone.requiresRepCount,

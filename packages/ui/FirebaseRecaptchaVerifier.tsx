@@ -21,6 +21,7 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
   ({ firebaseConfig }, ref) => {
     const wvRef = useRef<WebView>(null);
     const readyRef = useRef(false);   // true once rv.render() completed in the page
+    const initErrorRef = useRef<string | null>(null); // stores rv.render() failure reason
     const pendingRef = useRef<{ resolve: (t: string) => void; reject: (e: Error) => void } | null>(null);
     const configRef = useRef(firebaseConfig);
     configRef.current = firebaseConfig;
@@ -35,6 +36,10 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
       type: 'recaptcha' as const,
 
       verify(): Promise<string> {
+        // If init already failed, reject immediately with the real error
+        if (initErrorRef.current) {
+          return Promise.reject(new Error(`reCAPTCHA init failed: ${initErrorRef.current}`));
+        }
         return new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
             pendingRef.current = null;
@@ -47,17 +52,14 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
           };
 
           if (readyRef.current) {
-            // RecaptchaVerifier already rendered — trigger immediately
             inject({ type: 'verify' });
           }
-          // If not ready yet, verify will be triggered once 'ready' message arrives
         });
       },
 
       _reset(): void {
-        // Firebase calls this after every verifyPhoneNumber attempt.
-        // Re-initialise the WebView reCAPTCHA so the next OTP send works.
         readyRef.current = false;
+        initErrorRef.current = null;
         pendingRef.current = null;
         inject({ type: 'init', config: configRef.current });
       },
@@ -83,17 +85,23 @@ export const FirebaseRecaptchaVerifier = forwardRef<RecaptchaVerifierRef, { fire
               const data = JSON.parse(e.nativeEvent.data);
 
               if (data.type === 'load') {
-                // rv.render() completed — RecaptchaVerifier is ready
                 readyRef.current = true;
+                initErrorRef.current = null;
                 if (pendingRef.current) {
-                  // verify() was already called while we were loading — fire it now
                   inject({ type: 'verify' });
+                }
+              } else if (data.type === 'error') {
+                const msg = data.message || 'reCAPTCHA failed.';
+                console.error('[reCAPTCHA]', msg);
+                if (pendingRef.current) {
+                  pendingRef.current.reject(new Error(msg));
+                  pendingRef.current = null;
+                } else {
+                  // Error during init — store so verify() can surface it immediately
+                  initErrorRef.current = msg;
                 }
               } else if (data.type === 'verify' && pendingRef.current) {
                 pendingRef.current.resolve(data.token);
-                pendingRef.current = null;
-              } else if (data.type === 'error' && pendingRef.current) {
-                pendingRef.current.reject(new Error(data.message || 'reCAPTCHA failed.'));
                 pendingRef.current = null;
               }
             } catch (_) {}

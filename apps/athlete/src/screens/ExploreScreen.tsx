@@ -13,9 +13,76 @@ import { TopBar } from '../components/TopBar';
 import { Colors, kineticGradient } from '../theme/colors';
 import { useActiveEvents } from '../hooks/useEvents';
 import { useCompletedRaces } from '../hooks/useActiveRace';
-import { EventDoc } from '@x-track/firebase';
+import { useMyBib } from '../hooks/useMyBib';
+import { AthleteRaceDoc, EventDoc } from '@x-track/firebase';
 
-const WEEKLY_BARS = [40, 65, 55, 90, 45, 30, 20];
+function formatMs(ms: number): string {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+// ── Bib Info Card ─────────────────────────────────────────────────────────────
+
+function BibInfoCard({ eventId }: { eventId: string }) {
+  const bib = useMyBib(eventId);
+  if (!bib) return null;
+  return (
+    <View style={styles.bibCard}>
+      <View style={styles.bibRow}>
+        <View style={styles.bibStat}>
+          <Text style={styles.bibStatLabel}>BIB NUMBER</Text>
+          <Text style={styles.bibStatValue}>#{bib.bibNumber}</Text>
+        </View>
+        <View style={styles.bibStat}>
+          <Text style={styles.bibStatLabel}>WAVE</Text>
+          <Text style={styles.bibStatValue}>{bib.wave}</Text>
+        </View>
+        <View style={styles.bibStat}>
+          <Text style={styles.bibStatLabel}>CATEGORY</Text>
+          <Text style={[styles.bibStatValue, { fontSize: 13 }]} numberOfLines={1}>{bib.category}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// ── Race History Bars ──────────────────────────────────────────────────────────
+
+function RaceHistoryBars({ races }: { races: AthleteRaceDoc[] }) {
+  const completed = races.filter(r => r.totalTimeMs != null).slice(0, 7);
+  const maxMs = Math.max(...completed.map(r => r.totalTimeMs!), 1);
+  // Pad to 7 bars
+  const bars: (number | null)[] = [
+    ...Array(Math.max(0, 7 - completed.length)).fill(null),
+    ...completed.map(r => r.totalTimeMs!),
+  ];
+
+  return (
+    <View style={styles.barChart}>
+      {bars.map((ms, i) => (
+        <View key={i} style={styles.barWrapper}>
+          <View
+            style={[
+              styles.bar,
+              {
+                height: ms != null ? `${Math.round((ms / maxMs) * 100)}%` as any : '8%',
+                backgroundColor: ms != null && i === bars.length - 1
+                  ? Colors.electricOrange
+                  : ms != null
+                  ? Colors.surfaceContainerHighest
+                  : Colors.surfaceContainerHigh,
+              },
+            ]}
+          />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+// ── Main Screen ───────────────────────────────────────────────────────────────
 
 export function ExploreScreen() {
   const insets = useSafeAreaInsets();
@@ -25,6 +92,10 @@ export function ExploreScreen() {
   const lastRace = races[0] ?? null;
   const featuredEvent = events[0] ?? null;
   const otherEvents = events.slice(1);
+
+  const totalActiveMs = races.reduce((sum, r) => sum + (r.totalTimeMs ?? 0), 0);
+  const totalActiveHours = Math.floor(totalActiveMs / 3600000);
+  const totalActiveMins = Math.floor((totalActiveMs % 3600000) / 60000);
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 80 }]}>
@@ -40,28 +111,20 @@ export function ExploreScreen() {
             </View>
             <View style={styles.lastRaceStats}>
               <View>
-                <Text style={styles.statLabel}>MILESTONES</Text>
-                <Text style={styles.statValue}>
-                  {lastRace.checkpoints.length}/{lastRace.totalMilestones}
-                </Text>
+                <Text style={styles.statLabel}>BIB</Text>
+                <Text style={styles.statValue}>#{lastRace.bibNumber}</Text>
               </View>
               <View>
                 <Text style={styles.statLabel}>TIME</Text>
                 <Text style={styles.statValue}>
-                  {lastRace.totalTimeMs != null
-                    ? (() => {
-                        const ms = lastRace.totalTimeMs;
-                        const h = Math.floor(ms / 3600000);
-                        const m = Math.floor((ms % 3600000) / 60000);
-                        const s = Math.floor((ms % 60000) / 1000);
-                        return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                      })()
-                    : '—'}
+                  {lastRace.totalTimeMs != null ? formatMs(lastRace.totalTimeMs) : '—'}
                 </Text>
               </View>
               <View>
-                <Text style={styles.statLabel}>BIB</Text>
-                <Text style={styles.statValue}>#{lastRace.bibNumber}</Text>
+                <Text style={styles.statLabel}>MILESTONES</Text>
+                <Text style={styles.statValue}>
+                  {lastRace.checkpoints.length}/{lastRace.totalMilestones}
+                </Text>
               </View>
             </View>
           </View>
@@ -107,6 +170,8 @@ export function ExploreScreen() {
                   </View>
                 </View>
               </View>
+              {/* Bib info if athlete is registered */}
+              <BibInfoCard eventId={featuredEvent.id} />
             </View>
           </View>
         ) : eventsLoading ? (
@@ -139,7 +204,7 @@ export function ExploreScreen() {
                     <Text style={styles.eventName}>{event.name}</Text>
                     <View style={styles.eventStatus}>
                       <MaterialIcons name="confirmation-number" size={14} color={Colors.onSurfaceVariant} />
-                      <Text style={styles.eventStatusText}>{event.status}</Text>
+                      <Text style={styles.eventStatusText}>{event.status.toUpperCase()}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -153,26 +218,20 @@ export function ExploreScreen() {
           <View style={styles.bentoWide}>
             <View style={styles.bentoHeader}>
               <View>
-                <Text style={styles.bentoLabel}>TOTAL RACES</Text>
+                <Text style={styles.bentoLabel}>RACE HISTORY</Text>
                 <View style={styles.bentoValueRow}>
                   <Text style={styles.bentoValue}>{races.length}</Text>
-                  <Text style={styles.bentoUnit}>EVENTS</Text>
+                  <Text style={styles.bentoUnit}>{races.length === 1 ? 'EVENT' : 'EVENTS'}</Text>
                 </View>
+                {totalActiveMs > 0 && (
+                  <Text style={styles.bentoSub}>
+                    TOTAL ACTIVE TIME  {totalActiveHours}h {totalActiveMins}m
+                  </Text>
+                )}
               </View>
               <MaterialIcons name="trending-up" size={24} color={Colors.electricOrange} />
             </View>
-            <View style={styles.barChart}>
-              {WEEKLY_BARS.map((h, i) => (
-                <View key={i} style={styles.barWrapper}>
-                  <View
-                    style={[styles.bar, {
-                      height: `${h}%` as any,
-                      backgroundColor: i === 3 ? Colors.electricOrange : Colors.surfaceContainerHighest,
-                    }]}
-                  />
-                </View>
-              ))}
-            </View>
+            <RaceHistoryBars races={races} />
           </View>
         </View>
 
@@ -191,22 +250,28 @@ const styles = StyleSheet.create({
   lastRaceTitle: { fontFamily: 'Inter_700Bold', fontSize: 18, color: Colors.onSurface, letterSpacing: -0.5, textTransform: 'uppercase' },
   lastRaceStats: { flexDirection: 'row', gap: 24 },
   statLabel: { fontFamily: 'Lexend_400Regular', fontSize: 9, color: Colors.onSurfaceVariant, letterSpacing: 3, textTransform: 'uppercase', marginBottom: 2 },
-  statValue: { fontFamily: 'Inter_900Black', fontSize: 22, color: Colors.onSurface, letterSpacing: -1 },
+  statValue: { fontFamily: 'Inter_900Black', fontSize: 18, color: Colors.onSurface, letterSpacing: -1 },
 
-  featuredCard: { height: 400, borderRadius: 2, overflow: 'hidden', backgroundColor: Colors.surfaceContainerHighest },
+  featuredCard: { height: 440, borderRadius: 2, overflow: 'hidden', backgroundColor: Colors.surfaceContainerHighest },
   featuredBg: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
   featuredImagePlaceholder: { position: 'absolute', top: 40, opacity: 0.3 },
-  featuredOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 200 },
-  featuredContent: { flex: 1, justifyContent: 'flex-end', padding: 24, gap: 16 },
+  featuredOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 260 },
+  featuredContent: { flex: 1, justifyContent: 'flex-end', padding: 24, gap: 12 },
   featuredMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   confirmedBadge: { backgroundColor: Colors.primaryContainer, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 2 },
   confirmedText: { fontFamily: 'Lexend_700Bold', fontSize: 9, color: Colors.onPrimaryContainer, letterSpacing: 2, textTransform: 'uppercase' },
   featuredDate: { fontFamily: 'Lexend_400Regular', fontSize: 9, color: 'rgba(255,255,255,0.7)', letterSpacing: 2, textTransform: 'uppercase' },
-  featuredTitle: { fontFamily: 'Inter_900Black', fontSize: 52, color: Colors.onSurface, letterSpacing: -2, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 52 },
+  featuredTitle: { fontFamily: 'Inter_900Black', fontSize: 48, color: Colors.onSurface, letterSpacing: -2, fontStyle: 'italic', textTransform: 'uppercase', lineHeight: 48 },
   featuredActions: { gap: 12 },
   waveCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(19, 19, 20, 0.7)', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 2 },
   waveLabel: { fontFamily: 'Lexend_400Regular', fontSize: 9, color: Colors.onSurfaceVariant, letterSpacing: 2, textTransform: 'uppercase' },
   waveValue: { fontFamily: 'Inter_700Bold', fontSize: 16, color: Colors.onSurface, letterSpacing: -0.3 },
+
+  bibCard: { backgroundColor: 'rgba(19,19,20,0.85)', borderRadius: 2, padding: 14, borderLeftWidth: 3, borderLeftColor: Colors.primaryFixed },
+  bibRow: { flexDirection: 'row', gap: 20 },
+  bibStat: { flex: 1 },
+  bibStatLabel: { fontFamily: 'Lexend_400Regular', fontSize: 8, color: Colors.onSurfaceVariant, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 2 },
+  bibStatValue: { fontFamily: 'Inter_900Black', fontSize: 16, color: Colors.primaryFixed, letterSpacing: -0.5 },
 
   loadingCard: { backgroundColor: Colors.surfaceContainerLow, padding: 40, borderRadius: 2, alignItems: 'center', gap: 12 },
   loadingText: { fontFamily: 'Lexend_400Regular', fontSize: 13, color: Colors.onSurfaceVariant },
@@ -230,6 +295,7 @@ const styles = StyleSheet.create({
   bentoValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
   bentoValue: { fontFamily: 'Inter_900Black', fontSize: 36, color: Colors.onSurface, letterSpacing: -1 },
   bentoUnit: { fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.onSurfaceVariant },
+  bentoSub: { fontFamily: 'Lexend_400Regular', fontSize: 9, color: Colors.electricOrange, letterSpacing: 1, textTransform: 'uppercase', marginTop: 4 },
   barChart: { flexDirection: 'row', alignItems: 'flex-end', height: 80, gap: 4 },
   barWrapper: { flex: 1, height: '100%', justifyContent: 'flex-end' },
   bar: { borderRadius: 2, width: '100%' },

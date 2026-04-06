@@ -25,7 +25,10 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      ["expo-media-library", {
+        "photosPermission": "Allow X-TRACK to save your race results to your gallery."
+      }]
     ],
     "extra": {
       "eas": {

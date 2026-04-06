@@ -76,33 +76,37 @@ export default function ManualEntryScreen() {
   useEffect(() => {
     if (!eventId) return;
     const load = async () => {
-      const [eventSnap, milestonesSnap, categoriesSnap] = await Promise.all([
-        getDoc(doc(db, 'events', eventId)),
-        getDocs(query(collection(db, `events/${eventId}/milestones`), orderBy('order', 'asc'))),
-        getDocs(collection(db, `events/${eventId}/categories`)),
-      ]);
-      setEventName(eventSnap.data()?.name ?? '');
-      const ms: MilestoneSlim[] = milestonesSnap.docs.map((d) => ({
-        id: d.id,
-        name: d.data().name,
-        order: d.data().order,
-        distanceMark: d.data().distanceMark,
-        stationType: d.data().stationType ?? 'station',
-        requiresRepCount: d.data().requiresRepCount ?? false,
-        repTarget: d.data().repTarget ?? null,
-      }));
-      setMilestones(ms);
-      setCategories(categoriesSnap.docs.map((d) => ({
-        id: d.id,
-        name: d.data().name as string,
-        milestoneWeights: (d.data().milestoneWeights ?? {}) as Record<string, number | null>,
-      })));
+      try {
+        const [eventSnap, milestonesSnap, categoriesSnap] = await Promise.all([
+          getDoc(doc(db, 'events', eventId)),
+          getDocs(query(collection(db, `events/${eventId}/milestones`), orderBy('order', 'asc'))),
+          getDocs(collection(db, `events/${eventId}/categories`)).catch(() => ({ docs: [] as any[] })),
+        ]);
+        setEventName(eventSnap.data()?.name ?? '');
+        const ms: MilestoneSlim[] = milestonesSnap.docs.map((d) => ({
+          id: d.id,
+          name: d.data().name,
+          order: d.data().order,
+          distanceMark: d.data().distanceMark,
+          stationType: d.data().stationType ?? 'station',
+          requiresRepCount: d.data().requiresRepCount ?? false,
+          repTarget: d.data().repTarget ?? null,
+        }));
+        setMilestones(ms);
+        setCategories(categoriesSnap.docs.map((d) => ({
+          id: d.id,
+          name: d.data().name as string,
+          milestoneWeights: (d.data().milestoneWeights ?? {}) as Record<string, number | null>,
+        })));
 
-      // Pre-select assigned milestone if set, else first milestone
-      if (preselectedMilestoneId && ms.some((m) => m.id === preselectedMilestoneId)) {
-        setSelectedMilestoneId(preselectedMilestoneId);
-      } else if (ms.length > 0 && !selectedMilestoneId) {
-        setSelectedMilestoneId(ms[0].id);
+        // Pre-select assigned milestone if set, else first milestone
+        if (preselectedMilestoneId && ms.some((m) => m.id === preselectedMilestoneId)) {
+          setSelectedMilestoneId(preselectedMilestoneId);
+        } else if (ms.length > 0 && !selectedMilestoneId) {
+          setSelectedMilestoneId(ms[0].id);
+        }
+      } catch (err) {
+        console.error('[ManualEntry] Failed to load event data:', err);
       }
     };
     load();

@@ -64,6 +64,13 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/events/$(eventId)).data.organizerId == request.auth.uid;
       }
 
+      // ── categories sub-collection ─────────────────────────────────────────
+      match /categories/{categoryId} {
+        allow read: if isSignedIn();
+        allow write: if isOrganizer()
+          && get(/databases/$(database)/documents/events/$(eventId)).data.organizerId == request.auth.uid;
+      }
+
       // ── roster sub-collection (volunteer phone allowlist) ────────────────
       // All reads and writes are via Cloud Functions (Admin SDK) only.
       match /roster/{phone} {
@@ -72,9 +79,11 @@ service cloud.firestore {
 
       // ── bibs sub-collection ───────────────────────────────────────────────
       match /bibs/{bibNumber} {
-        // Athletes can read their own bib
+        // Athletes read their own bib; volunteers read any bib in their assigned event; organizers/superadmins read all
         allow read: if isSignedIn() &&
-          (resource.data.athleteUid == request.auth.uid || isOrganizer() || isSuperAdmin());
+          (resource.data.athleteUid == request.auth.uid ||
+           isVolunteer() ||
+           isOrganizer() || isSuperAdmin());
         // Only organizers of this event can write bibs
         allow write: if isOrganizer()
           && get(/databases/$(database)/documents/events/$(eventId)).data.organizerId == request.auth.uid;

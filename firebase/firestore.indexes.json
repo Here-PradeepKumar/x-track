@@ -36,6 +36,14 @@
       "collectionGroup": "checkpoints",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "eventId", "order": "ASCENDING" },
+        { "fieldPath": "scannedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "checkpoints",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "athleteUid", "order": "ASCENDING" },
         { "fieldPath": "scannedAt", "order": "ASCENDING" }
       ]

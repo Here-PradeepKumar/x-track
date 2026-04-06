@@ -20,15 +20,16 @@ export default async function EventDetailPage({ params }: Props) {
   const event = { id: eventSnap.id, ...eventSnap.data() } as any;
 
   // Count sub-collections
-  const [milestonesCount, bibsCount, checkpointsCount] = await Promise.all([
+  const [milestonesCount, rosterCount, bibsCount, checkpointsCount] = await Promise.all([
     adminDb.collection(`events/${eventId}/milestones`).count().get(),
+    adminDb.collection(`events/${eventId}/roster`).count().get(),
     adminDb.collection(`events/${eventId}/bibs`).count().get(),
     adminDb.collection('checkpoints').where('eventId', '==', eventId).count().get(),
   ]);
 
   const tabs = [
     { label: 'Milestones', href: `/organizer/events/${eventId}/milestones`, count: milestonesCount.data().count },
-    { label: 'Volunteers', href: `/organizer/events/${eventId}/volunteers`, count: null },
+    { label: 'Volunteers', href: `/organizer/events/${eventId}/volunteers`, count: rosterCount.data().count },
     { label: 'BIBs', href: `/organizer/events/${eventId}/bibs`, count: bibsCount.data().count },
     { label: 'Live Feed', href: `/organizer/events/${eventId}/live`, count: checkpointsCount.data().count },
   ];

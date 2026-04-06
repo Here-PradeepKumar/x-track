@@ -66,6 +66,23 @@
       ]
     },
     {
+      "collectionGroup": "athleteRaces",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "athleteUid", "order": "ASCENDING" },
+        { "fieldPath": "finishedAt", "order": "ASCENDING" },
+        { "fieldPath": "startedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "athleteRaces",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "athleteUid", "order": "ASCENDING" },
+        { "fieldPath": "finishedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "checkpoints",
       "queryScope": "COLLECTION",
       "fields": [

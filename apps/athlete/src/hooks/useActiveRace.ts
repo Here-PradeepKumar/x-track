@@ -33,14 +33,18 @@ export function useActiveRace() {
       limit(1)
     );
 
-    const unsub: Unsubscribe = onSnapshot(q, (snap) => {
-      if (!snap.empty) {
-        setRaceDoc({ id: snap.docs[0].id, ...snap.docs[0].data() } as AthleteRaceDoc);
-      } else {
-        setRaceDoc(null);
-      }
-      setLoading(false);
-    });
+    const unsub: Unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        if (!snap.empty) {
+          setRaceDoc({ id: snap.docs[0].id, ...snap.docs[0].data() } as AthleteRaceDoc);
+        } else {
+          setRaceDoc(null);
+        }
+        setLoading(false);
+      },
+      () => { setRaceDoc(null); setLoading(false); }
+    );
 
     return unsub;
   }, [user]);
@@ -67,10 +71,14 @@ export function useCompletedRaces() {
       orderBy('finishedAt', 'desc')
     );
 
-    const unsub = onSnapshot(q, (snap) => {
-      setRaces(snap.docs.map((d) => ({ id: d.id, ...d.data() } as AthleteRaceDoc)));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setRaces(snap.docs.map((d) => ({ id: d.id, ...d.data() } as AthleteRaceDoc)));
+        setLoading(false);
+      },
+      () => { setRaces([]); setLoading(false); }
+    );
 
     return unsub;
   }, [user]);

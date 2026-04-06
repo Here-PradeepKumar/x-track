@@ -21,10 +21,19 @@ import { auth, db, storage } from '@x-track/firebase';
 import { Colors, kineticGradient } from '@x-track/ui';
 import { TopBar } from '../components/TopBar';
 import { useAuth } from '../context/AuthContext';
+import { useCompletedRaces } from '../hooks/useActiveRace';
+
+function formatMs(ms: number): string {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
 
 export function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, userDoc } = useAuth();
+  const { races } = useCompletedRaces();
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(userDoc?.displayName ?? '');
   const [saving, setSaving] = useState(false);
@@ -139,20 +148,30 @@ export function ProfileScreen() {
         </View>
 
         {/* Stats row */}
-        <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>—</Text>
-            <Text style={styles.statLabel}>RACES</Text>
-          </View>
-          <View style={[styles.statBox, styles.statBoxMid]}>
-            <Text style={styles.statValue}>—</Text>
-            <Text style={styles.statLabel}>BEST RANK</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>—</Text>
-            <Text style={styles.statLabel}>PR TIME</Text>
-          </View>
-        </View>
+        {(() => {
+          const prTimeMs = races.reduce<number | null>((best, r) => {
+            if (r.totalTimeMs == null) return best;
+            return best == null ? r.totalTimeMs : Math.min(best, r.totalTimeMs);
+          }, null);
+          return (
+            <View style={styles.statsRow}>
+              <View style={styles.statBox}>
+                <Text style={styles.statValue}>{races.length || '—'}</Text>
+                <Text style={styles.statLabel}>RACES</Text>
+              </View>
+              <View style={[styles.statBox, styles.statBoxMid]}>
+                <Text style={styles.statValue}>—</Text>
+                <Text style={styles.statLabel}>BEST RANK</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>
+                  {prTimeMs != null ? formatMs(prTimeMs) : '—'}
+                </Text>
+                <Text style={styles.statLabel}>PR TIME</Text>
+              </View>
+            </View>
+          );
+        })()}
 
         {/* Sign out */}
         <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>

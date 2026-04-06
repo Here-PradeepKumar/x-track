@@ -11,15 +11,18 @@ export default async function OrganizersPage() {
   const snap = await adminDb
     .collection('users')
     .where('role', '==', 'organizer')
-    .orderBy('createdAt', 'desc')
     .get();
 
-  const organizers = snap.docs.map((d) => ({
-    uid: d.id,
-    displayName: (d.data().displayName as string) || '—',
-    email: (d.data().email as string) || '—',
-    createdAt: (d.data().createdAt?.toDate() as Date)?.toLocaleDateString('en-IN') ?? '—',
-  }));
+  const organizers = snap.docs
+    .map((d) => ({
+      uid: d.id,
+      displayName: (d.data().displayName as string) || '—',
+      email: (d.data().email as string) || '—',
+      createdAt: (d.data().createdAt?.toDate() as Date)?.toLocaleDateString('en-IN') ?? '—',
+      _ts: d.data().createdAt?.toMillis() ?? 0,
+    }))
+    .sort((a, b) => b._ts - a._ts)
+    .map(({ _ts, ...o }) => o);
 
   return (
     <main style={styles.page}>

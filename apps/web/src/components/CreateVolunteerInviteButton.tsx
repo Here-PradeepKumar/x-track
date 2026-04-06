@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getApp } from 'firebase/app';
+import { app } from '@/lib/firebase-client';
 
 interface Milestone {
   id: string;
@@ -27,7 +27,7 @@ export default function CreateVolunteerInviteButton({ eventId, milestones }: Pro
     }
     setLoading(true);
     try {
-      const functions = getFunctions(getApp());
+      const functions = getFunctions(app);
       const fn = httpsCallable<
         { eventId: string; milestoneId: string },
         { inviteId: string }

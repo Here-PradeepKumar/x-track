@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getApp } from 'firebase/app';
+import { app } from '@/lib/firebase-client';
 
 export default function CreateOrganizerInviteButton() {
   const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -11,7 +11,7 @@ export default function CreateOrganizerInviteButton() {
   const createInvite = async () => {
     setLoading(true);
     try {
-      const functions = getFunctions(getApp());
+      const functions = getFunctions(app);
       const fn = httpsCallable<void, { inviteId: string }>(functions, 'createOrganizerInvite');
       const result = await fn();
       const link = `${window.location.origin}/accept-invite?id=${result.data.inviteId}&type=organizer`;

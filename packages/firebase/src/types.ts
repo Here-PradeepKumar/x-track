@@ -98,6 +98,7 @@ export interface CheckpointDoc {
   volunteerUid: string;
   nfcTagId: string | null;          // null for manual-entry events
   repCount: number | null;          // for rep-count stations (Wall Balls, etc.)
+  timeMs: number | null;            // for run-type stations — elapsed time in ms
   entryMethod: CheckpointEntryMethod;
   scannedAt: Timestamp;
 }
@@ -120,6 +121,7 @@ export interface CheckpointEntry {
   milestoneOrder: number;
   distanceMark: string;
   repCount: number | null;
+  timeMs: number | null;
   scannedAt: Timestamp;
   volunteerUid: string;
 }

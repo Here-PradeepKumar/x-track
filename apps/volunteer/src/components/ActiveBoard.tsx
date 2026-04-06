@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
-import RepCounter from './RepCounter';
 
 export type BoardEntryStatus = 'pending' | 'confirming' | 'done' | 'error';
 
@@ -11,23 +10,22 @@ export interface BoardEntry {
   athleteName: string;
   wave: string;
   category: string;
-  categoryWeight: number | null;  // kg for this athlete's category at this station
+  categoryWeight: number | null;
   milestoneId: string;
   milestoneName: string;
+  stationType: string;
   requiresRepCount: boolean;
   repTarget: number | null;
-  repCount: number;
   status: BoardEntryStatus;
 }
 
 interface ActiveBoardProps {
   entries: BoardEntry[];
-  onConfirm: (entry: BoardEntry) => void;
+  onLogResult: (entry: BoardEntry) => void;
   onRemove: (id: string) => void;
-  onRepChange: (id: string, delta: number) => void;
 }
 
-export default function ActiveBoard({ entries, onConfirm, onRemove, onRepChange }: ActiveBoardProps) {
+export default function ActiveBoard({ entries, onLogResult, onRemove }: ActiveBoardProps) {
   if (entries.length === 0) {
     return (
       <View style={styles.empty}>
@@ -71,19 +69,7 @@ export default function ActiveBoard({ entries, onConfirm, onRemove, onRepChange 
             {entry.categoryWeight != null ? ` · ${entry.categoryWeight} kg` : ''}
           </Text>
 
-          {/* Rep counter */}
-          {entry.requiresRepCount && entry.status === 'pending' && (
-            <View style={styles.repSection}>
-              <RepCounter
-                count={entry.repCount}
-                target={entry.repTarget}
-                onIncrement={() => onRepChange(entry.id, 1)}
-                onDecrement={() => onRepChange(entry.id, -1)}
-              />
-            </View>
-          )}
-
-          {/* Status / confirm */}
+          {/* Status */}
           {entry.status === 'done' && (
             <View style={styles.doneRow}>
               <Text style={styles.doneText}>✓ CONFIRMED</Text>
@@ -96,11 +82,11 @@ export default function ActiveBoard({ entries, onConfirm, onRemove, onRepChange 
           )}
           {(entry.status === 'pending' || entry.status === 'error') && (
             <TouchableOpacity
-              onPress={() => onConfirm(entry)}
+              onPress={() => onLogResult(entry)}
               activeOpacity={0.8}
-              style={styles.confirmBtn}
+              style={styles.logBtn}
             >
-              <Text style={styles.confirmBtnText}>CONFIRM</Text>
+              <Text style={styles.logBtnText}>LOG RESULT</Text>
             </TouchableOpacity>
           )}
           {entry.status === 'confirming' && (
@@ -164,9 +150,7 @@ const styles = StyleSheet.create({
     color: '#cafd00',
     letterSpacing: 2,
   },
-  removeBtn: {
-    padding: 4,
-  },
+  removeBtn: { padding: 4 },
   removeBtnText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
@@ -179,20 +163,17 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     marginBottom: 12,
   },
-  repSection: {
-    marginBottom: 14,
-  },
-  confirmBtn: {
-    backgroundColor: '#cafd00',
-    borderRadius: 2,
+  logBtn: {
+    borderWidth: 1,
+    borderColor: '#cafd00',
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 4,
   },
-  confirmBtnText: {
+  logBtnText: {
     fontFamily: 'Inter_900Black',
     fontSize: 13,
-    color: '#3a4a00',
+    color: '#cafd00',
     letterSpacing: 2,
   },
   confirmingRow: {

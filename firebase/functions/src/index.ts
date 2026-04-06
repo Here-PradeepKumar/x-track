@@ -14,6 +14,7 @@ interface CheckpointDoc {
   volunteerUid: string;
   nfcTagId: string | null;
   repCount: number | null;
+  timeMs: number | null;
   entryMethod: 'nfc' | 'manual';
   scannedAt: admin.firestore.Timestamp;
 }
@@ -24,14 +25,18 @@ interface MilestoneDoc {
   distanceMark: string;
 }
 
-// ─── onCheckpointCreated ─────────────────────────────────────────────────────
-// Fires whenever a volunteer writes a new checkpoint document.
+// ─── onCheckpointWritten ──────────────────────────────────────────────────────
+// Fires on create OR update of a checkpoint document (supports the lap/update
+// model where a volunteer can revise a rep count or run time in-place).
 // Updates the denormalised athleteRaces/{athleteUid}_{eventId} document.
 
-export const onCheckpointCreated = functions.firestore
+export const onCheckpointWritten = functions.firestore
   .document('checkpoints/{checkpointId}')
-  .onCreate(async (snap) => {
-    const data = snap.data() as CheckpointDoc;
+  .onWrite(async (change) => {
+    // Deletions are not expected; ignore them
+    if (!change.after.exists) return;
+
+    const data = change.after.data() as CheckpointDoc;
     const { eventId, milestoneId, bibNumber, athleteUid, scannedAt } = data;
 
     // Fetch milestone metadata for display in the athlete app
@@ -66,12 +71,13 @@ export const onCheckpointCreated = functions.firestore
       milestoneOrder: milestone.order,
       distanceMark: milestone.distanceMark,
       repCount: data.repCount ?? null,
+      timeMs: data.timeMs ?? null,
       scannedAt,
       volunteerUid: data.volunteerUid,
     };
 
     if (!raceSnap.exists) {
-      // First checkpoint → create the race doc
+      // First checkpoint for this athlete → create the race doc
       await raceRef.set({
         id: raceDocId,
         athleteUid,
@@ -87,10 +93,13 @@ export const onCheckpointCreated = functions.firestore
       });
     } else {
       const existing = raceSnap.data()!;
-      const checkpoints = [
-        ...(existing.checkpoints ?? []),
-        checkpointEntry,
-      ];
+      // Replace or append the entry for this milestoneId (upsert by milestoneId)
+      const previousCheckpoints: any[] = existing.checkpoints ?? [];
+      const idx = previousCheckpoints.findIndex((c: any) => c.milestoneId === milestoneId);
+      const checkpoints =
+        idx >= 0
+          ? previousCheckpoints.map((c: any, i: number) => (i === idx ? checkpointEntry : c))
+          : [...previousCheckpoints, checkpointEntry];
 
       const isFinished = milestone.order >= totalMilestones;
       const startedAt: admin.firestore.Timestamp = existing.startedAt;
@@ -99,11 +108,9 @@ export const onCheckpointCreated = functions.firestore
         : null;
 
       await raceRef.update({
-        currentMilestoneOrder: Math.max(existing.currentMilestoneOrder, milestone.order),
+        currentMilestoneOrder: Math.max(existing.currentMilestoneOrder ?? 0, milestone.order),
         checkpoints,
-        ...(isFinished
-          ? { finishedAt: scannedAt, totalTimeMs }
-          : {}),
+        ...(isFinished ? { finishedAt: scannedAt, totalTimeMs } : {}),
       });
     }
 

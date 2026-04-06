@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { signOut } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@x-track/firebase';
 import { Colors } from '@x-track/ui';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +19,33 @@ export function VolunteerProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, userDoc, registeredEvents } = useAuth();
 
+  const eventId = userDoc?.assignedEventId;
+  const milestoneId = userDoc?.assignedMilestoneId;
+
+  const [resolvedEventName, setResolvedEventName] = useState<string | null>(null);
+  const [resolvedMilestoneName, setResolvedMilestoneName] = useState<string | null>(null);
+
+  // Resolve event name — from registeredEvents first, fall back to direct Firestore read
+  useEffect(() => {
+    const fromContext = registeredEvents.find(e => e.eventId === eventId)?.eventName;
+    if (fromContext) {
+      setResolvedEventName(fromContext);
+      return;
+    }
+    if (!eventId) return;
+    getDoc(doc(db, 'events', eventId))
+      .then(snap => { if (snap.exists()) setResolvedEventName(snap.data().name ?? null); })
+      .catch(() => {});
+  }, [eventId, registeredEvents]);
+
+  // Resolve milestone name from Firestore
+  useEffect(() => {
+    if (!eventId || !milestoneId) { setResolvedMilestoneName(null); return; }
+    getDoc(doc(db, `events/${eventId}/milestones`, milestoneId))
+      .then(snap => { if (snap.exists()) setResolvedMilestoneName(snap.data().name ?? null); })
+      .catch(() => {});
+  }, [eventId, milestoneId]);
+
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
@@ -26,15 +53,10 @@ export function VolunteerProfileScreen() {
     ]);
   };
 
-  const handleSwitchEvent = (eventId: string) => {
+  const handleSwitchEvent = (eid: string) => {
     if (!user) return;
-    const ref = doc(db, 'users', user.uid);
-    void updateDoc(ref, { assignedEventId: eventId, assignedMilestoneId: null });
+    void updateDoc(doc(db, 'users', user.uid), { assignedEventId: eid, assignedMilestoneId: null });
   };
-
-  const eventId = userDoc?.assignedEventId;
-  const milestoneId = userDoc?.assignedMilestoneId;
-  const currentEventName = registeredEvents.find(e => e.eventId === eventId)?.eventName;
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 80 }]}>
@@ -66,10 +88,15 @@ export function VolunteerProfileScreen() {
 
           <View style={styles.infoRow}>
             <MaterialIcons name="event" size={18} color={Colors.onSurfaceVariant} />
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={styles.infoLabel}>EVENT</Text>
-              <Text style={styles.infoValue}>{currentEventName ?? eventId ?? 'Not assigned'}</Text>
+              <Text style={styles.infoValue} numberOfLines={2}>
+                {resolvedEventName ?? (eventId ? '—' : 'Not assigned')}
+              </Text>
             </View>
+            {registeredEvents.length > 1 && (
+              <MaterialIcons name="expand-more" size={18} color={Colors.onSurfaceVariant} />
+            )}
           </View>
 
           <View style={styles.divider} />
@@ -77,9 +104,9 @@ export function VolunteerProfileScreen() {
           <View style={styles.infoRow}>
             <MaterialIcons name="place" size={18} color={Colors.electricOrange} />
             <View>
-              <Text style={styles.infoLabel}>MILESTONE</Text>
+              <Text style={styles.infoLabel}>STATION</Text>
               <Text style={[styles.infoValue, { color: Colors.electricOrange }]}>
-                {milestoneId ?? 'Not assigned'}
+                {resolvedMilestoneName ?? (milestoneId ? '—' : 'Not assigned')}
               </Text>
             </View>
           </View>

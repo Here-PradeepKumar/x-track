@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,7 +13,7 @@ import {
   doc,
   getDoc,
   getDocs,
-  addDoc,
+  setDoc,
   serverTimestamp,
   query,
   where,
@@ -26,6 +25,7 @@ import { db } from '@x-track/firebase';
 import { useAuth } from '../context/AuthContext';
 import NumericKeypad from '../components/NumericKeypad';
 import ActiveBoard, { BoardEntry } from '../components/ActiveBoard';
+import ActivityModal from '../components/ActivityModal';
 
 let _nextId = 0;
 const nextId = () => String(++_nextId);
@@ -51,6 +51,7 @@ interface RecentEntry {
   bibNumber: string;
   milestoneName: string;
   repCount: number | null;
+  timeMs: number | null;
   scannedAt: any;
 }
 
@@ -71,6 +72,7 @@ export default function ManualEntryScreen() {
   const [bibError, setBibError] = useState<string | null>(null);
   const [boardEntries, setBoardEntries] = useState<BoardEntry[]>([]);
   const [recentEntries, setRecentEntries] = useState<RecentEntry[]>([]);
+  const [modalEntry, setModalEntry] = useState<BoardEntry | null>(null);
 
   // Load milestones + event name once
   useEffect(() => {
@@ -99,7 +101,6 @@ export default function ManualEntryScreen() {
           milestoneWeights: (d.data().milestoneWeights ?? {}) as Record<string, number | null>,
         })));
 
-        // Pre-select assigned milestone if set, else first milestone
         if (preselectedMilestoneId && ms.some((m) => m.id === preselectedMilestoneId)) {
           setSelectedMilestoneId(preselectedMilestoneId);
         } else if (ms.length > 0 && !selectedMilestoneId) {
@@ -112,7 +113,7 @@ export default function ManualEntryScreen() {
     load();
   }, [eventId]);
 
-  // Real-time recent checkpoints (last 10, this coordinator)
+  // Real-time recent checkpoints (last 10, this volunteer)
   useEffect(() => {
     if (!eventId || !user?.uid) return;
     const q = query(
@@ -130,6 +131,7 @@ export default function ManualEntryScreen() {
           milestones.find((m) => m.id === d.data().milestoneId)?.name ??
           d.data().milestoneId,
         repCount: d.data().repCount ?? null,
+        timeMs: d.data().timeMs ?? null,
         scannedAt: d.data().scannedAt,
       }));
       setRecentEntries(entries);
@@ -152,13 +154,11 @@ export default function ManualEntryScreen() {
 
     const bib = bibInput.trim();
 
-    // Duplicate guard
     if (boardEntries.some((e) => e.bibNumber === bib && e.milestoneId === selectedMilestoneId)) {
       showBibError('Already on board for this station');
       return;
     }
 
-    // Point read by document ID (bib number IS the doc ID)
     const bibSnap = await getDoc(doc(db, `events/${eventId}/bibs`, bib));
     if (!bibSnap.exists()) {
       showBibError(`BIB ${bib} not found`);
@@ -171,7 +171,6 @@ export default function ManualEntryScreen() {
       return;
     }
 
-    // Look up per-category weight for this station
     const athleteCategory = (bibData.category ?? '') as string;
     const catDoc = categories.find(
       (c) => c.name.toLowerCase() === athleteCategory.toLowerCase()
@@ -188,9 +187,9 @@ export default function ManualEntryScreen() {
       categoryWeight,
       milestoneId: selectedMilestoneId,
       milestoneName: selectedMilestone.name,
+      stationType: selectedMilestone.stationType,
       requiresRepCount: selectedMilestone.requiresRepCount,
       repTarget: selectedMilestone.repTarget,
-      repCount: 0,
       status: 'pending',
     };
 
@@ -198,23 +197,38 @@ export default function ManualEntryScreen() {
     setBibInput('');
   };
 
-  const handleConfirm = async (entry: BoardEntry) => {
+  // Opens the activity modal for a board entry
+  const handleLogResult = (entry: BoardEntry) => {
+    setModalEntry(entry);
+  };
+
+  // Called when volunteer confirms in the modal
+  const handleModalConfirm = async (
+    entry: BoardEntry,
+    value: { repCount?: number; timeMs?: number }
+  ) => {
+    setModalEntry(null);
     setBoardEntries((prev) =>
       prev.map((e) => (e.id === entry.id ? { ...e, status: 'confirming' } : e))
     );
 
     try {
-      await addDoc(collection(db, 'checkpoints'), {
-        eventId,
-        milestoneId: entry.milestoneId,
-        bibNumber: entry.bibNumber,
-        athleteUid: entry.athleteUid,
-        volunteerUid: user!.uid,
-        nfcTagId: null,
-        repCount: entry.requiresRepCount ? entry.repCount : null,
-        entryMethod: 'manual',
-        scannedAt: serverTimestamp(),
-      });
+      const checkpointId = `${eventId}_${entry.milestoneId}_${entry.bibNumber}`;
+      await setDoc(
+        doc(db, 'checkpoints', checkpointId),
+        {
+          eventId,
+          milestoneId: entry.milestoneId,
+          bibNumber: entry.bibNumber,
+          athleteUid: entry.athleteUid,
+          volunteerUid: user!.uid,
+          repCount: value.repCount ?? null,
+          timeMs: value.timeMs ?? null,
+          entryMethod: 'manual',
+          scannedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
 
       setBoardEntries((prev) =>
         prev.map((e) => (e.id === entry.id ? { ...e, status: 'done' } : e))
@@ -223,6 +237,7 @@ export default function ManualEntryScreen() {
         setBoardEntries((prev) => prev.filter((e) => e.id !== entry.id));
       }, 1500);
     } catch (err) {
+      console.error('[ManualEntry] Checkpoint write failed:', err);
       setBoardEntries((prev) =>
         prev.map((e) => (e.id === entry.id ? { ...e, status: 'error' } : e))
       );
@@ -238,14 +253,10 @@ export default function ManualEntryScreen() {
     setBoardEntries((prev) => prev.filter((e) => e.id !== id));
   };
 
-  const handleRepChange = (id: string, delta: number) => {
-    setBoardEntries((prev) =>
-      prev.map((e) => {
-        if (e.id !== id) return e;
-        const next = Math.max(0, e.repCount + delta);
-        return { ...e, repCount: next };
-      })
-    );
+  const formatTime = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    return `${m}:${String(s % 60).padStart(2, '0')}`;
   };
 
   if (!eventId) {
@@ -297,6 +308,14 @@ export default function ManualEntryScreen() {
                 <Text style={[styles.milestonePillName, active && styles.milestonePillTextActive]}>
                   {m.name}
                 </Text>
+                {m.stationType === 'run' && (
+                  <MaterialIcons
+                    name="timer"
+                    size={10}
+                    color={active ? '#3a4a00' : '#00eefc'}
+                    style={{ marginLeft: 3 }}
+                  />
+                )}
                 {m.requiresRepCount && (
                   <MaterialIcons
                     name="format-list-numbered"
@@ -336,9 +355,8 @@ export default function ManualEntryScreen() {
         </View>
         <ActiveBoard
           entries={boardEntries}
-          onConfirm={handleConfirm}
+          onLogResult={handleLogResult}
           onRemove={handleRemove}
-          onRepChange={handleRepChange}
         />
 
         {/* Recent log */}
@@ -350,7 +368,10 @@ export default function ManualEntryScreen() {
                 <Text style={styles.recentBib}>{entry.bibNumber}</Text>
                 <Text style={styles.recentMilestone}>{entry.milestoneName}</Text>
                 {entry.repCount !== null && (
-                  <Text style={styles.recentReps}>{entry.repCount} reps</Text>
+                  <Text style={styles.recentValue}>{entry.repCount} reps</Text>
+                )}
+                {entry.timeMs !== null && (
+                  <Text style={styles.recentValue}>{formatTime(entry.timeMs)}</Text>
                 )}
                 <MaterialIcons name="check-circle" size={14} color="#cafd00" />
               </View>
@@ -358,6 +379,14 @@ export default function ManualEntryScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Activity modal */}
+      <ActivityModal
+        entry={modalEntry}
+        eventId={eventId}
+        onConfirm={handleModalConfirm}
+        onClose={() => setModalEntry(null)}
+      />
     </View>
   );
 }
@@ -485,7 +514,7 @@ const styles = StyleSheet.create({
     flex: 1,
     letterSpacing: 0.5,
   },
-  recentReps: {
+  recentValue: {
     fontFamily: 'Inter_400Regular',
     fontSize: 11,
     color: '#cafd00',

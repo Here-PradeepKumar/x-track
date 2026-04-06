@@ -8,3 +8,19 @@ node_modules
 # Expo local state
 .expo/
 .vercel
+
+# Build artifacts
+apps/*/dist/
+apps/web/.next/
+apps/web/next-env.d.ts
+apps/web/tsconfig.tsbuildinfo
+
+# Firebase CLI cache
+firebase/.firebase/
+
+# Claude Code memory
+.claude/
+
+# Reference / scratch files
+referenc/
+result

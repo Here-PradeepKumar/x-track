@@ -13,9 +13,15 @@ interface Bib {
   active: boolean;
 }
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 interface Props {
   eventId: string;
   bibs: Bib[];
+  categories: Category[];
 }
 
 function parseWorkbook(file: File): Promise<Omit<Bib, 'active'>[]> {
@@ -49,34 +55,47 @@ function parseWorkbook(file: File): Promise<Omit<Bib, 'active'>[]> {
   });
 }
 
-function downloadSample() {
+function downloadSample(categories: Category[]) {
   const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet([['bibNumber', 'phone', 'nfcTagId', 'wave', 'category']]);
+  const ws = XLSX.utils.aoa_to_sheet([
+    ['bibNumber', 'phone', 'nfcTagId', 'wave', 'category'],
+    ['001', '+919876543210', '', 'Wave A', categories[0]?.id ?? ''],
+  ]);
   ws['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 20 }, { wch: 10 }, { wch: 14 }];
   XLSX.utils.book_append_sheet(wb, ws, 'BIBs');
   XLSX.writeFile(wb, 'bib_import_template.xlsx');
 }
 
-export default function BibsTable({ eventId, bibs: initial }: Props) {
+function CategorySelect({ value, onChange, categories }: { value: string; onChange: (v: string) => void; categories: Category[] }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} style={s.inlineSelect}>
+      <option value="">— select —</option>
+      {categories.map((c) => (
+        <option key={c.id} value={c.id}>{c.name} ({c.id})</option>
+      ))}
+    </select>
+  );
+}
+
+export default function BibsTable({ eventId, bibs: initial, categories }: Props) {
   const [bibs, setBibs] = useState(initial);
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState<string | null>(null);
 
-  // Per-row states
   const [editRow, setEditRow] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Bib>>({});
   const [rowBusy, setRowBusy] = useState<Record<string, boolean>>({});
 
-  // Add new row
   const [adding, setAdding] = useState(false);
   const [newRow, setNewRow] = useState<Partial<Bib>>({});
   const [savingNew, setSavingNew] = useState(false);
 
+  const validCategoryIds = new Set(categories.map((c) => c.id));
+
   const setBusy = (bib: string, v: boolean) =>
     setRowBusy((p) => ({ ...p, [bib]: v }));
 
-  /* ── Import ── */
   const handleImport = async () => {
     if (!file) return;
     setImporting(true);
@@ -85,7 +104,8 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
       const parsed = await parseWorkbook(file);
       if (parsed.length === 0) { setImportMsg('No valid rows found. Check column headers.'); return; }
       const res = await importBibs(eventId, parsed);
-      setImportMsg(`${res.imported} BIBs imported.`);
+      const draftNote = res.draft > 0 ? ` (${res.draft} set to draft — unmatched category)` : '';
+      setImportMsg(`${res.imported} BIBs imported.${draftNote}`);
       setFile(null);
       window.location.reload();
     } catch (err: any) {
@@ -93,7 +113,6 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
     } finally { setImporting(false); }
   };
 
-  /* ── Add single ── */
   const handleAddRow = async () => {
     if (!newRow.bibNumber?.trim()) return;
     setSavingNew(true);
@@ -105,7 +124,8 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
         wave: newRow.wave?.trim() ?? '',
         category: newRow.category?.trim() ?? '',
       }]);
-      setBibs((p) => [...p, { ...newRow, active: true } as Bib]);
+      const isValid = validCategoryIds.has(newRow.category?.trim() ?? '');
+      setBibs((p) => [...p, { ...newRow, active: isValid } as Bib]);
       setNewRow({});
       setAdding(false);
     } catch (err: any) {
@@ -113,11 +133,11 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
     } finally { setSavingNew(false); }
   };
 
-  /* ── Edit ── */
   const startEdit = (bib: Bib) => {
     setEditRow(bib.bibNumber);
     setEditData({ athletePhone: bib.athletePhone, nfcTagId: bib.nfcTagId, wave: bib.wave, category: bib.category });
   };
+
   const handleSaveEdit = async (bibNumber: string) => {
     setBusy(bibNumber, true);
     try {
@@ -129,7 +149,6 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
     } finally { setBusy(bibNumber, false); }
   };
 
-  /* ── Activate / Deactivate ── */
   const handleToggleActive = async (bib: Bib) => {
     setBusy(bib.bibNumber, true);
     try {
@@ -140,7 +159,6 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
     } finally { setBusy(bib.bibNumber, false); }
   };
 
-  /* ── Remove ── */
   const handleRemove = async (bib: Bib) => {
     if (!confirm(`Remove BIB #${bib.bibNumber}? This cannot be undone.`)) return;
     setBusy(bib.bibNumber, true);
@@ -152,8 +170,29 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
     } finally { setBusy(bib.bibNumber, false); }
   };
 
+  const draftBibs = bibs.filter((b) => !b.active && !validCategoryIds.has(b.category));
+
   return (
     <div>
+      {/* Categories reference */}
+      {categories.length > 0 && (
+        <div style={s.categoriesBar}>
+          <span style={s.categoriesLabel}>CATEGORIES:</span>
+          {categories.map((c) => (
+            <span key={c.id} style={s.categoryChip}>
+              {c.name} <span style={{ opacity: 0.55 }}>({c.id})</span>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Draft warning */}
+      {draftBibs.length > 0 && (
+        <div style={s.draftWarning}>
+          ⚠ {draftBibs.length} BIB{draftBibs.length > 1 ? 's' : ''} in draft — unmatched category. Edit the category to activate.
+        </div>
+      )}
+
       {/* Import toolbar */}
       <div style={s.toolbar}>
         <input type="file" accept=".csv,.xlsx,.xls"
@@ -162,13 +201,16 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
         <button onClick={handleImport} disabled={!file || importing} style={s.importBtn}>
           {importing ? 'Importing…' : 'Import'}
         </button>
-        <button onClick={downloadSample} style={s.sampleBtn}>↓ Sample Excel</button>
+        <button onClick={() => downloadSample(categories)} style={s.sampleBtn}>↓ Sample Excel</button>
         {importMsg && (
           <span style={{ ...s.msg, color: importMsg.startsWith('Error') || importMsg.startsWith('No valid') ? '#ff7351' : '#cafd00' }}>
             {importMsg}
           </span>
         )}
-        <span style={s.hint}>Accepts .xlsx or .csv — columns: bibNumber, phone, nfcTagId, wave, category</span>
+        <span style={s.hint}>
+          Accepts .xlsx or .csv — columns: bibNumber, phone, nfcTagId, wave, category
+          {categories.length > 0 && ` — valid categories: ${categories.map((c) => c.id).join(', ')}`}
+        </span>
       </div>
 
       <table style={s.table}>
@@ -183,6 +225,7 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
           {bibs.map((bib) => {
             const busy = rowBusy[bib.bibNumber];
             const isEditing = editRow === bib.bibNumber;
+            const isDraft = !bib.active && !validCategoryIds.has(bib.category);
 
             return (
               <tr key={bib.bibNumber} style={s.tr}>
@@ -190,28 +233,38 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
 
                 {isEditing ? (
                   <>
-                    {(['athletePhone', 'nfcTagId', 'wave', 'category'] as const).map((f) => (
-                      <td key={f} style={s.td}>
-                        <input
-                          value={editData[f] ?? ''}
-                          onChange={(e) => setEditData((p) => ({ ...p, [f]: e.target.value }))}
-                          style={s.inlineInput}
-                        />
-                      </td>
-                    ))}
+                    <td style={s.td}>
+                      <input value={editData.athletePhone ?? ''} onChange={(e) => setEditData((p) => ({ ...p, athletePhone: e.target.value }))} style={s.inlineInput} />
+                    </td>
+                    <td style={s.td}>
+                      <input value={editData.nfcTagId ?? ''} onChange={(e) => setEditData((p) => ({ ...p, nfcTagId: e.target.value }))} style={s.inlineInput} />
+                    </td>
+                    <td style={s.td}>
+                      <input value={editData.wave ?? ''} onChange={(e) => setEditData((p) => ({ ...p, wave: e.target.value }))} style={s.inlineInput} />
+                    </td>
+                    <td style={s.td}>
+                      <CategorySelect value={editData.category ?? ''} onChange={(v) => setEditData((p) => ({ ...p, category: v }))} categories={categories} />
+                    </td>
                   </>
                 ) : (
                   <>
                     <td style={s.td}>{bib.athletePhone || '—'}</td>
                     <td style={{ ...s.td, fontFamily: 'monospace', fontSize: '12px' }}>{bib.nfcTagId || '—'}</td>
                     <td style={s.td}>{bib.wave || '—'}</td>
-                    <td style={s.td}>{bib.category || '—'}</td>
+                    <td style={s.td}>
+                      <span style={{ color: isDraft ? '#ff7351' : undefined }}>
+                        {bib.category || '—'}
+                        {isDraft && <span style={s.unmatchedBadge}> UNMATCHED</span>}
+                      </span>
+                    </td>
                   </>
                 )}
 
                 <td style={s.td}>
                   {bib.active
                     ? <span style={s.badgeActive}>● Active</span>
+                    : isDraft
+                    ? <span style={s.badgeDraft}>● Draft</span>
                     : <span style={s.badgeInactive}>● Inactive</span>}
                 </td>
 
@@ -240,16 +293,21 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
           {/* New row */}
           {adding && (
             <tr style={s.tr}>
-              {(['bibNumber', 'athletePhone', 'nfcTagId', 'wave', 'category'] as (keyof Bib)[]).map((f) => (
-                <td key={f} style={s.td}>
-                  <input
-                    value={String(newRow[f] ?? '')}
-                    onChange={(e) => setNewRow((p) => ({ ...p, [f]: e.target.value }))}
-                    style={s.inlineInput}
-                    placeholder={f}
-                  />
-                </td>
-              ))}
+              <td style={s.td}>
+                <input value={newRow.bibNumber ?? ''} onChange={(e) => setNewRow((p) => ({ ...p, bibNumber: e.target.value }))} style={s.inlineInput} placeholder="BIB #" />
+              </td>
+              <td style={s.td}>
+                <input value={newRow.athletePhone ?? ''} onChange={(e) => setNewRow((p) => ({ ...p, athletePhone: e.target.value }))} style={s.inlineInput} placeholder="Phone" />
+              </td>
+              <td style={s.td}>
+                <input value={newRow.nfcTagId ?? ''} onChange={(e) => setNewRow((p) => ({ ...p, nfcTagId: e.target.value }))} style={s.inlineInput} placeholder="NFC Tag ID" />
+              </td>
+              <td style={s.td}>
+                <input value={newRow.wave ?? ''} onChange={(e) => setNewRow((p) => ({ ...p, wave: e.target.value }))} style={s.inlineInput} placeholder="Wave" />
+              </td>
+              <td style={s.td}>
+                <CategorySelect value={newRow.category ?? ''} onChange={(v) => setNewRow((p) => ({ ...p, category: v }))} categories={categories} />
+              </td>
               <td style={s.td} />
               <td style={s.td}>
                 <div style={s.actions}>
@@ -272,6 +330,10 @@ export default function BibsTable({ eventId, bibs: initial }: Props) {
 }
 
 const s: Record<string, React.CSSProperties> = {
+  categoriesBar: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap', background: '#131313', padding: '10px 14px', borderRadius: '2px', borderLeft: '3px solid #cafd00' },
+  categoriesLabel: { fontSize: '9px', color: '#adaaaa', letterSpacing: '2px', textTransform: 'uppercase', marginRight: '4px' },
+  categoryChip: { fontSize: '11px', color: '#cafd00', background: 'rgba(202,253,0,0.08)', border: '1px solid rgba(202,253,0,0.25)', padding: '2px 8px', borderRadius: '2px' },
+  draftWarning: { background: 'rgba(255,115,81,0.08)', border: '1px solid rgba(255,115,81,0.3)', borderRadius: '2px', padding: '10px 14px', fontSize: '12px', color: '#ff7351', marginBottom: '12px' },
   toolbar: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' },
   fileInput: { background: '#131313', border: '1px solid #494847', borderRadius: '2px', padding: '6px 10px', color: '#adaaaa', fontSize: '13px' },
   importBtn: { background: '#00eefc', color: '#003f43', border: 'none', borderRadius: '2px', padding: '8px 16px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase' as const },
@@ -283,8 +345,11 @@ const s: Record<string, React.CSSProperties> = {
   tr: { borderBottom: '1px solid #1e1e1e' },
   td: { padding: '11px 12px', fontSize: '13px', color: '#fff', verticalAlign: 'middle' },
   inlineInput: { background: '#1e1e1e', border: '1px solid #494847', borderRadius: '2px', padding: '5px 8px', color: '#fff', fontSize: '12px', width: '100%', minWidth: '80px' },
+  inlineSelect: { background: '#1e1e1e', border: '1px solid #494847', borderRadius: '2px', padding: '5px 8px', color: '#fff', fontSize: '12px', width: '100%', minWidth: '120px' },
+  unmatchedBadge: { fontSize: '9px', color: '#ff7351', letterSpacing: '1px', fontWeight: 700 },
   badgeActive: { color: '#cafd00', fontSize: '11px', fontWeight: 700 },
   badgeInactive: { color: '#494847', fontSize: '11px', fontWeight: 700 },
+  badgeDraft: { color: '#ff7351', fontSize: '11px', fontWeight: 700 },
   actions: { display: 'flex', gap: '6px' },
   btnEdit: { background: 'transparent', color: '#adaaaa', border: '1px solid #333', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.5px' },
   btnActivate: { background: 'transparent', color: '#cafd00', border: '1px solid rgba(202,253,0,0.4)', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer' },

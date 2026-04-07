@@ -86,12 +86,19 @@ export async function importBibs(
   const eventSnap = await adminDb.doc(`events/${eventId}`).get();
   if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
 
+  // Fetch known category IDs for this event
+  const categoriesSnap = await adminDb.collection(`events/${eventId}/categories`).get();
+  const validCategoryIds = new Set(categoriesSnap.docs.map((d) => d.id));
+
   let batch = adminDb.batch();
   let count = 0;
   let total = 0;
+  let draftCount = 0;
 
   for (const bib of bibs) {
     if (!bib.bibNumber) continue;
+    const category = bib.category?.trim() ?? '';
+    const isValidCategory = category.length > 0 && validCategoryIds.has(category);
     const ref = adminDb.doc(`events/${eventId}/bibs/${bib.bibNumber}`);
     batch.set(ref, {
       bibNumber: bib.bibNumber,
@@ -100,9 +107,11 @@ export async function importBibs(
       athletePhone: bib.athletePhone ?? '',
       nfcTagId: bib.nfcTagId ?? '',
       wave: bib.wave ?? '',
-      category: bib.category ?? '',
+      category,
+      active: isValidCategory,   // false = draft; needs manual category assignment
       registeredAt: Timestamp.now(),
     });
+    if (!isValidCategory) draftCount++;
     count++;
     total++;
     if (count === 500) {
@@ -114,7 +123,7 @@ export async function importBibs(
   if (count > 0) await batch.commit();
 
   revalidatePath(`/organizer/events/${eventId}/bibs`);
-  return { imported: total };
+  return { imported: total, draft: draftCount };
 }
 
 export async function updateBib(

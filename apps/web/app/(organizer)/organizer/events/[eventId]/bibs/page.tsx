@@ -14,13 +14,12 @@ export default async function BibsPage({ params }: Props) {
   const eventSnap = await adminDb.doc(`events/${eventId}`).get();
   if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
 
-  const snap = await adminDb
-    .collection(`events/${eventId}/bibs`)
-    .orderBy('registeredAt', 'asc')
-    .limit(200)
-    .get();
+  const [bibsSnap, categoriesSnap] = await Promise.all([
+    adminDb.collection(`events/${eventId}/bibs`).orderBy('registeredAt', 'asc').limit(200).get(),
+    adminDb.collection(`events/${eventId}/categories`).orderBy('order', 'asc').get(),
+  ]);
 
-  const bibs = snap.docs.map((d) => ({
+  const bibs = bibsSnap.docs.map((d) => ({
     bibNumber: d.id,
     athletePhone: (d.data().athletePhone as string) ?? '',
     nfcTagId: (d.data().nfcTagId as string) ?? '',
@@ -29,11 +28,16 @@ export default async function BibsPage({ params }: Props) {
     active: (d.data().active as boolean) ?? true,
   }));
 
+  const categories = categoriesSnap.docs.map((d) => ({
+    id: d.id,
+    name: (d.data().name as string) ?? d.id,
+  }));
+
   return (
     <main style={styles.page}>
       <a href={`/organizer/events/${eventId}`} style={styles.back}>← {eventSnap.data()?.name}</a>
       <h1 style={styles.title}>BIB Management</h1>
-      <BibsTable eventId={eventId} bibs={bibs} />
+      <BibsTable eventId={eventId} bibs={bibs} categories={categories} />
     </main>
   );
 }

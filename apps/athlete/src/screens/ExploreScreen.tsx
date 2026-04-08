@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -133,18 +134,32 @@ export function ExploreScreen() {
         {/* Featured Event */}
         {featuredEvent ? (
           <View style={styles.featuredCard}>
-            <LinearGradient
-              colors={['#1f1f21', '#131314', '#0e0e0f']}
-              style={styles.featuredBg}
-            >
-              <View style={styles.featuredImagePlaceholder}>
-                <MaterialIcons name="terrain" size={80} color={Colors.outlineVariant} />
+            {featuredEvent.coverImageUrl ? (
+              <View style={styles.featuredBg}>
+                <Image
+                  source={{ uri: featuredEvent.coverImageUrl }}
+                  style={StyleSheet.absoluteFill}
+                  resizeMode="cover"
+                />
+                <LinearGradient
+                  colors={['transparent', Colors.background]}
+                  style={styles.featuredOverlay}
+                />
               </View>
+            ) : (
               <LinearGradient
-                colors={['transparent', Colors.background]}
-                style={styles.featuredOverlay}
-              />
-            </LinearGradient>
+                colors={['#1f1f21', '#131314', '#0e0e0f']}
+                style={styles.featuredBg}
+              >
+                <View style={styles.featuredImagePlaceholder}>
+                  <MaterialIcons name="terrain" size={80} color={Colors.outlineVariant} />
+                </View>
+                <LinearGradient
+                  colors={['transparent', Colors.background]}
+                  style={styles.featuredOverlay}
+                />
+              </LinearGradient>
+            )}
             <View style={styles.featuredContent}>
               <View style={styles.featuredMeta}>
                 <View style={styles.confirmedBadge}>
@@ -194,9 +209,17 @@ export function ExploreScreen() {
             <View style={styles.eventGrid}>
               {otherEvents.map((event) => (
                 <TouchableOpacity key={event.id} style={styles.eventCard}>
-                  <View style={styles.eventImageBox}>
-                    <MaterialIcons name="directions-run" size={36} color={Colors.outlineVariant} />
-                  </View>
+                  {event.coverImageUrl ? (
+                    <Image
+                      source={{ uri: event.coverImageUrl }}
+                      style={styles.eventImageBox}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.eventImageBox}>
+                      <MaterialIcons name="directions-run" size={36} color={Colors.outlineVariant} />
+                    </View>
+                  )}
                   <View style={styles.eventInfo}>
                     <Text style={styles.eventDateLoc}>
                       {event.date?.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) ?? '—'} • {event.location.toUpperCase()}

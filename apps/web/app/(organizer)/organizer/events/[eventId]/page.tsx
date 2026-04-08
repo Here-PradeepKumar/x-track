@@ -3,6 +3,7 @@ import { getSessionUser, getUserRole } from '@/lib/auth-session';
 import { adminDb } from '@/lib/firebase-admin';
 import Link from 'next/link';
 import EventActions from '@/components/EventActions';
+import EventCoverUpload from '@/components/EventCoverUpload';
 
 interface Props { params: { eventId: string } }
 
@@ -50,6 +51,8 @@ export default async function EventDetailPage({ params }: Props) {
         <p style={styles.location}>{event.location}</p>
         <EventActions eventId={eventId} status={event.status} />
       </div>
+
+      <EventCoverUpload eventId={eventId} currentUrl={event.coverImageUrl ?? null} />
 
       {/* Navigation tiles */}
       <div style={styles.tileGrid}>

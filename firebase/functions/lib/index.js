@@ -1,19 +1,43 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMyEvents = exports.importVolunteersCSV = exports.importBibsCSV = exports.assignVolunteerToMilestone = exports.acceptVolunteerInvite = exports.createVolunteerInvite = exports.acceptOrganizerInvite = exports.createOrganizerInvite = exports.onCheckpointCreated = void 0;
+exports.getMyEvents = exports.claimMyBibs = exports.importVolunteersCSV = exports.importBibsCSV = exports.assignVolunteerToMilestone = exports.acceptVolunteerInvite = exports.createVolunteerInvite = exports.acceptOrganizerInvite = exports.createOrganizerInvite = exports.onCheckpointWritten = void 0;
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 admin.initializeApp();
 const db = admin.firestore();
-// ─── onCheckpointCreated ─────────────────────────────────────────────────────
-// Fires whenever a volunteer writes a new checkpoint document.
+// ─── onCheckpointWritten ──────────────────────────────────────────────────────
+// Fires on create OR update of a checkpoint document (supports the lap/update
+// model where a volunteer can revise a rep count or run time in-place).
 // Updates the denormalised athleteRaces/{athleteUid}_{eventId} document.
-exports.onCheckpointCreated = functions.firestore
+exports.onCheckpointWritten = functions.firestore
     .document('checkpoints/{checkpointId}')
-    .onCreate(async (snap) => {
-    var _a, _b, _c, _d;
-    const data = snap.data();
-    const { eventId, milestoneId, bibNumber, athleteUid, scannedAt } = data;
+    .onWrite(async (change) => {
+    var _a, _b, _c, _d, _e, _f, _g;
+    // Deletions are not expected; ignore them
+    if (!change.after.exists)
+        return;
+    const data = change.after.data();
+    const { eventId, milestoneId, bibNumber, scannedAt } = data;
+    let athleteUid = data.athleteUid;
+    // If athleteUid is missing, resolve it from the BIB's athletePhone
+    if (!athleteUid) {
+        const bibSnap = await db.doc(`events/${eventId}/bibs/${bibNumber}`).get();
+        const athletePhone = (_a = bibSnap.data()) === null || _a === void 0 ? void 0 : _a.athletePhone;
+        if (athletePhone) {
+            const digits = athletePhone.replace(/\D/g, '');
+            const e164 = `+${digits.length === 10 ? `91${digits}` : digits}`;
+            try {
+                const record = await admin.auth().getUserByPhoneNumber(e164);
+                athleteUid = record.uid;
+                // Back-fill the BIB so future checkpoints have the UID immediately
+                await db.doc(`events/${eventId}/bibs/${bibNumber}`).update({ athleteUid });
+            }
+            catch (_h) {
+                // Athlete hasn't signed up yet; race doc will be created/updated later
+                functions.logger.warn('Could not resolve athleteUid from phone', { eventId, bibNumber, e164 });
+            }
+        }
+    }
     // Fetch milestone metadata for display in the athlete app
     const milestoneSnap = await db
         .doc(`events/${eventId}/milestones/${milestoneId}`)
@@ -25,7 +49,7 @@ exports.onCheckpointCreated = functions.firestore
     const milestone = milestoneSnap.data();
     // Fetch event name
     const eventSnap = await db.doc(`events/${eventId}`).get();
-    const eventName = (_b = (_a = eventSnap.data()) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : '';
+    const eventName = (_c = (_b = eventSnap.data()) === null || _b === void 0 ? void 0 : _b.name) !== null && _c !== void 0 ? _c : '';
     // Fetch total milestone count for this event
     const milestonesSnap = await db
         .collection(`events/${eventId}/milestones`)
@@ -39,12 +63,13 @@ exports.onCheckpointCreated = functions.firestore
         milestoneName: milestone.name,
         milestoneOrder: milestone.order,
         distanceMark: milestone.distanceMark,
-        repCount: (_c = data.repCount) !== null && _c !== void 0 ? _c : null,
+        repCount: (_d = data.repCount) !== null && _d !== void 0 ? _d : null,
+        timeMs: (_e = data.timeMs) !== null && _e !== void 0 ? _e : null,
         scannedAt,
         volunteerUid: data.volunteerUid,
     };
     if (!raceSnap.exists) {
-        // First checkpoint → create the race doc
+        // First checkpoint for this athlete → create the race doc
         await raceRef.set({
             id: raceDocId,
             athleteUid,
@@ -61,18 +86,18 @@ exports.onCheckpointCreated = functions.firestore
     }
     else {
         const existing = raceSnap.data();
-        const checkpoints = [
-            ...((_d = existing.checkpoints) !== null && _d !== void 0 ? _d : []),
-            checkpointEntry,
-        ];
+        // Replace or append the entry for this milestoneId (upsert by milestoneId)
+        const previousCheckpoints = (_f = existing.checkpoints) !== null && _f !== void 0 ? _f : [];
+        const idx = previousCheckpoints.findIndex((c) => c.milestoneId === milestoneId);
+        const checkpoints = idx >= 0
+            ? previousCheckpoints.map((c, i) => (i === idx ? checkpointEntry : c))
+            : [...previousCheckpoints, checkpointEntry];
         const isFinished = milestone.order >= totalMilestones;
         const startedAt = existing.startedAt;
         const totalTimeMs = isFinished
             ? scannedAt.toMillis() - startedAt.toMillis()
             : null;
-        await raceRef.update(Object.assign({ currentMilestoneOrder: Math.max(existing.currentMilestoneOrder, milestone.order), checkpoints }, (isFinished
-            ? { finishedAt: scannedAt, totalTimeMs }
-            : {})));
+        await raceRef.update(Object.assign({ currentMilestoneOrder: Math.max((_g = existing.currentMilestoneOrder) !== null && _g !== void 0 ? _g : 0, milestone.order), checkpoints }, (isFinished ? { finishedAt: scannedAt, totalTimeMs } : {})));
     }
     functions.logger.info('athleteRaces updated', { raceDocId, milestoneOrder: milestone.order });
 });
@@ -324,6 +349,33 @@ exports.importVolunteersCSV = functions.https.onCall(async (data, context) => {
         batches.push(batch);
     await Promise.all(batches.map((b) => b.commit()));
     return { imported: volunteers.length };
+});
+// ─── claimMyBibs ──────────────────────────────────────────────────────────────
+// Called by the athlete app on every sign-in.
+// Finds all BIB records whose athletePhone matches the caller's phone and
+// back-fills the athleteUid so future checkpoint lookups work correctly.
+exports.claimMyBibs = functions.https.onCall(async (_data, context) => {
+    if (!context.auth)
+        throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
+    const phone = context.auth.token.phone_number;
+    if (!phone)
+        throw new functions.https.HttpsError('failed-precondition', 'Phone auth required.');
+    const digits = phone.replace(/\D/g, '');
+    const tenDigit = digits.slice(-10);
+    // BIBs may be stored with the phone in any of these common formats
+    const formats = [tenDigit, `91${tenDigit}`, `+91${tenDigit}`];
+    const bibsSnap = await db
+        .collectionGroup('bibs')
+        .where('athletePhone', 'in', formats)
+        .where('athleteUid', '==', '')
+        .get();
+    if (bibsSnap.empty)
+        return { linked: 0 };
+    const batch = db.batch();
+    bibsSnap.docs.forEach((d) => batch.update(d.ref, { athleteUid: context.auth.uid }));
+    await batch.commit();
+    functions.logger.info('claimMyBibs linked BIBs', { uid: context.auth.uid, count: bibsSnap.size });
+    return { linked: bibsSnap.size };
 });
 // ─── getMyEvents ──────────────────────────────────────────────────────────────
 // Called by volunteer app after phone OTP sign-in.

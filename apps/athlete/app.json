@@ -26,6 +26,9 @@
     },
     "plugins": [
       "expo-font",
+      ["expo-image-picker", {
+        "photosPermission": "Allow X-TRACK to access your photos to set a profile picture."
+      }],
       ["expo-media-library", {
         "photosPermission": "Allow X-TRACK to save your race results to your gallery."
       }]

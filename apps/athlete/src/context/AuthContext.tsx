@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db, UserDoc } from '@x-track/firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { auth, db, firebaseApp, UserDoc } from '@x-track/firebase';
 
 interface AuthContextValue {
   user: User | null;
@@ -28,8 +29,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const ref = doc(db, 'users', firebaseUser.uid);
         const snap = await getDoc(ref);
 
+        const claimBibs = () => {
+          if (firebaseUser.phoneNumber) {
+            const fns = getFunctions(firebaseApp);
+            httpsCallable(fns, 'claimMyBibs')().catch(() => {});
+          }
+        };
+
         if (snap.exists()) {
           setUserDoc(snap.data() as UserDoc);
+          claimBibs();
         } else {
           // First sign-in: create athlete user doc
           const newDoc: Omit<UserDoc, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> } = {
@@ -44,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await setDoc(ref, newDoc);
           const created = await getDoc(ref);
           setUserDoc(created.data() as UserDoc);
+          claimBibs();
         }
       } else {
         setUserDoc(null);

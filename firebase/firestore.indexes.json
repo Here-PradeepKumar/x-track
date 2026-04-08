@@ -98,6 +98,14 @@
         { "fieldPath": "phone", "order": "ASCENDING" },
         { "fieldPath": "active", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "bibs",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "athletePhone", "order": "ASCENDING" },
+        { "fieldPath": "athleteUid", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

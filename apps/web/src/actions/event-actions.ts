@@ -294,6 +294,13 @@ export async function createHyroxMilestones(eventId: string) {
   await batch.commit();
 }
 
+export async function updateEventCover(eventId: string, url: string) {
+  const user = await verifyOrganizerOwnsEvent(eventId);
+  void user;
+  await adminDb.doc(`events/${eventId}`).update({ coverImageUrl: url });
+  revalidatePath(`/organizer/events/${eventId}`);
+}
+
 // ─── Category actions ─────────────────────────────────────────────────────────
 
 async function verifyOrganizerOwnsEvent(eventId: string) {

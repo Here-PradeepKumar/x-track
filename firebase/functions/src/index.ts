@@ -37,7 +37,27 @@ export const onCheckpointWritten = functions.firestore
     if (!change.after.exists) return;
 
     const data = change.after.data() as CheckpointDoc;
-    const { eventId, milestoneId, bibNumber, athleteUid, scannedAt } = data;
+    const { eventId, milestoneId, bibNumber, scannedAt } = data;
+    let athleteUid = data.athleteUid;
+
+    // If athleteUid is missing, resolve it from the BIB's athletePhone
+    if (!athleteUid) {
+      const bibSnap = await db.doc(`events/${eventId}/bibs/${bibNumber}`).get();
+      const athletePhone = bibSnap.data()?.athletePhone as string | undefined;
+      if (athletePhone) {
+        const digits = athletePhone.replace(/\D/g, '');
+        const e164 = `+${digits.length === 10 ? `91${digits}` : digits}`;
+        try {
+          const record = await admin.auth().getUserByPhoneNumber(e164);
+          athleteUid = record.uid;
+          // Back-fill the BIB so future checkpoints have the UID immediately
+          await db.doc(`events/${eventId}/bibs/${bibNumber}`).update({ athleteUid });
+        } catch {
+          // Athlete hasn't signed up yet; race doc will be created/updated later
+          functions.logger.warn('Could not resolve athleteUid from phone', { eventId, bibNumber, e164 });
+        }
+      }
+    }
 
     // Fetch milestone metadata for display in the athlete app
     const milestoneSnap = await db
@@ -449,6 +469,39 @@ export const importVolunteersCSV = functions.https.onCall(async (data, context) 
   await Promise.all(batches.map((b) => b.commit()));
 
   return { imported: volunteers.length };
+});
+
+// ─── claimMyBibs ──────────────────────────────────────────────────────────────
+// Called by the athlete app on every sign-in.
+// Finds all BIB records whose athletePhone matches the caller's phone and
+// back-fills the athleteUid so future checkpoint lookups work correctly.
+
+export const claimMyBibs = functions.https.onCall(async (_data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
+
+  const phone = context.auth.token.phone_number;
+  if (!phone) throw new functions.https.HttpsError('failed-precondition', 'Phone auth required.');
+
+  const digits = phone.replace(/\D/g, '');
+  const tenDigit = digits.slice(-10);
+
+  // BIBs may be stored with the phone in any of these common formats
+  const formats = [tenDigit, `91${tenDigit}`, `+91${tenDigit}`];
+
+  const bibsSnap = await db
+    .collectionGroup('bibs')
+    .where('athletePhone', 'in', formats)
+    .where('athleteUid', '==', '')
+    .get();
+
+  if (bibsSnap.empty) return { linked: 0 };
+
+  const batch = db.batch();
+  bibsSnap.docs.forEach((d) => batch.update(d.ref, { athleteUid: context.auth!.uid }));
+  await batch.commit();
+
+  functions.logger.info('claimMyBibs linked BIBs', { uid: context.auth.uid, count: bibsSnap.size });
+  return { linked: bibsSnap.size };
 });
 
 // ─── getMyEvents ──────────────────────────────────────────────────────────────

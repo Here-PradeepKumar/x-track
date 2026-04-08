@@ -43,7 +43,11 @@ export function useActiveRace() {
         }
         setLoading(false);
       },
-      () => { setRaceDoc(null); setLoading(false); }
+      (err) => {
+        console.error('[useActiveRace] query failed:', err.code, err.message);
+        setRaceDoc(null);
+        setLoading(false);
+      }
     );
 
     return unsub;

@@ -4,8 +4,11 @@
     "slug": "x-track-volunteer",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#0e0e0e"
     },
     "ios": {

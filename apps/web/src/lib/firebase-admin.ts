@@ -1,5 +1,6 @@
 // Server-side Firebase Admin (runs in Next.js Server Components / Route Handlers only)
 import * as admin from 'firebase-admin';
+import { getStorage } from 'firebase-admin/storage';
 
 function getAdminApp(): admin.app.App {
   if (admin.apps.length > 0) return admin.apps[0]!;
@@ -18,9 +19,11 @@ function getAdminApp(): admin.app.App {
       ? admin.credential.cert(serviceAccount)
       : admin.credential.applicationDefault(),
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim(),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET?.trim(),
   });
 }
 
 export const adminApp = getAdminApp();
 export const adminDb = admin.firestore(adminApp);
 export const adminAuth = admin.auth(adminApp);
+export const adminStorage = getStorage(adminApp);

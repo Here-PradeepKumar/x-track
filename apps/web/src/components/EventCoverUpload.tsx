@@ -1,9 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase-client';
-import { updateEventCover } from '@/actions/event-actions';
 
 interface Props {
   eventId: string;
@@ -13,6 +10,7 @@ interface Props {
 export default function EventCoverUpload({ eventId, currentUrl }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,14 +18,25 @@ export default function EventCoverUpload({ eventId, currentUrl }: Props) {
     if (!file) return;
 
     setUploading(true);
+    setError(null);
     try {
-      const coverRef = storageRef(storage, `events/${eventId}/cover`);
-      await uploadBytes(coverRef, file);
-      const url = await getDownloadURL(coverRef);
-      await updateEventCover(eventId, url);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`/api/events/${eventId}/cover`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? `Upload failed (${res.status})`);
+      }
+
+      const { url } = await res.json();
       setPreviewUrl(url);
-    } catch (err) {
-      console.error('Cover upload failed:', err);
+    } catch (err: any) {
+      setError(err.message ?? 'Upload failed');
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -66,6 +75,8 @@ export default function EventCoverUpload({ eventId, currentUrl }: Props) {
           {uploading ? 'UPLOADING…' : 'UPLOAD COVER PHOTO'}
         </button>
       )}
+
+      {error && <p style={styles.errorText}>{error}</p>}
     </div>
   );
 }
@@ -112,4 +123,5 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '8px',
   },
   uploadIcon: { fontSize: '24px', color: '#494847' },
+  errorText: { fontSize: '12px', color: '#ff4444', marginTop: '8px' },
 };

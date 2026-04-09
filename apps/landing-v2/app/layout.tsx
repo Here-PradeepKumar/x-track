@@ -8,6 +8,13 @@ export const metadata: Metadata = {
   description:
     "X-Track powers obstacle course races with NFC BIB scanning, real-time athlete tracking, and complete volunteer coordination.",
   keywords: ["OCR", "obstacle course race", "BIB tracking", "NFC", "x-track", "race management"],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     title: "X-Track — NFC Race Management Platform",
     description: "NFC BIB scanning + real-time athlete tracking for OCR events.",

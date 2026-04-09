@@ -45,13 +45,6 @@ export default function Hero() {
             {/* Left — text */}
             <div className="flex flex-col justify-center py-16 lg:py-0">
               {/* Live pill */}
-              <div className="inline-flex items-center gap-2 mb-8 w-fit px-3.5 py-1.5 rounded-full bg-lime/10 border border-lime/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse" />
-                <span className="text-[11px] font-body font-bold text-lime tracking-[0.18em] uppercase">
-                  Race Intelligence Platform
-                </span>
-              </div>
-
               {/* Main headline */}
               <div className="space-y-0">
                 <h1 className="font-display text-white leading-[0.9] tracking-[0.02em]">

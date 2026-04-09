@@ -119,12 +119,6 @@ export default function Hero() {
       <div className="relative z-10 flex-1 flex flex-col justify-center px-6 lg:px-12 max-w-7xl mx-auto w-full pt-28 pb-8">
         <div className="max-w-4xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full border border-lime/30 bg-lime/5">
-            <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse-lime" />
-            <span className="text-xs font-body font-semibold text-lime tracking-widest uppercase">
-              Live Race Intelligence Platform
-            </span>
-          </div>
 
           {/* Main headline */}
           <h1 className="font-display font-black text-white leading-[0.92] tracking-tight mb-6">

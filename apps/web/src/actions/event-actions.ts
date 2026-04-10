@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { Timestamp, WriteBatch } from 'firebase-admin/firestore';
+import { Timestamp, WriteBatch, FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSessionUser, getUserRole } from '@/lib/auth-session';
 
@@ -193,9 +193,13 @@ export async function importVolunteers(
       active: true,
       importedAt: Timestamp.now(),
     }, { merge: true });
+    // Maintain rosterIndex for instant lookup (no collectionGroup query needed)
+    batch.set(adminDb.doc(`rosterIndex/${phone}`), {
+      activeEventIds: FieldValue.arrayUnion(eventId),
+    }, { merge: true });
     count++;
     total++;
-    if (count === 500) {
+    if (count === 499) { // 2 writes per volunteer, stay under 500-op limit
       await batch.commit();
       batch = adminDb.batch();
       count = 0;
@@ -216,6 +220,12 @@ export async function setVolunteerActive(eventId: string, phone: string, active:
   if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
 
   await adminDb.doc(`events/${eventId}/roster/${phone}`).update({ active });
+  // Keep rosterIndex in sync
+  await adminDb.doc(`rosterIndex/${phone}`).set({
+    activeEventIds: active
+      ? FieldValue.arrayUnion(eventId)
+      : FieldValue.arrayRemove(eventId),
+  }, { merge: true });
   revalidatePath(`/organizer/events/${eventId}/volunteers`);
 }
 
@@ -256,6 +266,13 @@ export async function updateVolunteerDetails(
       displayName: displayName.trim(),
     });
     batch.delete(adminDb.doc(`events/${eventId}/roster/${oldPhone}`));
+    // Update rosterIndex: remove old phone's entry, add new phone's entry
+    batch.set(adminDb.doc(`rosterIndex/${oldPhone}`), {
+      activeEventIds: FieldValue.arrayRemove(eventId),
+    }, { merge: true });
+    batch.set(adminDb.doc(`rosterIndex/${normalizedNew}`), {
+      activeEventIds: FieldValue.arrayUnion(eventId),
+    }, { merge: true });
     await batch.commit();
   } else {
     await adminDb.doc(`events/${eventId}/roster/${oldPhone}`).update({ displayName: displayName.trim() });
@@ -274,6 +291,9 @@ export async function removeVolunteerFromRoster(eventId: string, phone: string) 
   if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
 
   await adminDb.doc(`events/${eventId}/roster/${phone}`).delete();
+  await adminDb.doc(`rosterIndex/${phone}`).set({
+    activeEventIds: FieldValue.arrayRemove(eventId),
+  }, { merge: true });
   revalidatePath(`/organizer/events/${eventId}/volunteers`);
 }
 

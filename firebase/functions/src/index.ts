@@ -518,16 +518,31 @@ export const getMyEvents = functions.https.onCall(async (_data, context) => {
   // Normalize: strip leading +
   const normalizedPhone = phone.replace(/^\+/, '');
 
-  // Single-field query — no composite index required
-  const rosterSnap = await db
-    .collectionGroup('roster')
-    .where('phone', '==', normalizedPhone)
-    .get();
+  // Primary: instant document lookup — no index required
+  const indexDoc = await db.doc(`rosterIndex/${normalizedPhone}`).get();
+  const indexedEventIds: string[] = indexDoc.exists
+    ? (indexDoc.data()?.activeEventIds ?? [])
+    : [];
 
-  const activeRoster = rosterSnap.docs.filter((d) => d.data().active !== false);
-  if (activeRoster.length === 0) return { events: [] };
+  let eventIds: string[] = indexedEventIds;
 
-  const eventIds = [...new Set(activeRoster.map((d) => d.data().eventId as string))];
+  // Fallback for volunteers imported before rosterIndex was introduced
+  if (eventIds.length === 0) {
+    try {
+      const rosterSnap = await db
+        .collectionGroup('roster')
+        .where('phone', '==', normalizedPhone)
+        .where('active', '==', true)
+        .get();
+      eventIds = [...new Set(rosterSnap.docs.map((d) => d.data().eventId as string))];
+    } catch {
+      // Index may still be building — return empty for now
+      return { events: [] };
+    }
+  }
+
+  if (eventIds.length === 0) return { events: [] };
+
   const eventSnaps = await Promise.all(eventIds.map((id) => db.doc(`events/${id}`).get()));
 
   const events = eventSnaps

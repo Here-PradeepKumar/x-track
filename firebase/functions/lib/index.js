@@ -382,6 +382,7 @@ exports.claimMyBibs = functions.https.onCall(async (_data, context) => {
 // Returns the list of active events this phone number is registered for.
 // Empty result means the phone is not in any roster — app should block access.
 exports.getMyEvents = functions.https.onCall(async (_data, context) => {
+    var _a, _b;
     if (!context.auth)
         throw new functions.https.HttpsError('unauthenticated', 'Sign in required.');
     const phone = context.auth.token.phone_number;
@@ -389,15 +390,29 @@ exports.getMyEvents = functions.https.onCall(async (_data, context) => {
         throw new functions.https.HttpsError('failed-precondition', 'Phone auth required.');
     // Normalize: strip leading +
     const normalizedPhone = phone.replace(/^\+/, '');
-    // Single-field query — no composite index required
-    const rosterSnap = await db
-        .collectionGroup('roster')
-        .where('phone', '==', normalizedPhone)
-        .get();
-    const activeRoster = rosterSnap.docs.filter((d) => d.data().active !== false);
-    if (activeRoster.length === 0)
+    // Primary: instant document lookup — no index required
+    const indexDoc = await db.doc(`rosterIndex/${normalizedPhone}`).get();
+    const indexedEventIds = indexDoc.exists
+        ? ((_b = (_a = indexDoc.data()) === null || _a === void 0 ? void 0 : _a.activeEventIds) !== null && _b !== void 0 ? _b : [])
+        : [];
+    let eventIds = indexedEventIds;
+    // Fallback for volunteers imported before rosterIndex was introduced
+    if (eventIds.length === 0) {
+        try {
+            const rosterSnap = await db
+                .collectionGroup('roster')
+                .where('phone', '==', normalizedPhone)
+                .where('active', '==', true)
+                .get();
+            eventIds = [...new Set(rosterSnap.docs.map((d) => d.data().eventId))];
+        }
+        catch (_c) {
+            // Index may still be building — return empty for now
+            return { events: [] };
+        }
+    }
+    if (eventIds.length === 0)
         return { events: [] };
-    const eventIds = [...new Set(activeRoster.map((d) => d.data().eventId))];
     const eventSnaps = await Promise.all(eventIds.map((id) => db.doc(`events/${id}`).get()));
     const events = eventSnaps
         .filter((snap) => { var _a; return snap.exists && ((_a = snap.data()) === null || _a === void 0 ? void 0 : _a.status) === 'active'; })

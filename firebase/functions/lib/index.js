@@ -389,14 +389,15 @@ exports.getMyEvents = functions.https.onCall(async (_data, context) => {
         throw new functions.https.HttpsError('failed-precondition', 'Phone auth required.');
     // Normalize: strip leading +
     const normalizedPhone = phone.replace(/^\+/, '');
+    // Single-field query — no composite index required
     const rosterSnap = await db
         .collectionGroup('roster')
         .where('phone', '==', normalizedPhone)
-        .where('active', '==', true)
         .get();
-    if (rosterSnap.empty)
+    const activeRoster = rosterSnap.docs.filter((d) => d.data().active !== false);
+    if (activeRoster.length === 0)
         return { events: [] };
-    const eventIds = [...new Set(rosterSnap.docs.map((d) => d.data().eventId))];
+    const eventIds = [...new Set(activeRoster.map((d) => d.data().eventId))];
     const eventSnaps = await Promise.all(eventIds.map((id) => db.doc(`events/${id}`).get()));
     const events = eventSnaps
         .filter((snap) => { var _a; return snap.exists && ((_a = snap.data()) === null || _a === void 0 ? void 0 : _a.status) === 'active'; })

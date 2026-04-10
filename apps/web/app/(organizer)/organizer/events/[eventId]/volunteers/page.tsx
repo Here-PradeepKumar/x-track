@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser, getUserRole } from '@/lib/auth-session';
 import { adminDb } from '@/lib/firebase-admin';
 import VolunteersImportButton from '@/components/VolunteersImportButton';
+import AddVolunteerButton from '@/components/AddVolunteerButton';
 import RosterActions from '@/components/RosterActions';
 
 interface Props { params: { eventId: string } }
@@ -45,7 +46,10 @@ export default async function VolunteersPage({ params }: Props) {
             </p>
           )}
         </div>
-        <VolunteersImportButton eventId={eventId} />
+        <div style={styles.headerActions}>
+          <AddVolunteerButton eventId={eventId} />
+          <VolunteersImportButton eventId={eventId} />
+        </div>
       </div>
 
       <div style={styles.section}>
@@ -109,6 +113,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   title: { fontSize: '22px', fontWeight: 900, color: '#fff', marginBottom: '4px' },
   subtitle: { fontSize: '12px', color: '#adaaaa', letterSpacing: '0.5px' },
+  headerActions: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' as const },
   section: { marginBottom: '40px' },
   sectionTitle: {
     fontSize: '11px',

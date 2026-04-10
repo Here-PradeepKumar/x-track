@@ -77,12 +77,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
               if (events.length === 0) {
                 setNotRegistered(true);
-              } else if (!data.assignedEventId) {
-                if (events.length === 1) {
-                  // Auto-assign on first login
-                  await updateDoc(ref, { assignedEventId: events[0].eventId });
+              } else {
+                const isAssigned = events.some((e) => e.eventId === data.assignedEventId);
+                if (!isAssigned) {
+                  // Not assigned yet, or assigned to a stale event — auto-assign to first
+                  await updateDoc(ref, { assignedEventId: events[0].eventId, assignedMilestoneId: null });
                 }
-                // If multiple events, profile switcher will handle selection
               }
             } catch (e: any) {
               console.error('[AuthContext] getMyEvents failed:', e?.code, e?.message);

@@ -76,6 +76,14 @@ export default function Hero() {
                   Download the App
                 </a>
                 <a
+                  href="https://x-track-iota.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-8 py-4 border border-lime/60 text-lime font-body font-semibold text-sm rounded-full hover:bg-lime/10 transition-colors duration-200"
+                >
+                  Organiser Dashboard →
+                </a>
+                <a
                   href="#process"
                   className="px-8 py-4 border border-rule text-white font-body font-semibold text-sm rounded-full hover:border-lime/50 hover:text-lime transition-colors duration-200"
                 >

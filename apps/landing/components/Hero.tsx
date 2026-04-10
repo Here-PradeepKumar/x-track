@@ -152,6 +152,14 @@ export default function Hero() {
               <span className="relative z-10">Download the App</span>
             </a>
             <a
+              href="https://x-track-iota.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 border border-lime/60 text-lime text-base font-body font-semibold rounded-full hover:bg-lime/10 transition-all duration-200"
+            >
+              Organiser Dashboard →
+            </a>
+            <a
               href="#how-it-works"
               className="px-8 py-4 border border-outline/60 text-white text-base font-body font-semibold rounded-full hover:border-lime/60 hover:text-lime transition-all duration-200"
             >

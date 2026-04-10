@@ -219,6 +219,18 @@ export async function setVolunteerActive(eventId: string, phone: string, active:
   revalidatePath(`/organizer/events/${eventId}/volunteers`);
 }
 
+export async function updateVolunteer(eventId: string, phone: string, displayName: string) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  await adminDb.doc(`events/${eventId}/roster/${phone}`).update({ displayName: displayName.trim() });
+  revalidatePath(`/organizer/events/${eventId}/volunteers`);
+}
+
 export async function removeVolunteerFromRoster(eventId: string, phone: string) {
   const user = await getSessionUser();
   if (!user) redirect('/login');

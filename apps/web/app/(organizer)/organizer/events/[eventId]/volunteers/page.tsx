@@ -84,7 +84,7 @@ export default async function VolunteersPage({ params }: Props) {
                     )}
                   </td>
                   <td style={styles.td}>
-                    <RosterActions eventId={eventId} phone={r.phone} active={r.active} />
+                    <RosterActions eventId={eventId} phone={r.phone} active={r.active} displayName={r.displayName === '—' ? '' : r.displayName} />
                   </td>
                 </tr>
               ))}

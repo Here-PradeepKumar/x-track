@@ -219,7 +219,12 @@ export async function setVolunteerActive(eventId: string, phone: string, active:
   revalidatePath(`/organizer/events/${eventId}/volunteers`);
 }
 
-export async function updateVolunteer(eventId: string, phone: string, displayName: string) {
+export async function updateVolunteerDetails(
+  eventId: string,
+  oldPhone: string,
+  newPhone: string,
+  displayName: string,
+): Promise<{ error?: string }> {
   const user = await getSessionUser();
   if (!user) redirect('/login');
   if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
@@ -227,8 +232,37 @@ export async function updateVolunteer(eventId: string, phone: string, displayNam
   const eventSnap = await adminDb.doc(`events/${eventId}`).get();
   if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
 
-  await adminDb.doc(`events/${eventId}/roster/${phone}`).update({ displayName: displayName.trim() });
+  const normalizePhone = (raw: string): string => {
+    const digits = raw.replace(/\D/g, '');
+    if (digits.length === 10) return `91${digits}`;
+    if (digits.length === 11 && digits.startsWith('0')) return `91${digits.slice(1)}`;
+    return digits;
+  };
+
+  const normalizedNew = normalizePhone(newPhone);
+  if (!normalizedNew) return { error: 'Invalid phone number.' };
+
+  if (normalizedNew !== oldPhone) {
+    const existing = await adminDb.doc(`events/${eventId}/roster/${normalizedNew}`).get();
+    if (existing.exists) return { error: 'This phone number is already in the roster.' };
+
+    const oldSnap = await adminDb.doc(`events/${eventId}/roster/${oldPhone}`).get();
+    const oldData = oldSnap.data() ?? {};
+
+    const batch = adminDb.batch();
+    batch.set(adminDb.doc(`events/${eventId}/roster/${normalizedNew}`), {
+      ...oldData,
+      phone: normalizedNew,
+      displayName: displayName.trim(),
+    });
+    batch.delete(adminDb.doc(`events/${eventId}/roster/${oldPhone}`));
+    await batch.commit();
+  } else {
+    await adminDb.doc(`events/${eventId}/roster/${oldPhone}`).update({ displayName: displayName.trim() });
+  }
+
   revalidatePath(`/organizer/events/${eventId}/volunteers`);
+  return {};
 }
 
 export async function removeVolunteerFromRoster(eventId: string, phone: string) {

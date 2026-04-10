@@ -63,30 +63,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const data = snap.data() as VolunteerUserDoc;
             setUserDoc(data);
 
-            // Auth gate: if no event assigned yet, check roster
-            if (!data.assignedEventId) {
-              try {
-                const functions = getFunctions(firebaseApp);
-                const getMyEvents = httpsCallable<void, { events: RegisteredEvent[] }>(
-                  functions,
-                  'getMyEvents'
-                );
-                const result = await getMyEvents();
-                const events = result.data.events;
+            // Always fetch the current event list so the switcher stays up-to-date
+            try {
+              const functions = getFunctions(firebaseApp);
+              const getMyEventsFn = httpsCallable<void, { events: RegisteredEvent[] }>(
+                functions,
+                'getMyEvents'
+              );
+              const result = await getMyEventsFn();
+              const events = result.data.events;
 
-                if (events.length === 0) {
-                  setNotRegistered(true);
-                } else if (events.length === 1) {
-                  // Auto-assign to the single event
-                  await updateDoc(ref, { assignedEventId: events[0].eventId });
-                  // onSnapshot will fire again and data.assignedEventId will be set
-                } else {
-                  setRegisteredEvents(events);
-                }
-              } catch (e: any) {
-                console.error('[AuthContext] getMyEvents failed:', e?.code, e?.message);
+              setRegisteredEvents(events);
+
+              if (events.length === 0) {
                 setNotRegistered(true);
+              } else if (!data.assignedEventId) {
+                if (events.length === 1) {
+                  // Auto-assign on first login
+                  await updateDoc(ref, { assignedEventId: events[0].eventId });
+                }
+                // If multiple events, profile switcher will handle selection
               }
+            } catch (e: any) {
+              console.error('[AuthContext] getMyEvents failed:', e?.code, e?.message);
+              if (!data.assignedEventId) setNotRegistered(true);
             }
 
             setLoading(false);

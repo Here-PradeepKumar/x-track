@@ -12,6 +12,7 @@ interface Props {
 
 export default function RosterActions({ eventId, phone, active, displayName }: Props) {
   const [pending, startTransition] = useTransition();
+  const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
   const [nameInput, setNameInput] = useState(displayName);
   const [phoneInput, setPhoneInput] = useState(phone);
@@ -26,16 +27,19 @@ export default function RosterActions({ eventId, phone, active, displayName }: P
     startTransition(() => { void removeVolunteerFromRoster(eventId, phone); });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setError(null);
-    startTransition(async () => {
+    setSaving(true);
+    try {
       const result = await updateVolunteerDetails(eventId, phone, phoneInput.trim(), nameInput);
       if (result.error) {
         setError(result.error);
       } else {
         setEditing(false);
       }
-    });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -54,20 +58,20 @@ export default function RosterActions({ eventId, phone, active, displayName }: P
             onChange={(e) => setNameInput(e.target.value)}
             placeholder="Name"
             style={styles.input}
-            disabled={pending}
+            disabled={saving}
           />
           <input
             value={phoneInput}
             onChange={(e) => { setPhoneInput(e.target.value); setError(null); }}
             placeholder="Phone"
             style={{ ...styles.input, fontFamily: 'monospace' }}
-            disabled={pending}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') handleCancel(); }}
+            disabled={saving}
+            onKeyDown={(e) => { if (e.key === 'Enter') void handleSave(); if (e.key === 'Escape') handleCancel(); }}
           />
-          <button onClick={handleSave} disabled={pending || !phoneInput.trim()} style={styles.save}>
-            {pending ? '…' : 'Save'}
+          <button onClick={() => void handleSave()} disabled={saving || !phoneInput.trim()} style={styles.save}>
+            {saving ? '…' : 'Save'}
           </button>
-          <button onClick={handleCancel} disabled={pending} style={styles.cancelBtn}>
+          <button onClick={handleCancel} disabled={saving} style={styles.cancelBtn}>
             Cancel
           </button>
         </div>

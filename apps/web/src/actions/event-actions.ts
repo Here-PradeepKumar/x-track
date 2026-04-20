@@ -30,6 +30,8 @@ export async function createEvent(formData: FormData) {
 
   if (raceType === 'hyrox') {
     await createHyroxMilestones(ref.id);
+  } else if (raceType === 'devilcircuit') {
+    await createDevilCircuitMilestones(ref.id);
   }
 
   redirect(`/organizer/events/${ref.id}`);
@@ -345,6 +347,67 @@ export async function createHyroxMilestones(eventId: string) {
     { id: 'super_man',   name: 'Super Man',   order: 2, weights: { 'Sled Push': 152, 'Sled Pull': 102, 'Farmers Carry': 32, 'Sandbag Lunges': 30, 'Wall Balls': 11 } },
     { id: 'women',       name: 'Women',       order: 3, weights: { 'Sled Push': 78,  'Sled Pull': 52,  'Farmers Carry': 16, 'Sandbag Lunges': 10, 'Wall Balls': 6  } },
     { id: 'super_women', name: 'Super Women', order: 4, weights: { 'Sled Push': 102, 'Sled Pull': 78,  'Farmers Carry': 24, 'Sandbag Lunges': 20, 'Wall Balls': 9  } },
+  ];
+
+  for (const cat of categoryDefs) {
+    const milestoneWeights: Record<string, number | null> = {};
+    for (const [name, id] of Object.entries(nameToId)) {
+      milestoneWeights[id] = cat.weights[name] ?? null;
+    }
+    batch.set(adminDb.doc(`events/${eventId}/categories/${cat.id}`), {
+      id: cat.id, name: cat.name, order: cat.order, milestoneWeights,
+    });
+  }
+
+  await batch.commit();
+}
+
+export async function createDevilCircuitMilestones(eventId: string) {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+
+  const existing = await adminDb.collection(`events/${eventId}/milestones`).count().get();
+  if (existing.data().count > 0) {
+    throw new Error('This event already has milestones. Clear them first.');
+  }
+
+  const milestones = [
+    { order: 1,  name: 'Run 1',           distanceMark: '1 KM RUN',         stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 2,  name: 'Devil Wall',       distanceMark: 'CLIMBING WALL',    stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 3,  name: 'Run 2',           distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 4,  name: 'Monkey Bars',     distanceMark: 'TRAVERSE',         stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 5,  name: 'Run 3',           distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 6,  name: 'Barbed Wire Crawl', distanceMark: '30m CRAWL',      stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 7,  name: 'Run 4',           distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 8,  name: 'Rope Climb',      distanceMark: '5m CLIMB',         stationType: 'station', requiresRepCount: true,  repTarget: 3   },
+    { order: 9,  name: 'Run 5',           distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 10, name: 'Tyre Drag',       distanceMark: '20m DRAG',         stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 11, name: 'Run 6',           distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 12, name: 'Bucket Carry',    distanceMark: '50m CARRY',        stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 13, name: 'Run 7',           distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 14, name: 'Mud Pit',         distanceMark: '30m MUD CRAWL',    stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 15, name: 'Finish Sprint',   distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+  ];
+
+  const refs = milestones.map(() =>
+    adminDb.collection(`events/${eventId}/milestones`).doc()
+  );
+  const nameToId = Object.fromEntries(refs.map((r, i) => [milestones[i].name, r.id]));
+
+  const batch: WriteBatch = adminDb.batch();
+
+  for (let i = 0; i < milestones.length; i++) {
+    batch.set(refs[i], { ...milestones[i], eventId, assignedVolunteerUid: null, assignedAt: null });
+  }
+
+  // Devil Circuit categories
+  type WeightMap = Record<string, number>;
+  const categoryDefs: Array<{ id: string; name: string; order: number; weights: WeightMap }> = [
+    { id: 'open_male',   name: 'Open Male',   order: 1, weights: { 'Tyre Drag': 100, 'Bucket Carry': 20 } },
+    { id: 'open_female', name: 'Open Female', order: 2, weights: { 'Tyre Drag': 60,  'Bucket Carry': 12 } },
+    { id: 'elite_male',  name: 'Elite Male',  order: 3, weights: { 'Tyre Drag': 120, 'Bucket Carry': 25 } },
+    { id: 'elite_female',name: 'Elite Female',order: 4, weights: { 'Tyre Drag': 80,  'Bucket Carry': 16 } },
   ];
 
   for (const cat of categoryDefs) {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createEvent } from '@/actions/event-actions';
 
 export default function CreateEventForm({ organizerUid: _ }: { organizerUid: string }) {
-  const [raceType, setRaceType] = useState<'custom' | 'hyrox'>('custom');
+  const [raceType, setRaceType] = useState<'custom' | 'hyrox' | 'devilcircuit'>('custom');
 
   return (
     <form action={createEvent} style={styles.form}>
@@ -50,7 +50,7 @@ export default function CreateEventForm({ organizerUid: _ }: { organizerUid: str
       <div style={styles.field}>
         <label style={styles.label}>Race Type</label>
         <div style={styles.raceTypePills}>
-          {(['custom', 'hyrox'] as const).map((t) => (
+          {(['custom', 'hyrox', 'devilcircuit'] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -60,13 +60,18 @@ export default function CreateEventForm({ organizerUid: _ }: { organizerUid: str
                 ...(raceType === t ? styles.pillActive : {}),
               }}
             >
-              {t === 'hyrox' ? 'HYROX' : 'CUSTOM'}
+              {t === 'hyrox' ? 'HYROX' : t === 'devilcircuit' ? 'DEVIL CIRCUIT' : 'CUSTOM'}
             </button>
           ))}
         </div>
         {raceType === 'hyrox' && (
-          <p style={styles.hyroxNote}>
+          <p style={styles.templateNote}>
             16 milestones auto-created: 8×Run + SkiErg, Sled Push, Sled Pull, Burpee, Row, Farmers Carry, Lunges, Wall Balls. Rep counting enabled for Burpee, Lunges &amp; Wall Balls.
+          </p>
+        )}
+        {raceType === 'devilcircuit' && (
+          <p style={styles.templateNote}>
+            15 milestones auto-created: 7×Run + Devil Wall, Monkey Bars, Barbed Wire Crawl, Rope Climb, Tyre Drag, Bucket Carry, Mud Pit, Finish Sprint. Categories: Open &amp; Elite (Male/Female).
           </p>
         )}
       </div>
@@ -110,7 +115,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #cafd00',
     color: '#3a4a00',
   },
-  hyroxNote: {
+  templateNote: {
     fontSize: '11px',
     color: '#cafd00',
     background: 'rgba(202,253,0,0.08)',

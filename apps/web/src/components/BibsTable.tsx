@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { importBibs, updateBib, removeBib, setBibActive } from '@/actions/event-actions';
+import { importBibs, updateBib, removeBib, setBibActive, endAthleteRace } from '@/actions/event-actions';
 
 interface Bib {
   bibNumber: string;
@@ -170,6 +170,17 @@ export default function BibsTable({ eventId, bibs: initial, categories }: Props)
     } finally { setBusy(bib.bibNumber, false); }
   };
 
+  const handleEndRace = async (bib: Bib) => {
+    if (!confirm(`End active race for BIB #${bib.bibNumber}? This will mark finishedAt as now.`)) return;
+    setBusy(bib.bibNumber, true);
+    try {
+      const res = await endAthleteRace(eventId, bib.bibNumber);
+      alert(res.ended ? `Race for BIB #${bib.bibNumber} ended.` : `No active race found for BIB #${bib.bibNumber}.`);
+    } catch (err: any) {
+      alert(err.message ?? 'Failed to end race.');
+    } finally { setBusy(bib.bibNumber, false); }
+  };
+
   const draftBibs = bibs.filter((b) => !b.active && !validCategoryIds.has(b.category));
 
   return (
@@ -282,6 +293,7 @@ export default function BibsTable({ eventId, bibs: initial, categories }: Props)
                       <button onClick={() => handleToggleActive(bib)} disabled={busy} style={bib.active ? s.btnDeactivate : s.btnActivate}>
                         {bib.active ? 'Deactivate' : 'Activate'}
                       </button>
+                      <button onClick={() => handleEndRace(bib)} disabled={busy} style={s.btnEndRace}>End Race</button>
                       <button onClick={() => handleRemove(bib)} disabled={busy} style={s.btnRemove}>Remove</button>
                     </div>
                   )}
@@ -354,6 +366,7 @@ const s: Record<string, React.CSSProperties> = {
   btnEdit: { background: 'transparent', color: '#adaaaa', border: '1px solid #333', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.5px' },
   btnActivate: { background: 'transparent', color: '#cafd00', border: '1px solid rgba(202,253,0,0.4)', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer' },
   btnDeactivate: { background: 'transparent', color: '#adaaaa', border: '1px solid #333', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer' },
+  btnEndRace: { background: 'transparent', color: '#ffaa00', border: '1px solid rgba(255,170,0,0.4)', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.5px' },
   btnRemove: { background: 'transparent', color: '#ff7351', border: '1px solid rgba(255,115,81,0.3)', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', fontWeight: 700, cursor: 'pointer' },
   btnSave: { background: '#cafd00', color: '#0e0e0f', border: 'none', borderRadius: '2px', padding: '4px 12px', fontSize: '10px', fontWeight: 700, cursor: 'pointer' },
   btnCancel: { background: 'transparent', color: '#adaaaa', border: '1px solid #333', borderRadius: '2px', padding: '4px 10px', fontSize: '10px', cursor: 'pointer' },

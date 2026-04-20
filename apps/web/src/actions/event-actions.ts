@@ -162,6 +162,36 @@ export async function setBibActive(eventId: string, bibNumber: string, active: b
   revalidatePath(`/organizer/events/${eventId}/bibs`);
 }
 
+export async function endAthleteRace(eventId: string, bibNumber: string): Promise<{ ended: boolean }> {
+  const user = await getSessionUser();
+  if (!user) redirect('/login');
+  if ((await getUserRole(user.uid)) !== 'organizer') redirect('/login');
+  const eventSnap = await adminDb.doc(`events/${eventId}`).get();
+  if (!eventSnap.exists || eventSnap.data()?.organizerId !== user.uid) redirect('/organizer');
+
+  // Find active race doc for this bib in this event (filter finishedAt=null in code to avoid composite index)
+  const snap = await adminDb.collection('athleteRaces')
+    .where('bibNumber', '==', bibNumber)
+    .get();
+
+  const activeDocs = snap.docs.filter(
+    (d) => d.data().eventId === eventId && d.data().finishedAt == null
+  );
+
+  if (activeDocs.length === 0) return { ended: false };
+
+  const now = Timestamp.now();
+  await Promise.all(
+    activeDocs.map((d) => {
+      const startedAt: Timestamp | null = d.data().startedAt ?? null;
+      const totalTimeMs = startedAt ? now.toMillis() - startedAt.toMillis() : null;
+      return d.ref.update({ finishedAt: now, totalTimeMs });
+    })
+  );
+
+  return { ended: true };
+}
+
 export async function importVolunteers(
   eventId: string,
   volunteers: Array<{ displayName: string; phone: string }>

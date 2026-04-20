@@ -71,7 +71,7 @@ export default function CreateEventForm({ organizerUid: _ }: { organizerUid: str
         )}
         {raceType === 'devilcircuit' && (
           <p style={styles.templateNote}>
-            15 milestones auto-created: 7×Run + Devil Wall, Monkey Bars, Barbed Wire Crawl, Rope Climb, Tyre Drag, Bucket Carry, Mud Pit, Finish Sprint. Categories: Competitive Male/Female, Non-Competitive, Masters (40+).
+            15 obstacles auto-created: Portal Path, Rope Ridge, Back Stack, High Rise, Under Pressure, Commando Crawl, Monkey Crawl, Water Vault, The Summit, Heights of Hell, Mud Crawl, Balance Beam, Hanging Rig, Slide of Death, Brain Freeze. Waves: Competitive Pro A/B + Open A/B/C/D.
           </p>
         )}
       </div>

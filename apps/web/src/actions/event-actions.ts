@@ -364,21 +364,21 @@ export async function createHyroxMilestones(eventId: string) {
 
 export async function createDevilCircuitMilestones(eventId: string) {
   const milestones = [
-    { order: 1,  name: 'Run 1',             distanceMark: '1 KM RUN',         stationType: 'run',     requiresRepCount: false, repTarget: null },
-    { order: 2,  name: 'Devil Wall',        distanceMark: 'CLIMBING WALL',    stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 3,  name: 'Run 2',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
-    { order: 4,  name: 'Monkey Bars',       distanceMark: 'TRAVERSE',         stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 5,  name: 'Run 3',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
-    { order: 6,  name: 'Barbed Wire Crawl', distanceMark: '30m CRAWL',        stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 7,  name: 'Run 4',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
-    { order: 8,  name: 'Rope Climb',        distanceMark: '5m CLIMB',         stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 9,  name: 'Run 5',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
-    { order: 10, name: 'Tyre Drag',         distanceMark: '20m DRAG',         stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 11, name: 'Run 6',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
-    { order: 12, name: 'Bucket Carry',      distanceMark: '50m CARRY',        stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 13, name: 'Run 7',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
-    { order: 14, name: 'Mud Pit',           distanceMark: '30m MUD CRAWL',    stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 15, name: 'Finish Sprint',     distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 1,  name: 'Portal Path',    distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 2,  name: 'Rope Ridge',     distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 3,  name: 'Back Stack',     distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 4,  name: 'High Rise',      distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 5,  name: 'Under Pressure', distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 6,  name: 'Commando Crawl', distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 7,  name: 'Monkey Crawl',   distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 8,  name: 'Water Vault',    distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 9,  name: 'The Summit',     distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 10, name: 'Heights of Hell',distanceMark: '39FT NET',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 11, name: 'Mud Crawl',      distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 12, name: 'Balance Beam',   distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 13, name: 'Hanging Rig',    distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 14, name: 'Slide of Death', distanceMark: 'OBSTACLE',  stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 15, name: 'Brain Freeze',   distanceMark: 'ICE BATH',  stationType: 'station', requiresRepCount: false, repTarget: null },
   ];
 
   const refs = milestones.map(() =>
@@ -392,12 +392,13 @@ export async function createDevilCircuitMilestones(eventId: string) {
     batch.set(refs[i], { ...milestones[i], eventId, assignedVolunteerUid: null, assignedAt: null });
   }
 
-  // Devils Circuit categories — no weight differentiation (pure OCR, no weighted stations)
   const categoryDefs = [
-    { id: 'competitive_male',   name: 'Competitive Male',   order: 1 },
-    { id: 'competitive_female', name: 'Competitive Female', order: 2 },
-    { id: 'non_competitive',    name: 'Non-Competitive',    order: 3 },
-    { id: 'masters_40_plus',    name: 'Masters (40+)',      order: 4 },
+    { id: 'competitive_pro_a', name: 'Competitive Pro Wave A', order: 1 },
+    { id: 'competitive_pro_b', name: 'Competitive Pro Wave B', order: 2 },
+    { id: 'open_wave_a',       name: 'Open Wave A',            order: 3 },
+    { id: 'open_wave_b',       name: 'Open Wave B',            order: 4 },
+    { id: 'open_wave_c',       name: 'Open Wave C',            order: 5 },
+    { id: 'open_wave_d',       name: 'Open Wave D',            order: 6 },
   ];
 
   for (const cat of categoryDefs) {

@@ -71,7 +71,7 @@ export default function CreateEventForm({ organizerUid: _ }: { organizerUid: str
         )}
         {raceType === 'devilcircuit' && (
           <p style={styles.templateNote}>
-            15 obstacle checkpoints auto-created: The Summit, Heights of Hell, Back Stack, Rope Climb, Monkey Crawl, Tyre Flip, Mud Crawl, Barbed Wire Crawl, Step Up, Sandbag Carry, Balance Beam, Cargo Net, Wall Climb, Brain Freeze, Finish Line. Categories: Competitive Male/Female, Non-Competitive, Masters (40+).
+            15 milestones auto-created: 7×Run + Devil Wall, Monkey Bars, Barbed Wire Crawl, Rope Climb, Tyre Drag, Bucket Carry, Mud Pit, Finish Sprint. Categories: Competitive Male/Female, Non-Competitive, Masters (40+).
           </p>
         )}
       </div>

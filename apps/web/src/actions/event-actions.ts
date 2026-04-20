@@ -364,21 +364,21 @@ export async function createHyroxMilestones(eventId: string) {
 
 export async function createDevilCircuitMilestones(eventId: string) {
   const milestones = [
-    { order: 1,  name: 'The Summit',        distanceMark: 'WALL CLIMB',       stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 2,  name: 'Heights of Hell',   distanceMark: '39FT NET CLIMB',   stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 3,  name: 'Back Stack',        distanceMark: 'WALL SLIDE',       stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 4,  name: 'Rope Climb',        distanceMark: '5m CLIMB',         stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 5,  name: 'Monkey Crawl',      distanceMark: 'TRAVERSE',         stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 6,  name: 'Tyre Flip',         distanceMark: 'TYRE FLIP x5',     stationType: 'station', requiresRepCount: true,  repTarget: 5   },
-    { order: 7,  name: 'Mud Crawl',         distanceMark: '30m MUD CRAWL',    stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 8,  name: 'Barbed Wire Crawl', distanceMark: '20m LOW CRAWL',    stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 9,  name: 'Step Up',           distanceMark: 'SPRINT & BELL',    stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 10, name: 'Sandbag Carry',     distanceMark: '50m CARRY',        stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 11, name: 'Balance Beam',      distanceMark: 'BALANCE TRAVERSE', stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 12, name: 'Cargo Net',         distanceMark: 'NET CLIMB',        stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 13, name: 'Wall Climb',        distanceMark: 'VERTICAL WALL',    stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 14, name: 'Brain Freeze',      distanceMark: 'ICE BATH',         stationType: 'station', requiresRepCount: false, repTarget: null },
-    { order: 15, name: 'Finish Line',       distanceMark: 'FINISH',           stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 1,  name: 'Run 1',             distanceMark: '1 KM RUN',         stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 2,  name: 'Devil Wall',        distanceMark: 'CLIMBING WALL',    stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 3,  name: 'Run 2',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 4,  name: 'Monkey Bars',       distanceMark: 'TRAVERSE',         stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 5,  name: 'Run 3',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 6,  name: 'Barbed Wire Crawl', distanceMark: '30m CRAWL',        stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 7,  name: 'Run 4',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 8,  name: 'Rope Climb',        distanceMark: '5m CLIMB',         stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 9,  name: 'Run 5',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 10, name: 'Tyre Drag',         distanceMark: '20m DRAG',         stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 11, name: 'Run 6',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 12, name: 'Bucket Carry',      distanceMark: '50m CARRY',        stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 13, name: 'Run 7',             distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
+    { order: 14, name: 'Mud Pit',           distanceMark: '30m MUD CRAWL',    stationType: 'station', requiresRepCount: false, repTarget: null },
+    { order: 15, name: 'Finish Sprint',     distanceMark: '0.5 KM RUN',       stationType: 'run',     requiresRepCount: false, repTarget: null },
   ];
 
   const refs = milestones.map(() =>
